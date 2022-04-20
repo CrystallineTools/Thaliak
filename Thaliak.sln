@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Api", "Thaliak.Api\Thaliak.Api.csproj", "{59C61130-142B-482C-97F8-CE4A6BC68B04}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.PatchInspector", "Thaliak.PatchInspector\Thaliak.PatchInspector.csproj", "{6EC471A9-95FD-48D8-885B-7EB0B0BC18EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Database", "Thaliak.Database\Thaliak.Database.csproj", "{8DF9315A-A28F-43FD-A5F7-990D4A282C91}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{59C61130-142B-482C-97F8-CE4A6BC68B04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59C61130-142B-482C-97F8-CE4A6BC68B04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59C61130-142B-482C-97F8-CE4A6BC68B04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59C61130-142B-482C-97F8-CE4A6BC68B04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EC471A9-95FD-48D8-885B-7EB0B0BC18EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EC471A9-95FD-48D8-885B-7EB0B0BC18EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EC471A9-95FD-48D8-885B-7EB0B0BC18EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EC471A9-95FD-48D8-885B-7EB0B0BC18EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DF9315A-A28F-43FD-A5F7-990D4A282C91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DF9315A-A28F-43FD-A5F7-990D4A282C91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DF9315A-A28F-43FD-A5F7-990D4A282C91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DF9315A-A28F-43FD-A5F7-990D4A282C91}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
