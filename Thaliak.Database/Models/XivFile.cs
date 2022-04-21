@@ -13,6 +13,7 @@ public class XivFile
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
+    public int VersionId { get; set; }
     /// <summary>
     /// The version that this file belongs to.
     /// </summary>

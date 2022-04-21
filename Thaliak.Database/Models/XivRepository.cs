@@ -15,4 +15,6 @@ public class XivRepository
     public List<XivAccount> ApplicableAccounts { get; set; }
     
     public List<XivVersion> Versions { get; set; }
+    
+    public List<XivPatch> Patches { get; set; }
 }

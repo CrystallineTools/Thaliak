@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Thaliak.Database.Models;
 
@@ -9,27 +10,34 @@ namespace Thaliak.Database.Models;
 /// Versions normally have one patch file, but can have multiple (i.e. in the case of hist-patch versions, such as
 /// version 2017.06.06.0000.0001). Each individual patch file is represented by a XivPatch.
 /// </summary>
+[Index(nameof(VersionId))]
+[Index(nameof(VersionString))]
+[Index(nameof(Repository))]
 public class XivVersion
 {
-    public static Regex VersionRegex = new(@"[DH](\d{4}\.\d{2}\.\d{2}\.\d{4}\.\d{4})([a-z])?");
+    public static Regex VersionRegex = new(@"[DH]?(\d{4}\.\d{2}\.\d{2}\.\d{4}\.\d{4})([a-z])?");
     
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
+
     /// <summary>
+    /// Used for sorting.
+    /// </summary>
     /// 2017.06.06.0000.0001c
     /// 2017060600000001030
     /// 2017_06_06_0000_0001_03_0
     /// year_month_day_patch_rev_part_reserved
     /// 2021.03.01.0000.0000 = 2021030100000000000
     /// 18446744073709551615
-    /// </summary>
-    [Key]
-    public ulong Id { get; set; }
+    public ulong VersionId { get; set; }
 
     public string VersionString { get; set; }
 
+    public int RepositoryId { get; set; }
     public XivRepository Repository { get; set; }
 
     public List<XivPatch> Patches { get; set; }
-    
+
     public List<XivFile> Files { get; set; }
 
     public static ulong StringToId(string verString)
@@ -52,7 +60,7 @@ public class XivVersion
         {
             trimmed.Append("00");
         }
-        
+
         // reserved, but always zero in current implementation
         trimmed.Append('0');
 

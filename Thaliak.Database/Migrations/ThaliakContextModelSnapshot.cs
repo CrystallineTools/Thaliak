@@ -70,8 +70,8 @@ namespace Thaliak.Database.Migrations
                     b.Property<long>("Size")
                         .HasColumnType("bigint");
 
-                    b.Property<decimal>("VersionId")
-                        .HasColumnType("numeric(20,0)");
+                    b.Property<int>("VersionId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -93,9 +93,6 @@ namespace Thaliak.Database.Migrations
                     b.Property<DateTime?>("FirstSeen")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<bool>("IsRemotePresent")
-                        .HasColumnType("boolean");
-
                     b.Property<DateTime?>("LastSeen")
                         .HasColumnType("timestamp with time zone");
 
@@ -103,10 +100,18 @@ namespace Thaliak.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<decimal>("VersionId")
-                        .HasColumnType("numeric(20,0)");
+                    b.Property<int>("RepositoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("VersionId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RepositoryId");
 
                     b.HasIndex("VersionId");
 
@@ -135,16 +140,35 @@ namespace Thaliak.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Repositories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "FFXIV Global - Boot - Win32",
+                            RemoteOrigin = "http://patch-bootver.ffxiv.com/http/win32/ffxivneo_release_boot/{version}/?time={time}"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "FFXIV Global - Game - Win32",
+                            RemoteOrigin = "https://patch-gamever.ffxiv.com/http/win32/ffxivneo_release_game/{version}/{session}"
+                        });
                 });
 
             modelBuilder.Entity("Thaliak.Database.Models.XivVersion", b =>
                 {
-                    b.Property<decimal>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("numeric(20,0)");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("RepositoryId")
                         .HasColumnType("integer");
+
+                    b.Property<decimal>("VersionId")
+                        .HasColumnType("numeric(20,0)");
 
                     b.Property<string>("VersionString")
                         .IsRequired()
@@ -153,6 +177,10 @@ namespace Thaliak.Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("RepositoryId");
+
+                    b.HasIndex("VersionId");
+
+                    b.HasIndex("VersionString");
 
                     b.ToTable("Versions");
                 });
@@ -185,11 +213,19 @@ namespace Thaliak.Database.Migrations
 
             modelBuilder.Entity("Thaliak.Database.Models.XivPatch", b =>
                 {
+                    b.HasOne("Thaliak.Database.Models.XivRepository", "Repository")
+                        .WithMany("Patches")
+                        .HasForeignKey("RepositoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Thaliak.Database.Models.XivVersion", "Version")
                         .WithMany("Patches")
                         .HasForeignKey("VersionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Repository");
 
                     b.Navigation("Version");
                 });
@@ -222,6 +258,8 @@ namespace Thaliak.Database.Migrations
 
             modelBuilder.Entity("Thaliak.Database.Models.XivRepository", b =>
                 {
+                    b.Navigation("Patches");
+
                     b.Navigation("Versions");
                 });
 
