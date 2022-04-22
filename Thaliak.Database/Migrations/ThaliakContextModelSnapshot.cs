@@ -299,7 +299,7 @@ namespace Thaliak.Database.Migrations
             modelBuilder.Entity("Thaliak.Database.Models.XivVersion", b =>
                 {
                     b.HasOne("Thaliak.Database.Models.XivExpansion", "Expansion")
-                        .WithMany()
+                        .WithMany("Versions")
                         .HasForeignKey("ExpansionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -328,6 +328,11 @@ namespace Thaliak.Database.Migrations
                         .HasForeignKey("ApplicableRepositoriesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Thaliak.Database.Models.XivExpansion", b =>
+                {
+                    b.Navigation("Versions");
                 });
 
             modelBuilder.Entity("Thaliak.Database.Models.XivRepository", b =>

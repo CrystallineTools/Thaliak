@@ -49,6 +49,12 @@ public class ThaliakContext : DbContext
             .HasForeignKey(f => f.VersionId)
             .HasPrincipalKey(v => v.Id);
 
+        builder.Entity<XivVersion>()
+            .HasOne(v => v.Expansion)
+            .WithMany(e => e.Versions)
+            .HasForeignKey(v => v.ExpansionId)
+            .HasPrincipalKey(e => e.Id);
+
         builder.Entity<XivRepository>()
             .HasMany(r => r.ApplicableAccounts)
             .WithMany(a => a.ApplicableRepositories)

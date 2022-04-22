@@ -14,6 +14,8 @@ public class XivExpansion
 
     public string Abbreviation { get; set; }
 
+    public List<XivVersion> Versions { get; set; }
+
     public static int GetExpansionId(string patchName)
     {
         var match = ExpansionRegex.Match(patchName);
