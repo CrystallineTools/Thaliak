@@ -105,7 +105,7 @@ internal class Poller
         // check with an empty gameDir so we can poll the full boot patch list
         using var emptyDir = new TempDirectory();
 
-        var bootPatches = await launcher.CheckBootVersion(gameDir);
+        var bootPatches = await launcher.CheckBootVersion(emptyDir);
         if (bootPatches?.Any() ?? false)
         {
             Log.Information("Discovered boot patches: {0}", bootPatches);
