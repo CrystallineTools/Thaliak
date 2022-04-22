@@ -5,7 +5,10 @@ using Thaliak.Database.Models;
 using Thaliak.Poller.Exceptions;
 using Thaliak.Poller.Util;
 using Thaliak.Poller.XL;
+using XIVLauncher.Common;
 using XIVLauncher.Common.Game;
+using XIVLauncher.Common.Game.Patch;
+using XIVLauncher.Common.Game.Patch.Acquisition;
 using XIVLauncher.Common.Game.Patch.PatchList;
 using XIVLauncher.Common.PlatformAbstractions;
 
@@ -18,6 +21,7 @@ internal class Poller
     private const int GameRepoId = 2;
 
     private readonly ThaliakContext _db;
+    private TempDirectory? _tempBootDir;
 
     public Poller(ThaliakContext db)
     {
@@ -47,27 +51,134 @@ internal class Poller
 
         // create tempdirs for XLCommon to use
         // todo: refactor XLCommon later to not have to do this stuff
-        using var gameDir = new TempDirectory();
-        // we're not downloading patches, so we can use another temp directory
-        using var patchDir = new TempDirectory();
+        var gameDir = ResolveGameDirectory();
+        try
+        {
+            // we're not downloading patches, so we can use another temp directory
+            using var emptyDir = new TempDirectory();
 
-        // create a XLCommon Launcher
-        var launcher = new Launcher((ISteam?) null, new NullUniqueIdCache(),
-            new ThaliakLauncherSettings(patchDir, gameDir));
+            // create a XLCommon Launcher
+            var launcher = new Launcher((ISteam?) null, new NullUniqueIdCache(),
+                new ThaliakLauncherSettings(emptyDir, gameDir));
 
-        // check the boot repo first
+            // check/potentially patch boot first
+            await CheckBoot(launcher, bootRepo, gameDir);
+
+            // now log in and check game
+            // we need an actual gameDir w/ boot here so we can auth for the game patch list
+            await CheckGame(launcher, gameRepo, gameDir, account);
+
+            Log.Information("Thaliak.Poller complete");
+        }
+        finally
+        {
+            if (_tempBootDir != null)
+            {
+                _tempBootDir.Dispose();
+            }
+        }
+
+        // nasty hack to make sure we actually exit if we used XLCommon's patch installer to patch boot, idk
+        Environment.Exit(0);
+    }
+
+    private DirectoryInfo ResolveGameDirectory()
+    {
+        var bootDirName = Environment.GetEnvironmentVariable("BOOT_STORAGE_DIR");
+        if (string.IsNullOrWhiteSpace(bootDirName))
+        {
+            _tempBootDir = new TempDirectory();
+            return _tempBootDir;
+        }
+
+        var bootDir = new DirectoryInfo(bootDirName);
+        if (!bootDir.Exists)
+        {
+            throw new ApplicationException("Game directory provided by BOOT_STORAGE_DIR does not exist!");
+        }
+
+        return bootDir;
+    }
+
+    private async Task CheckBoot(Launcher launcher, XivRepository repo, DirectoryInfo gameDir)
+    {
+        // check with an empty gameDir so we can poll the full boot patch list
+        using var emptyDir = new TempDirectory();
+
         var bootPatches = await launcher.CheckBootVersion(gameDir);
-        if (bootPatches.Any())
+        if (bootPatches?.Any() ?? false)
         {
             Log.Information("Discovered boot patches: {0}", bootPatches);
-            Reconcile(bootRepo, bootPatches);
+            Reconcile(repo, bootPatches);
+            await PatchBoot(launcher, gameDir, bootPatches);
         }
         else
         {
             Log.Warning("No boot patches found on the remote server, not reconciling");
         }
+    }
 
-        Log.Information("Thaliak.Poller complete");
+    private async Task PatchBoot(Launcher launcher, DirectoryInfo gameDir, PatchListEntry[] patches)
+    {
+        // the last patch is probably the latest, yolo though
+        var latest = patches.Last().VersionId;
+        var currentBoot = Repository.Boot.GetVer(gameDir);
+        if (currentBoot == latest)
+        {
+            return;
+        }
+
+        Log.Information("Patching boot (current version {current}, latest version {required})",
+            currentBoot, latest);
+
+        using var patchStore = new TempDirectory();
+        using var installer = new PatchInstaller(false);
+        var patcher = new PatchManager(
+            AcquisitionMethod.NetDownloader,
+            0,
+            Repository.Boot,
+            patches,
+            gameDir,
+            patchStore,
+            installer,
+            launcher,
+            null
+        );
+
+        await patcher.PatchAsync(null, false).ConfigureAwait(false);
+
+        Log.Information("Boot patch complete");
+    }
+
+    private async Task CheckGame(Launcher launcher, XivRepository repo, DirectoryInfo gameDir, XivAccount account)
+    {
+        var loginResult = await launcher.Login(
+            account.Username,
+            account.Password,
+            string.Empty,
+            false,
+            false,
+            gameDir,
+            true,
+            true
+        );
+
+        // since we're always sending base version, we should always get NeedsPatchGame as the login result
+        if (loginResult.State != Launcher.LoginState.NeedsPatchGame)
+        {
+            Log.Warning("Received unexpected LoginState: {0}. Not reconciling game patches.", loginResult.State);
+            return;
+        }
+
+        if (loginResult.PendingPatches?.Any() ?? false)
+        {
+            Log.Information("Discovered game patches: {0}", loginResult.PendingPatches);
+            Reconcile(repo, loginResult.PendingPatches);
+        }
+        else
+        {
+            Log.Warning("No game patches found on the remote server, not reconciling");
+        }
     }
 
     private XivAccount FindAccount()
@@ -106,7 +217,8 @@ internal class Poller
                     {
                         VersionId = XivVersion.StringToId(remotePatch.VersionId),
                         VersionString = remotePatch.VersionId,
-                        Repository = repo
+                        Repository = repo,
+                        ExpansionId = XivExpansion.GetExpansionId(remotePatch.Url)
                     };
                 }
                 else
@@ -122,7 +234,10 @@ internal class Poller
                     RemoteOriginPath = remotePatch.Url,
                     Size = remotePatch.Length,
                     FirstSeen = DateTime.UtcNow,
-                    LastSeen = DateTime.UtcNow
+                    LastSeen = DateTime.UtcNow,
+                    HashType = remotePatch.Url == remotePatch.HashType ? null : remotePatch.HashType,
+                    HashBlockSize = remotePatch.HashBlockSize == 0 ? null : remotePatch.HashBlockSize,
+                    Hashes = remotePatch.Hashes
                 };
 
                 // commit the patch
@@ -135,9 +250,9 @@ internal class Poller
                 localPatch.patch.LastSeen = DateTime.UtcNow;
                 _db.Patches.Update(localPatch.patch);
             }
-        }
 
-        Log.Information("Committing changes to database");
-        _db.SaveChanges();
+            // save to DB after each patch so we have a permanent ID to rely on for versions
+            _db.SaveChanges();
+        }
     }
 }

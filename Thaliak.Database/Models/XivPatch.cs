@@ -40,4 +40,10 @@ public class XivPatch
     /// The patch size, in bytes.
     /// </summary>
     public long Size { get; set; }
+
+    public string? HashType { get; set; }
+
+    public long? HashBlockSize { get; set; }
+
+    public string[]? Hashes { get; set; }
 }

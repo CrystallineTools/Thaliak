@@ -12,7 +12,7 @@ using Thaliak.Database;
 namespace Thaliak.Database.Migrations
 {
     [DbContext(typeof(ThaliakContext))]
-    [Migration("20220421074725_InitialCreate")]
+    [Migration("20220422051059_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,6 +43,58 @@ namespace Thaliak.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Accounts");
+                });
+
+            modelBuilder.Entity("Thaliak.Database.Models.XivExpansion", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Abbreviation")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Expansions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 0,
+                            Abbreviation = "ARR",
+                            Name = "A Realm Reborn"
+                        },
+                        new
+                        {
+                            Id = 1,
+                            Abbreviation = "HW",
+                            Name = "Heavensward"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Abbreviation = "SB",
+                            Name = "Stormblood"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Abbreviation = "ShB",
+                            Name = "Shadowbringers"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Abbreviation = "EW",
+                            Name = "Endwalker"
+                        });
                 });
 
             modelBuilder.Entity("Thaliak.Database.Models.XivFile", b =>
@@ -94,6 +146,15 @@ namespace Thaliak.Database.Migrations
 
                     b.Property<DateTime?>("FirstSeen")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("HashBlockSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("HashType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Hashes")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("LastSeen")
                         .HasColumnType("timestamp with time zone");
@@ -166,6 +227,9 @@ namespace Thaliak.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("ExpansionId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("RepositoryId")
                         .HasColumnType("integer");
 
@@ -177,6 +241,8 @@ namespace Thaliak.Database.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ExpansionId");
 
                     b.HasIndex("RepositoryId");
 
@@ -234,11 +300,19 @@ namespace Thaliak.Database.Migrations
 
             modelBuilder.Entity("Thaliak.Database.Models.XivVersion", b =>
                 {
+                    b.HasOne("Thaliak.Database.Models.XivExpansion", "Expansion")
+                        .WithMany()
+                        .HasForeignKey("ExpansionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Thaliak.Database.Models.XivRepository", "Repository")
                         .WithMany("Versions")
                         .HasForeignKey("RepositoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Expansion");
 
                     b.Navigation("Repository");
                 });

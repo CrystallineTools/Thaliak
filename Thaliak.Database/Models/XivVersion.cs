@@ -16,9 +16,12 @@ namespace Thaliak.Database.Models;
 public class XivVersion
 {
     public static Regex VersionRegex = new(@"[DH]?(\d{4}\.\d{2}\.\d{2}\.\d{4}\.\d{4})([a-z])?");
-    
+
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
+
+    public int ExpansionId { get; set; }
+    public XivExpansion Expansion { get; set; }
 
     /// <summary>
     /// Used for sorting.

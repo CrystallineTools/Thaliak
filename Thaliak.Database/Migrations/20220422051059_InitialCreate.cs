@@ -25,6 +25,20 @@ namespace Thaliak.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Expansions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Abbreviation = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Expansions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Repositories",
                 columns: table => new
                 {
@@ -69,6 +83,7 @@ namespace Thaliak.Database.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ExpansionId = table.Column<int>(type: "integer", nullable: false),
                     VersionId = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
                     VersionString = table.Column<string>(type: "text", nullable: false),
                     RepositoryId = table.Column<int>(type: "integer", nullable: false)
@@ -76,6 +91,12 @@ namespace Thaliak.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Versions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Versions_Expansions_ExpansionId",
+                        column: x => x.ExpansionId,
+                        principalTable: "Expansions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Versions_Repositories_RepositoryId",
                         column: x => x.RepositoryId,
@@ -119,7 +140,10 @@ namespace Thaliak.Database.Migrations
                     RemoteOriginPath = table.Column<string>(type: "text", nullable: false),
                     FirstSeen = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     LastSeen = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    Size = table.Column<long>(type: "bigint", nullable: false)
+                    Size = table.Column<long>(type: "bigint", nullable: false),
+                    HashType = table.Column<string>(type: "text", nullable: true),
+                    HashBlockSize = table.Column<long>(type: "bigint", nullable: true),
+                    Hashes = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -136,6 +160,18 @@ namespace Thaliak.Database.Migrations
                         principalTable: "Versions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Expansions",
+                columns: new[] { "Id", "Abbreviation", "Name" },
+                values: new object[,]
+                {
+                    { 0, "ARR", "A Realm Reborn" },
+                    { 1, "HW", "Heavensward" },
+                    { 2, "SB", "Stormblood" },
+                    { 3, "ShB", "Shadowbringers" },
+                    { 4, "EW", "Endwalker" }
                 });
 
             migrationBuilder.InsertData(
@@ -173,6 +209,11 @@ namespace Thaliak.Database.Migrations
                 column: "VersionId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Versions_ExpansionId",
+                table: "Versions",
+                column: "ExpansionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Versions_RepositoryId",
                 table: "Versions",
                 column: "RepositoryId");
@@ -204,6 +245,9 @@ namespace Thaliak.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "Versions");
+
+            migrationBuilder.DropTable(
+                name: "Expansions");
 
             migrationBuilder.DropTable(
                 name: "Repositories");
