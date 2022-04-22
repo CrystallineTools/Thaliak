@@ -127,7 +127,7 @@ internal class Poller
         {
             return;
         }
-
+        
         Log.Information("Patching boot (current version {current}, latest version {required})",
             currentBoot, latest);
 

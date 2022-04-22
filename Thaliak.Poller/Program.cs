@@ -2,6 +2,7 @@
 using Serilog;
 using Thaliak.Database;
 using Thaliak.Poller;
+using XIVLauncher.Common.Game.Exceptions;
 
 // set up logging
 using var log = new LoggerConfiguration()
@@ -24,6 +25,11 @@ try
 }
 catch (Exception e)
 {
+    if (e is InvalidResponseException ire)
+    {
+        Log.Error("Received invalid response from server: {0}", ire.Document);
+    }
+
     Log.Error(e, "Fatal error encountered, exiting");
     Environment.Exit(1);
 }
