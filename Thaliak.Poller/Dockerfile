@@ -15,4 +15,7 @@ RUN dotnet publish "Thaliak.Poller.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Thaliak.Poller.dll"]
+
+COPY --from=build /src/Thaliak.Poller/docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
