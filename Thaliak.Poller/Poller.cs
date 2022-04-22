@@ -102,10 +102,7 @@ internal class Poller
 
     private async Task CheckBoot(Launcher launcher, XivRepository repo, DirectoryInfo gameDir)
     {
-        // check with an empty gameDir so we can poll the full boot patch list
-        using var emptyDir = new TempDirectory();
-
-        var bootPatches = await launcher.CheckBootVersion(emptyDir);
+        var bootPatches = await launcher.CheckBootVersion(gameDir);
         if (bootPatches?.Any() ?? false)
         {
             Log.Information("Discovered boot patches: {0}", bootPatches);
