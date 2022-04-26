@@ -12,6 +12,7 @@ public class ThaliakContext : DbContext
     public DbSet<XivVersion> Versions { get; set; }
     public DbSet<XivFile> Files { get; set; }
     public DbSet<XivExpansion> Expansions { get; set; }
+    public DbSet<DiscordHookEntry> DiscordHooks { get; set; }
 
     public ThaliakContext(DbContextOptions options) : base(options) { }
 
@@ -66,16 +67,18 @@ public class ThaliakContext : DbContext
                 new XivRepository
                 {
                     Id = 1,
-                    Name = "FFXIV Global - Boot - Win32",
+                    Name = "FFXIV Global/JPN - Boot - Win32",
                     RemoteOrigin =
-                        "http://patch-bootver.ffxiv.com/http/win32/ffxivneo_release_boot/{version}/?time={time}"
+                        "http://patch-bootver.ffxiv.com/http/win32/ffxivneo_release_boot/{version}/?time={time}",
+                    Slug = "jp-win-boot"
                 },
                 new XivRepository
                 {
                     Id = 2,
-                    Name = "FFXIV Global - Game - Win32",
+                    Name = "FFXIV Global/JPN - Game - Win32",
                     RemoteOrigin =
-                        "https://patch-gamever.ffxiv.com/http/win32/ffxivneo_release_game/{version}/{session}"
+                        "https://patch-gamever.ffxiv.com/http/win32/ffxivneo_release_game/{version}/{session}",
+                    Slug = "jp-win-game"
                 }
             );
 

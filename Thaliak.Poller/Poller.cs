@@ -1,3 +1,5 @@
+using Discord;
+using Discord.Webhook;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Thaliak.Database;
@@ -124,7 +126,7 @@ internal class Poller
         {
             return;
         }
-        
+
         Log.Information("Patching boot (current version {current}, latest version {required})",
             currentBoot, latest);
 
@@ -199,6 +201,8 @@ internal class Poller
             join version in repo.Versions on patch.Version equals version
             select new {version, patch};
 
+        var newPatchList = new List<XivPatch>();
+
         foreach (var remotePatch in remotePatches)
         {
             var localPatch = localPatches.FirstOrDefault(p => p.version.VersionString == remotePatch.VersionId);
@@ -239,6 +243,9 @@ internal class Poller
 
                 // commit the patch
                 _db.Patches.Add(newPatch);
+
+                // add it to the list for alerting
+                newPatchList.Add(newPatch);
             }
             else
             {
@@ -251,5 +258,93 @@ internal class Poller
             // save to DB after each patch so we have a permanent ID to rely on for versions
             _db.SaveChanges();
         }
+
+        if (newPatchList.Count > 0)
+        {
+            Log.Information("Sending Discord alerts for new patches");
+            SendDiscordAlerts(newPatchList);
+        }
+    }
+
+    private void SendDiscordAlerts(List<XivPatch> newPatchList)
+    {
+        var discordHooks = _db.DiscordHooks.ToList();
+
+        foreach (var hookEntry in discordHooks)
+        {
+            Log.Information("Sending Discord alert to webhook: {@hookEntry}", hookEntry);
+
+            try
+            {
+                var embeds = new List<Embed>();
+
+                foreach (var patch in newPatchList)
+                {
+                    var fields = new List<EmbedFieldBuilder>();
+
+                    fields.Add(new EmbedFieldBuilder
+                    {
+                        Name = "Repository",
+                        Value = $"{patch.Version.Repository.Name} ({patch.Version.Repository.Slug})"
+                    });
+
+                    fields.Add(new EmbedFieldBuilder
+                    {
+                        Name = "Version",
+                        Value = patch.Version.VersionString
+                    });
+
+                    fields.Add(new EmbedFieldBuilder
+                    {
+                        Name = "URL",
+                        Value = patch.RemoteOriginPath
+                    });
+
+                    fields.Add(new EmbedFieldBuilder
+                    {
+                        Name = "Size",
+                        Value = MakeSizePretty(patch.Size)
+                    });
+
+                    embeds.Add(new EmbedBuilder
+                    {
+                        Color = Color.Green,
+                        Title = "New FFXIV patch detected",
+                        Timestamp = DateTimeOffset.UtcNow,
+                        Fields = fields,
+                        Footer = new EmbedFooterBuilder
+                        {
+                            Text = "thaliak.xiv.dev",
+                        }
+                    }.Build());
+                }
+
+                new DiscordWebhookClient(hookEntry.Url).SendMessageAsync(
+                    "",
+                    false,
+                    embeds,
+                    "Thaliak",
+                    "https://i.imgur.com/d43wZCP.png"
+                );
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Error calling Discord webhook");
+            }
+        }
+    }
+
+    // todo: this is garbage, clean it up later, but I'm sleepy so you get this for now
+    private static string MakeSizePretty(long len)
+    {
+        string[] sizes = {"B", "KB", "MB", "GB", "TB"};
+        var order = 0;
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len /= 1024;
+        }
+
+        return $"{len:0.##} {sizes[order]}";
     }
 }
