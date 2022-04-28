@@ -20,9 +20,6 @@ public class XivVersion
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    public int ExpansionId { get; set; }
-    public XivExpansion Expansion { get; set; }
-
     /// <summary>
     /// Used for sorting.
     /// </summary>

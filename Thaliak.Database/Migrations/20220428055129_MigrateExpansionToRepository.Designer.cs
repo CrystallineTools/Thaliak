@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Thaliak.Database;
@@ -11,9 +12,10 @@ using Thaliak.Database;
 namespace Thaliak.Database.Migrations
 {
     [DbContext(typeof(ThaliakContext))]
-    partial class ThaliakContextModelSnapshot : ModelSnapshot
+    [Migration("20220428055129_MigrateExpansionToRepository")]
+    partial class MigrateExpansionToRepository
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,53 +65,55 @@ namespace Thaliak.Database.Migrations
                     b.ToTable("Accounts");
                 });
 
-            modelBuilder.Entity("Thaliak.Database.Models.XivExpansionRepositoryMapping", b =>
+            modelBuilder.Entity("Thaliak.Database.Models.XivExpansion", b =>
                 {
-                    b.Property<int>("GameRepositoryId")
+                    b.Property<int>("Id")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ExpansionId")
-                        .HasColumnType("integer");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ExpansionRepositoryId")
-                        .HasColumnType("integer");
+                    b.Property<string>("Abbreviation")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.HasKey("GameRepositoryId", "ExpansionId", "ExpansionRepositoryId");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.HasIndex("ExpansionRepositoryId");
+                    b.HasKey("Id");
 
-                    b.ToTable("ExpansionRepositoryMappings");
+                    b.ToTable("Expansions");
 
                     b.HasData(
                         new
                         {
-                            GameRepositoryId = 2,
-                            ExpansionId = 0,
-                            ExpansionRepositoryId = 2
+                            Id = 0,
+                            Abbreviation = "ARR",
+                            Name = "A Realm Reborn"
                         },
                         new
                         {
-                            GameRepositoryId = 2,
-                            ExpansionId = 1,
-                            ExpansionRepositoryId = 3
+                            Id = 1,
+                            Abbreviation = "HW",
+                            Name = "Heavensward"
                         },
                         new
                         {
-                            GameRepositoryId = 2,
-                            ExpansionId = 2,
-                            ExpansionRepositoryId = 4
+                            Id = 2,
+                            Abbreviation = "SB",
+                            Name = "Stormblood"
                         },
                         new
                         {
-                            GameRepositoryId = 2,
-                            ExpansionId = 3,
-                            ExpansionRepositoryId = 5
+                            Id = 3,
+                            Abbreviation = "ShB",
+                            Name = "Shadowbringers"
                         },
                         new
                         {
-                            GameRepositoryId = 2,
-                            ExpansionId = 4,
-                            ExpansionRepositoryId = 6
+                            Id = 4,
+                            Abbreviation = "EW",
+                            Name = "Endwalker"
                         });
                 });
 
@@ -275,6 +279,9 @@ namespace Thaliak.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("ExpansionId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("RepositoryId")
                         .HasColumnType("integer");
 
@@ -286,6 +293,8 @@ namespace Thaliak.Database.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ExpansionId");
 
                     b.HasIndex("RepositoryId");
 
@@ -309,25 +318,6 @@ namespace Thaliak.Database.Migrations
                     b.HasIndex("ApplicableRepositoriesId");
 
                     b.ToTable("AccountRepositories", (string)null);
-                });
-
-            modelBuilder.Entity("Thaliak.Database.Models.XivExpansionRepositoryMapping", b =>
-                {
-                    b.HasOne("Thaliak.Database.Models.XivRepository", "ExpansionRepository")
-                        .WithMany()
-                        .HasForeignKey("ExpansionRepositoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Thaliak.Database.Models.XivRepository", "GameRepository")
-                        .WithMany()
-                        .HasForeignKey("GameRepositoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ExpansionRepository");
-
-                    b.Navigation("GameRepository");
                 });
 
             modelBuilder.Entity("Thaliak.Database.Models.XivFile", b =>
@@ -362,11 +352,19 @@ namespace Thaliak.Database.Migrations
 
             modelBuilder.Entity("Thaliak.Database.Models.XivVersion", b =>
                 {
+                    b.HasOne("Thaliak.Database.Models.XivExpansion", "Expansion")
+                        .WithMany("Versions")
+                        .HasForeignKey("ExpansionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Thaliak.Database.Models.XivRepository", "Repository")
                         .WithMany("Versions")
                         .HasForeignKey("RepositoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Expansion");
 
                     b.Navigation("Repository");
                 });
@@ -384,6 +382,11 @@ namespace Thaliak.Database.Migrations
                         .HasForeignKey("ApplicableRepositoriesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Thaliak.Database.Models.XivExpansion", b =>
+                {
+                    b.Navigation("Versions");
                 });
 
             modelBuilder.Entity("Thaliak.Database.Models.XivRepository", b =>

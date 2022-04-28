@@ -196,6 +196,29 @@ internal class Poller
     {
         _db.Repositories.Attach(repo);
 
+        var expansions = _db.ExpansionRepositoryMappings
+            .Where(erp => erp.GameRepositoryId == repo.Id)
+            .ToList();
+
+        int GetEffectiveRepositoryId(int repositoryId, string patchUrl)
+        {
+            var expansionId = XivExpansionRepositoryMapping.GetExpansionId(patchUrl);
+            if (expansionId == 0)
+            {
+                return repositoryId;
+            }
+            
+            foreach (var erp in expansions)
+            {
+                if (erp.ExpansionId == expansionId)
+                {
+                    return erp.ExpansionRepositoryId;
+                }
+            }
+
+            throw new InvalidDataException($"Unknown expansion ID {expansionId} for repository ID {repositoryId}!");
+        }
+        
         var localPatches =
             from patch in repo.Patches
             join version in repo.Versions on patch.Version equals version
@@ -218,8 +241,7 @@ internal class Poller
                     {
                         VersionId = XivVersion.StringToId(remotePatch.VersionId),
                         VersionString = remotePatch.VersionId,
-                        Repository = repo,
-                        ExpansionId = XivExpansion.GetExpansionId(remotePatch.Url)
+                        RepositoryId = GetEffectiveRepositoryId(repo.Id, remotePatch.Url)
                     };
                 }
                 else

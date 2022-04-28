@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Thaliak.Database;
@@ -11,9 +12,10 @@ using Thaliak.Database;
 namespace Thaliak.Database.Migrations
 {
     [DbContext(typeof(ThaliakContext))]
-    partial class ThaliakContextModelSnapshot : ModelSnapshot
+    [Migration("20220428055456_RemoveExpansionTable")]
+    partial class RemoveExpansionTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -61,56 +63,6 @@ namespace Thaliak.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Accounts");
-                });
-
-            modelBuilder.Entity("Thaliak.Database.Models.XivExpansionRepositoryMapping", b =>
-                {
-                    b.Property<int>("GameRepositoryId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ExpansionId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ExpansionRepositoryId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("GameRepositoryId", "ExpansionId", "ExpansionRepositoryId");
-
-                    b.HasIndex("ExpansionRepositoryId");
-
-                    b.ToTable("ExpansionRepositoryMappings");
-
-                    b.HasData(
-                        new
-                        {
-                            GameRepositoryId = 2,
-                            ExpansionId = 0,
-                            ExpansionRepositoryId = 2
-                        },
-                        new
-                        {
-                            GameRepositoryId = 2,
-                            ExpansionId = 1,
-                            ExpansionRepositoryId = 3
-                        },
-                        new
-                        {
-                            GameRepositoryId = 2,
-                            ExpansionId = 2,
-                            ExpansionRepositoryId = 4
-                        },
-                        new
-                        {
-                            GameRepositoryId = 2,
-                            ExpansionId = 3,
-                            ExpansionRepositoryId = 5
-                        },
-                        new
-                        {
-                            GameRepositoryId = 2,
-                            ExpansionId = 4,
-                            ExpansionRepositoryId = 6
-                        });
                 });
 
             modelBuilder.Entity("Thaliak.Database.Models.XivFile", b =>
@@ -309,25 +261,6 @@ namespace Thaliak.Database.Migrations
                     b.HasIndex("ApplicableRepositoriesId");
 
                     b.ToTable("AccountRepositories", (string)null);
-                });
-
-            modelBuilder.Entity("Thaliak.Database.Models.XivExpansionRepositoryMapping", b =>
-                {
-                    b.HasOne("Thaliak.Database.Models.XivRepository", "ExpansionRepository")
-                        .WithMany()
-                        .HasForeignKey("ExpansionRepositoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Thaliak.Database.Models.XivRepository", "GameRepository")
-                        .WithMany()
-                        .HasForeignKey("GameRepositoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ExpansionRepository");
-
-                    b.Navigation("GameRepository");
                 });
 
             modelBuilder.Entity("Thaliak.Database.Models.XivFile", b =>

@@ -1,21 +1,19 @@
-using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
 namespace Thaliak.Database.Models;
 
-public class XivExpansion
+public class XivExpansionRepositoryMapping
 {
-    public static Regex ExpansionRegex = new Regex(@"(?:https?:\/\/.*\/)?(game|boot)\/(?:ex(\d)|\w+)\/(.*)");
+    public static Regex ExpansionRegex = new(@"(?:https?:\/\/.*\/)?(game|boot)\/(?:ex(\d)|\w+)\/(.*)");
 
-    [Key]
-    public int Id { get; set; }
-
-    public string Name { get; set; }
-
-    public string Abbreviation { get; set; }
-
-    public List<XivVersion> Versions { get; set; }
-
+    public int GameRepositoryId { get; set; }
+    public XivRepository GameRepository { get; set; }
+    
+    public int ExpansionId { get; set; }
+    
+    public int ExpansionRepositoryId { get; set; }
+    public XivRepository ExpansionRepository { get; set; }
+    
     public static int GetExpansionId(string patchName)
     {
         var match = ExpansionRegex.Match(patchName);

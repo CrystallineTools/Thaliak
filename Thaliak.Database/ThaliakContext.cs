@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Thaliak.Database.Models;
-using Thaliak.Database.Util;
 
 namespace Thaliak.Database;
 
@@ -9,9 +8,9 @@ public class ThaliakContext : DbContext
     public DbSet<XivAccount> Accounts { get; set; }
     public DbSet<XivPatch> Patches { get; set; }
     public DbSet<XivRepository> Repositories { get; set; }
+    public DbSet<XivExpansionRepositoryMapping> ExpansionRepositoryMappings { get; set; }
     public DbSet<XivVersion> Versions { get; set; }
     public DbSet<XivFile> Files { get; set; }
-    public DbSet<XivExpansion> Expansions { get; set; }
     public DbSet<DiscordHookEntry> DiscordHooks { get; set; }
 
     public ThaliakContext(DbContextOptions options) : base(options) { }
@@ -50,16 +49,33 @@ public class ThaliakContext : DbContext
             .HasForeignKey(f => f.VersionId)
             .HasPrincipalKey(v => v.Id);
 
-        builder.Entity<XivVersion>()
-            .HasOne(v => v.Expansion)
-            .WithMany(e => e.Versions)
-            .HasForeignKey(v => v.ExpansionId)
-            .HasPrincipalKey(e => e.Id);
-
         builder.Entity<XivRepository>()
             .HasMany(r => r.ApplicableAccounts)
             .WithMany(a => a.ApplicableRepositories)
             .UsingEntity(j => j.ToTable("AccountRepositories"));
+
+        builder.Entity<XivRepository>()
+            .Property(r => r.Slug)
+            .UsePropertyAccessMode(PropertyAccessMode.Property);
+
+        builder.Entity<XivExpansionRepositoryMapping>()
+            .HasKey(
+                nameof(XivExpansionRepositoryMapping.GameRepositoryId),
+                nameof(XivExpansionRepositoryMapping.ExpansionId),
+                nameof(XivExpansionRepositoryMapping.ExpansionRepositoryId)
+            );
+
+        builder.Entity<XivExpansionRepositoryMapping>()
+            .HasOne(erp => erp.GameRepository)
+            .WithMany()
+            .HasForeignKey(erp => erp.GameRepositoryId)
+            .HasPrincipalKey(r => r.Id);
+
+        builder.Entity<XivExpansionRepositoryMapping>()
+            .HasOne(erp => erp.ExpansionRepository)
+            .WithMany()
+            .HasForeignKey(erp => erp.ExpansionRepositoryId)
+            .HasPrincipalKey(r => r.Id);
 
         // seed base repository data
         builder.Entity<XivRepository>()
@@ -67,31 +83,49 @@ public class ThaliakContext : DbContext
                 new XivRepository
                 {
                     Id = 1,
-                    Name = "FFXIV Global/JPN - Boot - Win32",
-                    RemoteOrigin =
-                        "http://patch-bootver.ffxiv.com/http/win32/ffxivneo_release_boot/{version}/?time={time}",
-                    Slug = "jp-win-boot"
+                    Name = "ffxivneo/win32/release/boot",
+                    Description = "FFXIV Global/JP - Boot - Win32",
                 },
                 new XivRepository
                 {
                     Id = 2,
-                    Name = "FFXIV Global/JPN - Game - Win32",
-                    RemoteOrigin =
-                        "https://patch-gamever.ffxiv.com/http/win32/ffxivneo_release_game/{version}/{session}",
-                    Slug = "jp-win-game"
+                    Name = "ffxivneo/win32/release/game",
+                    Description = "FFXIV Global/JP - Retail - Base Game - Win32"
+                },
+                new XivRepository
+                {
+                    Id = 3,
+                    Name = "ffxivneo/win32/release/ex1",
+                    Description = "FFXIV Global/JP - Retail - ex1 (Heavensward) - Win32"
+                },
+                new XivRepository
+                {
+                    Id = 4,
+                    Name = "ffxivneo/win32/release/ex2",
+                    Description = "FFXIV Global/JP - Retail - ex2 (Stormblood) - Win32"
+                },
+                new XivRepository
+                {
+                    Id = 5,
+                    Name = "ffxivneo/win32/release/ex3",
+                    Description = "FFXIV Global/JP - Retail - ex3 (Shadowbringers) - Win32"
+                },
+                new XivRepository
+                {
+                    Id = 6,
+                    Name = "ffxivneo/win32/release/ex4",
+                    Description = "FFXIV Global/JP - Retail - ex4 (Endwalker) - Win32"
                 }
             );
 
         // seed XIV expac data
-        // we use a custom seeder here to bypass EF Core's stupid fucking validation...
-        // "a non-zero value is required" fuck you for thinking you know what I want, asshole
-        builder.Seed(new[]
-        {
-            new XivExpansion {Id = 0, Name = "A Realm Reborn", Abbreviation = "ARR"},
-            new XivExpansion {Id = 1, Name = "Heavensward", Abbreviation = "HW"},
-            new XivExpansion {Id = 2, Name = "Stormblood", Abbreviation = "SB"},
-            new XivExpansion {Id = 3, Name = "Shadowbringers", Abbreviation = "ShB"},
-            new XivExpansion {Id = 4, Name = "Endwalker", Abbreviation = "EW"}
-        });
+        builder.Entity<XivExpansionRepositoryMapping>()
+            .HasData(
+                new XivExpansionRepositoryMapping {GameRepositoryId = 2, ExpansionId = 0, ExpansionRepositoryId = 2},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 2, ExpansionId = 1, ExpansionRepositoryId = 3},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 2, ExpansionId = 2, ExpansionRepositoryId = 4},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 2, ExpansionId = 3, ExpansionRepositoryId = 5},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 2, ExpansionId = 4, ExpansionRepositoryId = 6}
+            );
     }
 }
