@@ -6,8 +6,6 @@ public class XivVersionDto
 
     public XivRepositoryDto Repository { get; set; }
 
-    public XivExpansionDto Expansion { get; set; }
-
     public string Version { get; set; }
 
     public List<XivPatchDto> Patches { get; set; }
