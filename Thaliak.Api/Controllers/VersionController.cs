@@ -10,13 +10,13 @@ namespace Thaliak.Api.Controllers;
 
 [ApiController]
 [Route("versions")]
-public class VersionsController : ControllerBase
+public class VersionController : ControllerBase
 {
     private readonly ThaliakContext _db;
 
     private readonly IMapper _map;
 
-    public VersionsController(ThaliakContext db, IMapper map)
+    public VersionController(ThaliakContext db, IMapper map)
     {
         _db = db;
         _map = map;
