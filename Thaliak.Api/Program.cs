@@ -13,8 +13,21 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwagger(o => { o.RouteTemplate = "docs/{documentName}/openapi.json"; });
+
+app.UseSwaggerUI(o =>
+{
+    o.RoutePrefix = "docs";
+
+    if (app.Environment.IsProduction())
+    {
+        o.SwaggerEndpoint("https://thaliak.xiv.dev/api/docs/v1/openapi.json", "Thaliak API");
+    }
+    else
+    {
+        o.SwaggerEndpoint("/docs/v1/openapi.json", "Thaliak API");
+    }
+});
 
 app.UseHttpsRedirection();
 
