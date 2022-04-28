@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Thaliak.Api.Data;
 using Thaliak.Database;
 
@@ -9,23 +10,55 @@ builder.Services.AddAutoMapper(typeof(ThaliakMapperProfile));
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(o =>
+{
+    o.SwaggerDoc("thaliak", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "Thaliak API",
+        Description = "REST API for the Thaliak version tracking tool for Final Fantasy XIV: Online",
+        License = new OpenApiLicense
+        {
+            Name = "AGPL-3.0"
+        }
+    });
+
+    o.SwaggerGeneratorOptions.Servers.Add(new OpenApiServer
+    {
+        Description = "Thaliak production API",
+        Url = "https://thaliak.xiv.dev/api"
+    });
+
+    o.SwaggerGeneratorOptions.Servers.Add(new OpenApiServer
+    {
+        Description = "Local development API",
+        Url = "https://localhost:7249"
+    });
+});
 
 var app = builder.Build();
 
-app.UseSwagger(o => { o.RouteTemplate = "docs/{documentName}/openapi.json"; });
-
-app.UseSwaggerUI(o =>
+app.UseSwagger(o =>
 {
-    o.RoutePrefix = "docs";
+    o.RouteTemplate = "docs/{documentName}/openapi.json";
 
     if (app.Environment.IsProduction())
     {
-        o.SwaggerEndpoint("https://thaliak.xiv.dev/api/docs/v1/openapi.json", "Thaliak API");
+        o.RouteTemplate = "api/" + o.RouteTemplate;
+    }
+});
+
+app.UseSwaggerUI(o =>
+{
+    o.RoutePrefix = string.Empty;
+
+    if (app.Environment.IsProduction())
+    {
+        o.SwaggerEndpoint("https://thaliak.xiv.dev/api/docs/thaliak/openapi.json", "Thaliak API");
     }
     else
     {
-        o.SwaggerEndpoint("/docs/v1/openapi.json", "Thaliak API");
+        o.SwaggerEndpoint("/docs/thaliak/openapi.json", "Thaliak API");
     }
 });
 
