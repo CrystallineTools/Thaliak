@@ -30,17 +30,18 @@ public class VersionController : ControllerBase
             return NotFound("repository not found");
         }
 
-        // todo
         var versions = _db.Versions
+            .Where(v => v.RepositoryId == repo.Id)
             .Include(v => v.Patches)
             .Include(v => v.Expansion)
             .Include(v => v.Repository)
-            .OrderByDescending(v => v.VersionId)
-            .Where(v => v.RepositoryId == repo.Id)
+            .GroupBy(v => v.ExpansionId)
+            .Select(g => g.OrderByDescending(v => v.VersionId).First())
             .ToList();
-        
+
         return Ok(_map.Map<List<XivVersionDto>>(versions));
     }
+
     [HttpGet("{repository}/{version}")]
     public IActionResult GetVersions([FromRoute] string repository, [FromRoute] string version)
     {
