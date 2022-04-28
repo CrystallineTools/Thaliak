@@ -35,4 +35,5 @@ jobs:
           port: ${{ secrets.REMOTE_PORT }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
-          script: sudo /home/deploy/deploy-thaliak.sh poller ${GITHUB_REF##*/}
+          # todo: update if we ever care about supporting a staging env
+          script: sudo /home/deploy/deploy-thaliak.sh poller main
