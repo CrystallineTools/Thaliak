@@ -41,11 +41,6 @@ var app = builder.Build();
 app.UseSwagger(o =>
 {
     o.RouteTemplate = "docs/{documentName}/openapi.json";
-
-    if (app.Environment.IsProduction())
-    {
-        o.RouteTemplate = "api/" + o.RouteTemplate;
-    }
 });
 
 app.UseSwaggerUI(o =>
