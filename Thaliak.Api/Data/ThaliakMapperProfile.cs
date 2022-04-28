@@ -7,8 +7,6 @@ public class ThaliakMapperProfile : Profile
 {
     public ThaliakMapperProfile()
     {
-        CreateMap<XivExpansion, XivExpansionDto>();
-
         CreateMap<XivPatch, XivPatchDto>();
 
         CreateMap<XivRepository, XivRepositoryDto>();
