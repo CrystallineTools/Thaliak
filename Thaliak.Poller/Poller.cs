@@ -194,9 +194,10 @@ internal class Poller
 
     private void Reconcile(XivRepository repo, PatchListEntry[] remotePatches)
     {
-        _db.Repositories.Attach(repo);
-
+        // get the list of expansions and their repository mappings
         var expansions = _db.ExpansionRepositoryMappings
+            .Include(erp => erp.ExpansionRepository)
+            .Include(erp => erp.GameRepository)
             .Where(erp => erp.GameRepositoryId == repo.Id)
             .ToList();
 
@@ -207,7 +208,7 @@ internal class Poller
             {
                 return repositoryId;
             }
-            
+
             foreach (var erp in expansions)
             {
                 if (erp.ExpansionId == expansionId)
@@ -218,14 +219,28 @@ internal class Poller
 
             throw new InvalidDataException($"Unknown expansion ID {expansionId} for repository ID {repositoryId}!");
         }
-        
-        var localPatches =
-            from patch in repo.Patches
-            join version in repo.Versions on patch.Version equals version
-            select new {version, patch};
 
+        // attach the repositories so EF knows we're not inserting new repo records
+        _db.Repositories.Attach(repo);
+        _db.Repositories.AttachRange(expansions.Select(erp => erp.ExpansionRepository));
+
+        // ensure we iterate through all of the expansion repositories as well
+        var repoIds = new[] {repo.Id}.Union(expansions.Select(erp => erp.ExpansionRepositoryId));
+        var targetDbPatches = _db.Patches.Where(p => repoIds.Contains(p.RepositoryId));
+        var targetDbVersions = _db.Versions.Where(v => repoIds.Contains(v.RepositoryId));
+
+        // prepare the list of patches we currently have
+        var localPatches = targetDbPatches.Join(
+            targetDbVersions,
+            patch => patch.Version,
+            version => version,
+            (patch, version) => new {patch, version}
+        );
+
+        // keep track of newly discovered patches
         var newPatchList = new List<XivPatch>();
 
+        // let's go
         foreach (var remotePatch in remotePatches)
         {
             var localPatch = localPatches.FirstOrDefault(p => p.version.VersionString == remotePatch.VersionId);
@@ -281,11 +296,31 @@ internal class Poller
             _db.SaveChanges();
         }
 
-        if (newPatchList.Count > 0)
+        /*
+         * ———————————No patches?———————————
+         * ⠀⣞⢽⢪⢣⢣⢣⢫⡺⡵⣝⡮⣗⢷⢽⢽⢽⣮⡷⡽⣜⣜⢮⢺⣜⢷⢽⢝⡽⣝
+         * ⠸⡸⠜⠕⠕⠁⢁⢇⢏⢽⢺⣪⡳⡝⣎⣏⢯⢞⡿⣟⣷⣳⢯⡷⣽⢽⢯⣳⣫⠇
+         * ⠀⠀⢀⢀⢄⢬⢪⡪⡎⣆⡈⠚⠜⠕⠇⠗⠝⢕⢯⢫⣞⣯⣿⣻⡽⣏⢗⣗⠏⠀
+         * ⠀⠪⡪⡪⣪⢪⢺⢸⢢⢓⢆⢤⢀⠀⠀⠀⠀⠈⢊⢞⡾⣿⡯⣏⢮⠷⠁⠀⠀
+         * ⠀⠀⠀⠈⠊⠆⡃⠕⢕⢇⢇⢇⢇⢇⢏⢎⢎⢆⢄⠀⢑⣽⣿⢝⠲⠉⠀⠀⠀⠀
+         * ⠀⠀⠀⠀⠀⡿⠂⠠⠀⡇⢇⠕⢈⣀⠀⠁⠡⠣⡣⡫⣂⣿⠯⢪⠰⠂⠀⠀⠀⠀
+         * ⠀⠀⠀⠀⡦⡙⡂⢀⢤⢣⠣⡈⣾⡃⠠⠄⠀⡄⢱⣌⣶⢏⢊⠂⠀⠀⠀⠀⠀⠀
+         * ⠀⠀⠀⠀⢝⡲⣜⡮⡏⢎⢌⢂⠙⠢⠐⢀⢘⢵⣽⣿⡿⠁⠁⠀⠀⠀⠀⠀⠀⠀
+         * ⠀⠀⠀⠀⠨⣺⡺⡕⡕⡱⡑⡆⡕⡅⡕⡜⡼⢽⡻⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+         * ⠀⠀⠀⠀⣼⣳⣫⣾⣵⣗⡵⡱⡡⢣⢑⢕⢜⢕⡝⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+         * ⠀⠀⠀⣴⣿⣾⣿⣿⣿⡿⡽⡑⢌⠪⡢⡣⣣⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+         * ⠀⠀⠀⡟⡾⣿⢿⢿⢵⣽⣾⣼⣘⢸⢸⣞⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+         * ⠀⠀⠀⠀⠁⠇⠡⠩⡫⢿⣝⡻⡮⣒⢽⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+         * —————————————————————————————
+         */
+        if (newPatchList.Count < 1)
         {
-            Log.Information("Sending Discord alerts for new patches");
-            SendDiscordAlerts(newPatchList);
+            return;
         }
+
+        // yeah, patches
+        Log.Information("Sending Discord alerts for new patches");
+        SendDiscordAlerts(newPatchList);
     }
 
     private void SendDiscordAlerts(List<XivPatch> newPatchList)
