@@ -35,13 +35,11 @@ builder.Services.AddSwaggerGen(o =>
         Url = "https://localhost:7249"
     });
 });
+builder.Services.AddCors();
 
 var app = builder.Build();
 
-app.UseSwagger(o =>
-{
-    o.RouteTemplate = "docs/{documentName}/openapi.json";
-});
+app.UseSwagger(o => { o.RouteTemplate = "docs/{documentName}/openapi.json"; });
 
 app.UseSwaggerUI(o =>
 {
@@ -58,6 +56,7 @@ app.UseSwaggerUI(o =>
 });
 
 app.UseHttpsRedirection();
+app.UseCors(o => o.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin());
 
 app.MapControllers();
 
