@@ -17,7 +17,7 @@ export default function RepositoryListItem({ repo, versions }: { repo: Repositor
     }
 
     setLoading(false);
-  }, [versions]);
+  }, [versions, repo]);
 
   return (
     <ListGroup.Item>
