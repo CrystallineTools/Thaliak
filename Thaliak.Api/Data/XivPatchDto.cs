@@ -9,16 +9,28 @@ public class XivPatchDto
     public string RemoteOriginPath { get; set; }
 
     /// <summary>
-    /// The date this patch file was first seen on the patch servers.
+    /// The date this patch file was first seen on the patch servers at the requisite URL.
     /// This can be null if unknown (i.e. in the case of previously imported patches from before this tool existed).
     /// </summary>
     public DateTime? FirstSeen { get; set; }
 
     /// <summary>
-    /// The date this patch file was last seen on the patch servers.
+    /// The date this patch file was last seen on the patch servers at the requisite URL.
     /// This can be null if unknown (i.e. in the case of previously imported patches from before this tool existed).
     /// </summary>
     public DateTime? LastSeen { get; set; }
+    
+    /// <summary>
+    /// The date this patch file was first offered by the patch servers upon logging in.
+    /// This can be null if unknown (i.e. in the case of previously imported patches from before this tool existed).
+    /// </summary>
+    public DateTime? FirstOffered { get; set; }
+
+    /// <summary>
+    /// The date this patch file was last offered by the patch servers upon logging in.
+    /// This can be null if unknown (i.e. in the case of previously imported patches from before this tool existed).
+    /// </summary>
+    public DateTime? LastOffered { get; set; }
 
     /// <summary>
     /// The patch size, in bytes.

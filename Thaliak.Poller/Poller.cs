@@ -194,6 +194,9 @@ internal class Poller
 
     private void Reconcile(XivRepository repo, PatchListEntry[] remotePatches)
     {
+        // use a consistent timestamp through reconciliation of each repo's patch list
+        var now = DateTime.UtcNow;
+
         // get the list of expansions and their repository mappings
         var expansions = _db.ExpansionRepositoryMappings
             .Include(erp => erp.ExpansionRepository)
@@ -271,8 +274,12 @@ internal class Poller
                     Repository = repo,
                     RemoteOriginPath = remotePatch.Url,
                     Size = remotePatch.Length,
-                    FirstSeen = DateTime.UtcNow,
-                    LastSeen = DateTime.UtcNow,
+                    // the launcher is offering us the patch now
+                    FirstOffered = now,
+                    LastOffered = now,
+                    // it's safe to assume if the launcher is offering a patch, it exists
+                    FirstSeen = now,
+                    LastSeen = now,
                     HashType = remotePatch.Url == remotePatch.HashType ? null : remotePatch.HashType,
                     HashBlockSize = remotePatch.HashBlockSize == 0 ? null : remotePatch.HashBlockSize,
                     Hashes = remotePatch.Hashes
@@ -288,7 +295,8 @@ internal class Poller
             {
                 Log.Information("Patch already present: {@0}", remotePatch);
 
-                localPatch.patch.LastSeen = DateTime.UtcNow;
+                localPatch.patch.LastSeen = now;
+                localPatch.patch.LastOffered = now;
                 _db.Patches.Update(localPatch.patch);
             }
 
@@ -381,7 +389,7 @@ internal class Poller
                     false,
                     embeds,
                     "Thaliak",
-                    "https://i.imgur.com/d43wZCP.png"
+                    "https://thaliak.xiv.dev/logo512.png"
                 );
             }
             catch (Exception ex)
