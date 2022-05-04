@@ -246,20 +246,21 @@ internal class Poller
         // let's go
         foreach (var remotePatch in remotePatches)
         {
-            var localPatch = localPatches.FirstOrDefault(p => p.version.VersionString == remotePatch.VersionId);
+            var effectiveRepoId = GetEffectiveRepositoryId(repo.Id, remotePatch.Url);
+            var localPatch = localPatches.FirstOrDefault(p => p.version.VersionString == remotePatch.VersionId && p.version.RepositoryId == effectiveRepoId);
             if (localPatch == null)
             {
                 Log.Information("Discovered new patch: {@0}", remotePatch);
 
                 // existing version?
-                var version = repo.Versions.FirstOrDefault(v => v.VersionString == remotePatch.VersionId);
+                var version = repo.Versions.FirstOrDefault(v => v.VersionString == remotePatch.VersionId && v.RepositoryId == effectiveRepoId);
                 if (version == null)
                 {
                     version = new XivVersion
                     {
                         VersionId = XivVersion.StringToId(remotePatch.VersionId),
                         VersionString = remotePatch.VersionId,
-                        RepositoryId = GetEffectiveRepositoryId(repo.Id, remotePatch.Url)
+                        RepositoryId = effectiveRepoId
                     };
                 }
                 else
