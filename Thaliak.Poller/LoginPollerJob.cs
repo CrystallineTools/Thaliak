@@ -90,7 +90,7 @@ internal class LoginPollerJob : IJob
     private void RescheduleAtRandomInterval(IJobExecutionContext context)
     {
         var random = new Random();
-        var nextExec = DateTime.Now.AddMinutes(random.Next(40, 60)).AddSeconds(random.Next(0, 60));
+        var nextExec = DateTime.Now.AddMinutes(random.Next(40, 59)).AddSeconds(random.Next(0, 60));
 
         context.Scheduler.RescheduleJob(TriggerKey,
             TriggerBuilder.Create()

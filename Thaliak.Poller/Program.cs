@@ -7,7 +7,7 @@ using Thaliak.Poller;
 // set up logging
 using var log = new LoggerConfiguration()
     .WriteTo.Console()
-    .MinimumLevel.Debug()
+    .MinimumLevel.Information()
     .CreateLogger();
 Log.Logger = log;
 
