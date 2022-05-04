@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Quartz;
 using Serilog;
 using Thaliak.Database;
 using Thaliak.Poller;
-using XIVLauncher.Common.Game.Exceptions;
 
 // set up logging
 using var log = new LoggerConfiguration()
@@ -11,25 +11,29 @@ using var log = new LoggerConfiguration()
     .CreateLogger();
 Log.Logger = log;
 
-// set up the db context
-var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? "Host=localhost;Database=thaliak";
-var ob = new DbContextOptionsBuilder<ThaliakContext>();
-ob.UseNpgsql(connectionString);
-ob.LogTo(Log.Verbose);
-var dbContext = new ThaliakContext(ob.Options);
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices((ctx, services) =>
+    {
+        // set up the db context
+        services.AddDbContext<ThaliakContext>(o =>
+        {
+            o.UseNpgsql(ctx.Configuration.GetConnectionString("pg"));
+            o.LogTo(Log.Verbose);
+        });
+
+        services.AddQuartz(q =>
+        {
+            q.UseMicrosoftDependencyInjectionJobFactory();
+
+            // set up the login poller job to poll the login servers for patch data
+            q.AddJob<LoginPollerJob>(o => o.WithIdentity(LoginPollerJob.JobKey));
+            q.AddTrigger(o => o.WithIdentity(LoginPollerJob.TriggerKey).ForJob(LoginPollerJob.JobKey).StartNow());
+        });
+
+        services.AddQuartzHostedService(o => { o.WaitForJobsToComplete = true; });
+    })
+    .UseSerilog()
+    .Build();
 
 // go!
-try
-{
-    await new Poller(dbContext).Run();
-}
-catch (Exception e)
-{
-    if (e is InvalidResponseException ire)
-    {
-        Log.Error("Received invalid response from server: {0}", ire.Document);
-    }
-
-    Log.Error(e, "Fatal error encountered, exiting");
-    Environment.Exit(1);
-}
+await host.RunAsync();

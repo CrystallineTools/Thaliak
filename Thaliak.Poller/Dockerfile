@@ -20,6 +20,4 @@ COPY --from=publish /app/publish .
 # https://github.com/dotnet/runtime/issues/30667
 RUN sed -i "s|DEFAULT@SECLEVEL=2|DEFAULT@SECLEVEL=1|g" /etc/ssl/openssl.cnf
 
-COPY --from=build /src/Thaliak.Poller/docker-entrypoint.sh /app/docker-entrypoint.sh
-RUN chmod +x /app/docker-entrypoint.sh
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+ENTRYPOINT ["dotnet", "Thaliak.Poller.dll"]

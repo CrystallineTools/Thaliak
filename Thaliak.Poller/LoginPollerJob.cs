@@ -1,6 +1,7 @@
 using Discord;
 using Discord.Webhook;
 using Microsoft.EntityFrameworkCore;
+using Quartz;
 using Serilog;
 using Thaliak.Database;
 using Thaliak.Database.Models;
@@ -16,8 +17,11 @@ using XIVLauncher.Common.PlatformAbstractions;
 
 namespace Thaliak.Poller;
 
-internal class Poller
+internal class LoginPollerJob : IJob
 {
+    public static TriggerKey TriggerKey = new("LoginPollerJob-Trigger");
+    public static JobKey JobKey = new("LoginPollerJob");
+
     // todo: eventually we'll support dynamic repos, but for now, we do this
     private const int BootRepoId = 1;
     private const int GameRepoId = 2;
@@ -25,14 +29,14 @@ internal class Poller
     private readonly ThaliakContext _db;
     private TempDirectory? _tempBootDir;
 
-    public Poller(ThaliakContext db)
+    public LoginPollerJob(ThaliakContext db)
     {
         _db = db;
     }
 
-    internal async Task Run()
+    public async Task Execute(IJobExecutionContext context)
     {
-        Log.Information("Thaliak.Poller starting");
+        Log.Information("LoginPollerJob starting");
 
         // find a login we can use
         var account = FindAccount();
@@ -70,7 +74,7 @@ internal class Poller
             // we need an actual gameDir w/ boot here so we can auth for the game patch list
             await CheckGame(launcher, gameRepo, gameDir, account);
 
-            Log.Information("Thaliak.Poller complete");
+            Log.Information("LoginPollerJob complete");
         }
         finally
         {
@@ -78,10 +82,25 @@ internal class Poller
             {
                 _tempBootDir.Dispose();
             }
-        }
 
-        // nasty hack to make sure we actually exit if we used XLCommon's patch installer to patch boot, idk
-        Environment.Exit(0);
+            RescheduleAtRandomInterval(context);
+        }
+    }
+
+    private void RescheduleAtRandomInterval(IJobExecutionContext context)
+    {
+        var random = new Random();
+        var nextExec = DateTime.Now.AddMinutes(random.Next(40, 60)).AddSeconds(random.Next(0, 60));
+
+        context.Scheduler.RescheduleJob(TriggerKey,
+            TriggerBuilder.Create()
+                .WithIdentity(TriggerKey)
+                .ForJob(JobKey)
+                .StartAt(nextExec)
+                .Build()
+        );
+
+        Log.Information("LoginPollerJob: next execution scheduled for {0}", nextExec);
     }
 
     private DirectoryInfo ResolveGameDirectory()
