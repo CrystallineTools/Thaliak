@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom/client';
 import './custom.scss';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navigation from './components/Navigation';
-import Home from './pages/home';
 import { Container, ThemeProvider } from 'react-bootstrap';
+import Home from './pages/home';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

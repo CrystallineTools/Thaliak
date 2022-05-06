@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import Repository from '../types/repository';
+import Repository from '../api/types/repository';
 import { ListGroup } from 'react-bootstrap';
 import RepositoryListItem from '../components/RepositoryListItem';
-import Version from '../types/version';
+import Version from '../api/types/version';
+import Api from '../api/client';
 
 export default function Home() {
   const [repositories, setRepositories] = useState<Repository[]>([]);
@@ -13,10 +14,8 @@ export default function Home() {
     async function refresh() {
       await Promise.all(
         [
-          fetch('https://thaliak.xiv.dev/api/repositories')
-            .then(async (response) => setRepositories(await response.json())),
-          fetch('https://thaliak.xiv.dev/api/versions/all/latest')
-            .then(async (response) => setVersions(await response.json()))
+          Api.getRespositories().then(setRepositories),
+          Api.getLatestVersions().then(setVersions)
         ]
       );
 

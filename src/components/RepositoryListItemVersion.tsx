@@ -1,4 +1,4 @@
-import Version from '../types/version';
+import Version from '../api/types/version';
 import TimeAgo from 'timeago-react';
 import { useEffect, useState } from 'react';
 

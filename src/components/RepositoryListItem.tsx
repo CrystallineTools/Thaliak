@@ -1,6 +1,6 @@
-import Repository from '../types/repository';
+import Repository from '../api/types/repository';
 import { ListGroup, Spinner } from 'react-bootstrap';
-import Version from '../types/version';
+import Version from '../api/types/version';
 import { useEffect, useState } from 'react';
 import RepositoryListItemVersion from './RepositoryListItemVersion';
 
