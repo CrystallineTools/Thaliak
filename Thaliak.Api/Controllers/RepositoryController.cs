@@ -21,7 +21,7 @@ public class RepositoryController : ControllerBase
     [HttpGet]
     public IActionResult GetRepositories()
     {
-        var repos = _db.Repositories.ToList();
+        var repos = _db.Repositories.OrderBy(r => r.Id).ToList();
         return Ok(_map.Map<List<XivRepositoryDto>>(repos));
     }
 }
