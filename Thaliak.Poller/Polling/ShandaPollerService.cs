@@ -39,7 +39,7 @@ public class ShandaPollerService
             using var emptyDir = new TempDirectory();
 
             // create a XLCommon Launcher
-            var launcher = new ActozLauncher(new ThaliakLauncherSettings(emptyDir, emptyDir));
+            var launcher = new ShandaLauncher(new ThaliakLauncherSettings(emptyDir, emptyDir));
 
             // KR/CN are much simpler to check, as they don't require login
             var pendingPatches = await launcher.CheckGameVersion(emptyDir, true);
