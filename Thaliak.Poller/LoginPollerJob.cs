@@ -9,11 +9,12 @@ using Thaliak.Poller.Exceptions;
 using Thaliak.Poller.Util;
 using Thaliak.Poller.XL;
 using XIVLauncher.Common;
-using XIVLauncher.Common.Game;
+using XIVLauncher.Common.Game.Launcher;
 using XIVLauncher.Common.Game.Patch;
 using XIVLauncher.Common.Game.Patch.Acquisition;
 using XIVLauncher.Common.Game.Patch.PatchList;
 using XIVLauncher.Common.PlatformAbstractions;
+using LoginState = XIVLauncher.Common.Game.LoginState;
 
 namespace Thaliak.Poller;
 
@@ -64,7 +65,7 @@ internal class LoginPollerJob : IJob
             using var emptyDir = new TempDirectory();
 
             // create a XLCommon Launcher
-            var launcher = new Launcher((ISteam?) null, new NullUniqueIdCache(),
+            var launcher = new SqexLauncher((ISteam?) null, new NullUniqueIdCache(),
                 new ThaliakLauncherSettings(emptyDir, gameDir));
 
             // check/potentially patch boot first
@@ -121,7 +122,7 @@ internal class LoginPollerJob : IJob
         return bootDir;
     }
 
-    private async Task CheckBoot(Launcher launcher, XivRepository repo, DirectoryInfo gameDir)
+    private async Task CheckBoot(ILauncher launcher, XivRepository repo, DirectoryInfo gameDir)
     {
         var bootPatches = await launcher.CheckBootVersion(gameDir);
         if (bootPatches?.Any() ?? false)
@@ -136,7 +137,7 @@ internal class LoginPollerJob : IJob
         }
     }
 
-    private async Task PatchBoot(Launcher launcher, DirectoryInfo gameDir, PatchListEntry[] patches)
+    private async Task PatchBoot(ILauncher launcher, DirectoryInfo gameDir, PatchListEntry[] patches)
     {
         // the last patch is probably the latest, yolo though
         var latest = patches.Last().VersionId;
@@ -168,7 +169,7 @@ internal class LoginPollerJob : IJob
         Log.Information("Boot patch complete");
     }
 
-    private async Task CheckGame(Launcher launcher, XivRepository repo, DirectoryInfo gameDir, XivAccount account)
+    private async Task CheckGame(ILauncher launcher, XivRepository repo, DirectoryInfo gameDir, XivAccount account)
     {
         var loginResult = await launcher.Login(
             account.Username,
@@ -182,13 +183,13 @@ internal class LoginPollerJob : IJob
         );
 
         // since we're always sending base version, we should always get NeedsPatchGame as the login result
-        if (loginResult.State != Launcher.LoginState.NeedsPatchGame)
+        if (loginResult.State != LoginState.NeedsPatchGame)
         {
             Log.Warning("Received unexpected LoginState: {0}. Not reconciling game patches.", loginResult.State);
             return;
         }
 
-        if (loginResult.PendingPatches?.Any() ?? false)
+        if (loginResult.PendingPatches.Length > 0)
         {
             Log.Information("Discovered game patches: {0}", loginResult.PendingPatches);
             Reconcile(repo, loginResult.PendingPatches);
