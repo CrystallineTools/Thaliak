@@ -3,6 +3,7 @@ using Quartz;
 using Serilog;
 using Thaliak.Database;
 using Thaliak.Poller;
+using Thaliak.Poller.Polling;
 
 // set up logging
 using var log = new LoggerConfiguration()
@@ -14,6 +15,12 @@ Log.Logger = log;
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((ctx, services) =>
     {
+        services.AddScoped<PatchReconciliationService>();
+
+        services.AddScoped<SqexPollerService>();
+        services.AddScoped<ActozPollerService>();
+        services.AddScoped<ShandaPollerService>();
+
         // set up the db context
         services.AddDbContext<ThaliakContext>(o =>
         {

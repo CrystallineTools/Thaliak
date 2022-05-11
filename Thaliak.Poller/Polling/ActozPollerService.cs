@@ -1,0 +1,62 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Thaliak.Database;
+using Thaliak.Poller.Util;
+using Thaliak.Poller.XL;
+using XIVLauncher.Common.Game.Launcher;
+
+namespace Thaliak.Poller.Polling;
+
+public class ActozPollerService
+{
+    private readonly ThaliakContext _db;
+    private readonly PatchReconciliationService _reconciliationService;
+
+    private const int GameRepoId = 7;
+
+    public ActozPollerService(ThaliakContext db, PatchReconciliationService reconciliationService)
+    {
+        _db = db;
+        _reconciliationService = reconciliationService;
+    }
+
+    public async Task Poll()
+    {
+        Log.Information("ActozPollerService: starting poll operation");
+
+        var gameRepo = _db.Repositories
+            .Include(r => r.Versions)
+            .Include(r => r.Patches)
+            .FirstOrDefault(r => r.Id == GameRepoId);
+        if (gameRepo == null)
+        {
+            throw new InvalidDataException("Could not find KR game repo in the Repository table!");
+        }
+
+        try
+        {
+            // we're not downloading patches, so we can use another temp directory
+            using var emptyDir = new TempDirectory();
+
+            // create a XLCommon Launcher
+            var launcher = new ActozLauncher(new ThaliakLauncherSettings(emptyDir, emptyDir));
+
+            // KR/CN are much simpler to check, as they don't require login
+            var pendingPatches = await launcher.CheckGameVersion(emptyDir, true);
+
+            if (pendingPatches.Length > 0)
+            {
+                Log.Information("Discovered KR game patches: {0}", pendingPatches);
+                _reconciliationService.Reconcile(gameRepo, pendingPatches);
+            }
+            else
+            {
+                Log.Warning("No KR game patches found on the remote server, not reconciling");
+            }
+        }
+        finally
+        {
+            Log.Information("ActozPollerService: poll complete");
+        }
+    }
+}

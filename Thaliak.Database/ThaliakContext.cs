@@ -80,52 +80,131 @@ public class ThaliakContext : DbContext
         // seed base repository data
         builder.Entity<XivRepository>()
             .HasData(
-                new XivRepository
+                new XivRepository[]
                 {
-                    Id = 1,
-                    Name = "ffxivneo/win32/release/boot",
-                    Description = "FFXIV Global/JP - Boot - Win32",
-                },
-                new XivRepository
-                {
-                    Id = 2,
-                    Name = "ffxivneo/win32/release/game",
-                    Description = "FFXIV Global/JP - Retail - Base Game - Win32"
-                },
-                new XivRepository
-                {
-                    Id = 3,
-                    Name = "ffxivneo/win32/release/ex1",
-                    Description = "FFXIV Global/JP - Retail - ex1 (Heavensward) - Win32"
-                },
-                new XivRepository
-                {
-                    Id = 4,
-                    Name = "ffxivneo/win32/release/ex2",
-                    Description = "FFXIV Global/JP - Retail - ex2 (Stormblood) - Win32"
-                },
-                new XivRepository
-                {
-                    Id = 5,
-                    Name = "ffxivneo/win32/release/ex3",
-                    Description = "FFXIV Global/JP - Retail - ex3 (Shadowbringers) - Win32"
-                },
-                new XivRepository
-                {
-                    Id = 6,
-                    Name = "ffxivneo/win32/release/ex4",
-                    Description = "FFXIV Global/JP - Retail - ex4 (Endwalker) - Win32"
+                    // Global
+                    new()
+                    {
+                        Id = 1,
+                        Name = "ffxivneo/win32/release/boot",
+                        Description = "FFXIV Global/JP - Retail - Boot - Win32",
+                    },
+                    new()
+                    {
+                        Id = 2,
+                        Name = "ffxivneo/win32/release/game",
+                        Description = "FFXIV Global/JP - Retail - Base Game - Win32"
+                    },
+                    new()
+                    {
+                        Id = 3,
+                        Name = "ffxivneo/win32/release/ex1",
+                        Description = "FFXIV Global/JP - Retail - ex1 (Heavensward) - Win32"
+                    },
+                    new()
+                    {
+                        Id = 4,
+                        Name = "ffxivneo/win32/release/ex2",
+                        Description = "FFXIV Global/JP - Retail - ex2 (Stormblood) - Win32"
+                    },
+                    new()
+                    {
+                        Id = 5,
+                        Name = "ffxivneo/win32/release/ex3",
+                        Description = "FFXIV Global/JP - Retail - ex3 (Shadowbringers) - Win32"
+                    },
+                    new()
+                    {
+                        Id = 6,
+                        Name = "ffxivneo/win32/release/ex4",
+                        Description = "FFXIV Global/JP - Retail - ex4 (Endwalker) - Win32"
+                    },
+                    // Korea
+                    new()
+                    {
+                        Id = 7,
+                        Name = "actoz/win32/release_ko/game",
+                        Description = "FFXIV Korea - Retail - Base Game - Win32"
+                    },
+                    new()
+                    {
+                        Id = 8,
+                        Name = "actoz/win32/release_ko/ex1",
+                        Description = "FFXIV Korea - Retail - ex1 (Heavensward) - Win32"
+                    },
+                    new()
+                    {
+                        Id = 9,
+                        Name = "actoz/win32/release_ko/ex2",
+                        Description = "FFXIV Korea - Retail - ex2 (Stormblood) - Win32"
+                    },
+                    new()
+                    {
+                        Id = 10,
+                        Name = "actoz/win32/release_ko/ex3",
+                        Description = "FFXIV Korea - Retail - ex3 (Shadowbringers) - Win32"
+                    },
+                    new()
+                    {
+                        Id = 11,
+                        Name = "actoz/win32/release_ko/ex4",
+                        Description = "FFXIV Korea - Retail - ex4 (Endwalker) - Win32"
+                    },
+                    // China
+                    new()
+                    {
+                        Id = 12,
+                        Name = "shanda/win32/release_chs/game",
+                        Description = "FFXIV China - Retail - Base Game - Win32"
+                    },
+                    new()
+                    {
+                        Id = 13,
+                        Name = "shanda/win32/release_chs/ex1",
+                        Description = "FFXIV China - Retail - ex1 (Heavensward) - Win32"
+                    },
+                    new()
+                    {
+                        Id = 14,
+                        Name = "shanda/win32/release_chs/ex2",
+                        Description = "FFXIV China - Retail - ex2 (Stormblood) - Win32"
+                    },
+                    new()
+                    {
+                        Id = 15,
+                        Name = "shanda/win32/release_chs/ex3",
+                        Description = "FFXIV China - Retail - ex3 (Shadowbringers) - Win32"
+                    },
+                    new()
+                    {
+                        Id = 16,
+                        Name = "shanda/win32/release_chs/ex4",
+                        Description = "FFXIV China - Retail - ex4 (Endwalker) - Win32"
+                    },
                 }
             );
 
         // seed XIV expac data
         builder.Entity<XivExpansionRepositoryMapping>()
             .HasData(
+                // Global
                 new XivExpansionRepositoryMapping {GameRepositoryId = 2, ExpansionId = 0, ExpansionRepositoryId = 2},
                 new XivExpansionRepositoryMapping {GameRepositoryId = 2, ExpansionId = 1, ExpansionRepositoryId = 3},
                 new XivExpansionRepositoryMapping {GameRepositoryId = 2, ExpansionId = 2, ExpansionRepositoryId = 4},
                 new XivExpansionRepositoryMapping {GameRepositoryId = 2, ExpansionId = 3, ExpansionRepositoryId = 5},
-                new XivExpansionRepositoryMapping {GameRepositoryId = 2, ExpansionId = 4, ExpansionRepositoryId = 6}
+                new XivExpansionRepositoryMapping {GameRepositoryId = 2, ExpansionId = 4, ExpansionRepositoryId = 6},
+                // Korea
+                new XivExpansionRepositoryMapping {GameRepositoryId = 7, ExpansionId = 0, ExpansionRepositoryId = 7},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 7, ExpansionId = 1, ExpansionRepositoryId = 8},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 7, ExpansionId = 2, ExpansionRepositoryId = 9},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 7, ExpansionId = 3, ExpansionRepositoryId = 10},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 7, ExpansionId = 4, ExpansionRepositoryId = 11},
+                // China
+                new XivExpansionRepositoryMapping {GameRepositoryId = 12, ExpansionId = 0, ExpansionRepositoryId = 12},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 12, ExpansionId = 1, ExpansionRepositoryId = 13},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 12, ExpansionId = 2, ExpansionRepositoryId = 14},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 12, ExpansionId = 3, ExpansionRepositoryId = 15},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 12, ExpansionId = 4, ExpansionRepositoryId = 16}
             );
     }
 }
