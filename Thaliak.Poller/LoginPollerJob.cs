@@ -49,7 +49,7 @@ internal class LoginPollerJob : IJob
         }
         finally
         {
-            RescheduleAtRandomInterval(context);
+            RescheduleNextMinute(context);
         }
     }
 
@@ -57,6 +57,21 @@ internal class LoginPollerJob : IJob
     {
         var random = new Random();
         var nextExec = DateTime.Now.AddMinutes(random.Next(40, 59)).AddSeconds(random.Next(0, 60));
+
+        context.Scheduler.RescheduleJob(TriggerKey,
+            TriggerBuilder.Create()
+                .WithIdentity(TriggerKey)
+                .ForJob(JobKey)
+                .StartAt(nextExec)
+                .Build()
+        );
+
+        Log.Information("LoginPollerJob: next execution scheduled for {0}", nextExec);
+    }
+
+    private void RescheduleNextMinute(IJobExecutionContext context)
+    {
+        var nextExec = DateTime.Now.AddMinutes(1);
 
         context.Scheduler.RescheduleJob(TriggerKey,
             TriggerBuilder.Create()
