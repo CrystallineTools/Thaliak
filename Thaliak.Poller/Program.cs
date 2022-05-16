@@ -2,8 +2,12 @@
 using Quartz;
 using Serilog;
 using Thaliak.Database;
-using Thaliak.Poller;
 using Thaliak.Poller.Polling;
+using Thaliak.Poller.Polling.Actoz;
+using Thaliak.Poller.Polling.Shanda;
+using Thaliak.Poller.Polling.Sqex;
+using Thaliak.Poller.Polling.Sqex.Lodestone.Maintenance;
+using Thaliak.Poller.Util;
 
 // set up logging
 using var log = new LoggerConfiguration()
@@ -15,6 +19,7 @@ Log.Logger = log;
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((ctx, services) =>
     {
+        services.AddScoped<LodestoneMaintenanceService>();
         services.AddScoped<PatchReconciliationService>();
 
         services.AddScoped<SqexPollerService>();
@@ -32,9 +37,12 @@ var host = Host.CreateDefaultBuilder(args)
         {
             q.UseMicrosoftDependencyInjectionJobFactory();
 
-            // set up the login poller job to poll the login servers for patch data
-            q.AddJob<LoginPollerJob>(o => o.WithIdentity(LoginPollerJob.JobKey));
-            q.AddTrigger(o => o.WithIdentity(LoginPollerJob.TriggerKey).ForJob(LoginPollerJob.JobKey).StartNow());
+            q.AddPollJob<LodestoneMaintenancePollJob, LodestoneMaintenanceService>();
+            
+            // start the SE poller job at a slight delay to allow the lodestone poller job to work first
+            q.AddPollJob<SqexLoginPollJob, SqexPollerService>(DateTime.UtcNow.AddSeconds(15));
+            q.AddPollJob<ActozPatchListPollJob, ActozPollerService>();
+            q.AddPollJob<ShandaPatchListPollJob, ShandaPollerService>();
         });
 
         services.AddQuartzHostedService(o => { o.WaitForJobsToComplete = true; });

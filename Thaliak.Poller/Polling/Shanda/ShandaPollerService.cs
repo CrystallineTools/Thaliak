@@ -5,16 +5,16 @@ using Thaliak.Poller.Util;
 using Thaliak.Poller.XL;
 using XIVLauncher.Common.Game.Launcher;
 
-namespace Thaliak.Poller.Polling;
+namespace Thaliak.Poller.Polling.Shanda;
 
-public class ActozPollerService
+public class ShandaPollerService : IPoller
 {
     private readonly ThaliakContext _db;
     private readonly PatchReconciliationService _reconciliationService;
 
-    private const int GameRepoId = 7;
+    private const int GameRepoId = 12;
 
-    public ActozPollerService(ThaliakContext db, PatchReconciliationService reconciliationService)
+    public ShandaPollerService(ThaliakContext db, PatchReconciliationService reconciliationService)
     {
         _db = db;
         _reconciliationService = reconciliationService;
@@ -22,7 +22,7 @@ public class ActozPollerService
 
     public async Task Poll()
     {
-        Log.Information("ActozPollerService: starting poll operation");
+        Log.Information("ShandaPollerService: starting poll operation");
 
         var gameRepo = _db.Repositories
             .Include(r => r.Versions)
@@ -30,7 +30,7 @@ public class ActozPollerService
             .FirstOrDefault(r => r.Id == GameRepoId);
         if (gameRepo == null)
         {
-            throw new InvalidDataException("Could not find KR game repo in the Repository table!");
+            throw new InvalidDataException("Could not find CN game repo in the Repository table!");
         }
 
         try
@@ -39,24 +39,24 @@ public class ActozPollerService
             using var emptyDir = new TempDirectory();
 
             // create a XLCommon Launcher
-            var launcher = new ActozLauncher(new ThaliakLauncherSettings(emptyDir, emptyDir));
+            var launcher = new ShandaLauncher(new ThaliakLauncherSettings(emptyDir, emptyDir));
 
             // KR/CN are much simpler to check, as they don't require login
             var pendingPatches = await launcher.CheckGameVersion(emptyDir, true);
 
             if (pendingPatches.Length > 0)
             {
-                Log.Information("Discovered KR game patches: {0}", pendingPatches);
+                Log.Information("Discovered CN game patches: {0}", pendingPatches);
                 _reconciliationService.Reconcile(gameRepo, pendingPatches);
             }
             else
             {
-                Log.Warning("No KR game patches found on the remote server, not reconciling");
+                Log.Warning("No CN game patches found on the remote server, not reconciling");
             }
         }
         finally
         {
-            Log.Information("ActozPollerService: poll complete");
+            Log.Information("ShandaPollerService: poll complete");
         }
     }
 }

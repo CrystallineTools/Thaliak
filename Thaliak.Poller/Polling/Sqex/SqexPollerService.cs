@@ -13,9 +13,9 @@ using XIVLauncher.Common.Game.Patch.Acquisition;
 using XIVLauncher.Common.Game.Patch.PatchList;
 using XIVLauncher.Common.PlatformAbstractions;
 
-namespace Thaliak.Poller.Polling;
+namespace Thaliak.Poller.Polling.Sqex;
 
-public class SqexPollerService
+public class SqexPollerService : IPoller
 {
     private readonly ThaliakContext _db;
     private readonly PatchReconciliationService _reconciliationService;
