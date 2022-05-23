@@ -6,4 +6,5 @@ obj/
 .idea/
 appsettings.*.json
 .DS_Store
+patches/
 

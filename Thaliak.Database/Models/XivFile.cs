@@ -6,18 +6,17 @@ namespace Thaliak.Database.Models;
 /// <summary>
 /// Information about a single file in a single version.
 /// </summary>
-[Index(nameof(Version))]
+[Index(nameof(SHA256))]
 [Index(nameof(Name))]
 public class XivFile
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    public int VersionId { get; set; }
     /// <summary>
-    /// The version that this file belongs to.
+    /// The versions that this file belongs to.
     /// </summary>
-    public XivVersion Version { get; set; }
+    public List<XivVersion> Versions { get; set; }
 
     /// <summary>
     /// The file path and name.

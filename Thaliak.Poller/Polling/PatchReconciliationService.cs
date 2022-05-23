@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Thaliak.Database;
 using Thaliak.Database.Models;
+using Thaliak.Poller.Download;
 using XIVLauncher.Common.Game.Patch.PatchList;
 
 namespace Thaliak.Poller.Polling;
@@ -118,10 +119,13 @@ public class PatchReconciliationService
 
                 // add it to the list for alerting
                 newPatchList.Add(newPatch);
+
+                // add it to the download queue
+                DownloaderService.AddToQueue(new DownloadJob(newPatch.RemoteOriginPath));
             }
             else
             {
-                Log.Information("Patch already present: {@0}", remotePatch);
+                Log.Verbose("Patch already present: {@0}", remotePatch);
 
                 localPatch.patch.LastSeen = now;
                 localPatch.patch.LastOffered = now;

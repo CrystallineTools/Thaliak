@@ -44,10 +44,9 @@ public class ThaliakContext : DbContext
             );
 
         builder.Entity<XivFile>()
-            .HasOne(f => f.Version)
+            .HasMany(f => f.Versions)
             .WithMany(v => v.Files)
-            .HasForeignKey(f => f.VersionId)
-            .HasPrincipalKey(v => v.Id);
+            .UsingEntity(j => j.ToTable("VersionFiles"));
 
         builder.Entity<XivRepository>()
             .HasMany(r => r.ApplicableAccounts)
