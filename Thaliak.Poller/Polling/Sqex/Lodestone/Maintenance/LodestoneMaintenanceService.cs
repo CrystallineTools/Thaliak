@@ -19,7 +19,7 @@ public class LodestoneMaintenanceService : IPoller
     private const string LODESTONE_BASE_URL = "https://na.finalfantasyxiv.com";
     private const string LODESTONE_MAINTENANCE_LIST_URL = LODESTONE_BASE_URL + "/lodestone/news/category/2";
 
-    public static MaintenanceInfo[] MaintenanceList { get; private set; } = Array.Empty<MaintenanceInfo>();
+    public static HashSet<MaintenanceInfo> MaintenanceList { get; } = new();
     private readonly HttpClient _http;
 
     public LodestoneMaintenanceService()
@@ -49,7 +49,10 @@ public class LodestoneMaintenanceService : IPoller
     {
         var maintList = await GetRelevantMaintenanceList();
         var maintInfo = await ProcessMaintenanceList(maintList);
-        MaintenanceList = maintInfo.ToArray();
+        MaintenanceList.UnionWith(maintInfo);
+
+        // cull really old maintenance periods that we don't care about anymore
+        MaintenanceList.RemoveWhere(mi => DateTime.UtcNow - mi.EndTime > TimeSpan.FromDays(7));
     }
 
     public async Task<List<string>> GetRelevantMaintenanceList()
@@ -129,7 +132,7 @@ public class LodestoneMaintenanceService : IPoller
         var startTimeUtc = TimeZoneInfo.ConvertTimeToUtc(startTime, timezone);
         var endTimeUtc = TimeZoneInfo.ConvertTimeToUtc(endTime, timezone);
 
-        Log.Information("Maintenance starts at {startTime} and ends at {endTime}", startTimeUtc, endTimeUtc);
+        Log.Information("Maintenance starts at {startTime} UTC and ends at {endTime} UTC", startTimeUtc, endTimeUtc);
         return new MaintenanceInfo(startTimeUtc, endTimeUtc);
     }
 
