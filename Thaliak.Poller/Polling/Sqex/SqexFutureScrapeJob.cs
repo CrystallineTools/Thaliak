@@ -6,6 +6,6 @@ internal class SqexFutureScrapeJob : ScheduledPollJob<SqexFutureScraperService>
 
     protected override DateTime GetNextExecutionTime()
     {
-        return DateTime.UtcNow.AddSeconds(Random.Next(15, 30));
+        return DateTime.UtcNow.AddSeconds(Random.Next(25, 35));
     }
 }

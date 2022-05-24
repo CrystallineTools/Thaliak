@@ -17,13 +17,13 @@ public class SqexFutureScraperService : ScraperBase
     private static readonly Regex PatchDateRegex =
         new(@"(\d{4})\.(\d{2})\.(\d{2}).*", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+    private const int URL_COUNT_SCRAPED_PER_RUN = 10;
+
     private static readonly Random Random = new();
 
     private static MaintenanceInfo? LastMaintenance;
     private static List<string>? LastUrlList;
     private static List<string>? PendingUrlQueue;
-
-    private const int UrlCountScrapedPerRun = 10;
 
     private readonly LodestoneMaintenanceService _lodestoneService;
     private readonly PatchReconciliationService _reconciliationService;
@@ -60,7 +60,7 @@ public class SqexFutureScraperService : ScraperBase
             throw new Exception("How does this even happen?");
         }
 
-        var randomView = PendingUrlQueue.OrderBy(url => Random.Next()).Take(UrlCountScrapedPerRun);
+        var randomView = PendingUrlQueue.OrderBy(url => Random.Next()).Take(URL_COUNT_SCRAPED_PER_RUN);
         PendingUrlQueue = PendingUrlQueue.Where(url => !randomView.Contains(url)).ToList();
 
         var discovered = new List<PatchListEntry>();
@@ -75,6 +75,7 @@ public class SqexFutureScraperService : ScraperBase
 
                     // we no longer need to scrape this, remove it from the potential url list
                     LastUrlList = LastUrlList.Where(test => test != url).ToList();
+                    PendingUrlQueue = PendingUrlQueue.Where(test => test != url).ToList();
 
                     discovered.Add(new PatchListEntry
                     {
@@ -82,6 +83,10 @@ public class SqexFutureScraperService : ScraperBase
                         Url = url,
                         Length = result.size ?? 0
                     });
+                }
+                else if (result.status != HttpStatusCode.NotFound)
+                {
+                    Log.Warning("Unexpected status code while scraping {url}: {@status}", url, result.status);
                 }
             }
             catch (Exception ex)
@@ -94,7 +99,7 @@ public class SqexFutureScraperService : ScraperBase
         }
 
         // repopulate the pending queue if we're low
-        if (PendingUrlQueue.Count < UrlCountScrapedPerRun)
+        if (PendingUrlQueue.Count < URL_COUNT_SCRAPED_PER_RUN)
         {
             PendingUrlQueue.AddRange(LastUrlList);
         }
