@@ -23,9 +23,25 @@ export default function RepositoryListItem({ repo, versions }: { repo: Repositor
     <ListGroup.Item>
       <div className='row'>
         <div className='col'>
-          <strong>{repo.name}</strong> ({repo.slug})
+          <strong className='font-monospace'>{repo.slug}</strong>
+          <div className='btn-group btn-group-sm ms-2'>
+            <span className='btn btn-outline-secondary disabled'>
+              API
+            </span>
+            <a className='btn btn-warning' href={`https://thaliak.xiv.dev/api/versions/${repo.slug}/${version?.version}`}>
+              This Version
+            </a>
+            <a className='btn btn-success' href={`https://thaliak.xiv.dev/api/versions/${repo.slug}/latest`}>
+              Latest Version
+            </a>
+            <a className='btn btn-primary' href={`https://thaliak.xiv.dev/api/versions/${repo.slug}`}>
+              All Versions
+            </a>
+          </div>
           <br />
           {repo.description}
+          <br />
+          <span className='text-muted small'>{repo.name}</span>
         </div>
         <div className='col-3 text-end'>
           {loading ? <Spinner animation='border' /> : <RepositoryListItemVersion version={version} />}

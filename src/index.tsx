@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import { Container, ThemeProvider } from 'react-bootstrap';
 import Home from './pages/home';
+import Footer from './components/Footer';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -20,6 +21,8 @@ root.render(
             <Route path='/' element={<Home />} />
           </Routes>
         </Container>
+
+        <Footer />
       </BrowserRouter>
     </ThemeProvider>
   </React.StrictMode>
