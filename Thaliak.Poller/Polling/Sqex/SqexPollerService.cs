@@ -24,11 +24,24 @@ public class SqexPollerService : IPoller
     private const int GameRepoId = 2;
 
     private TempDirectory? _tempBootDir;
+    private DirectoryInfo _gameDir;
 
-    public SqexPollerService(ThaliakContext db, PatchReconciliationService reconciliationService)
+    public SqexPollerService(ThaliakContext db, PatchReconciliationService reconciliationService, IConfiguration config)
     {
         _db = db;
         _reconciliationService = reconciliationService;
+
+        var bootDirName = config.GetValue<string>("Directories:Boot");
+        if (string.IsNullOrWhiteSpace(bootDirName))
+        {
+            _tempBootDir = new TempDirectory();
+            _gameDir = _tempBootDir;
+        }
+        else
+        {
+            _gameDir = new DirectoryInfo(bootDirName);
+            Directory.CreateDirectory(_gameDir.FullName);
+        }
     }
 
     private XivAccount FindAccount()
@@ -66,22 +79,30 @@ public class SqexPollerService : IPoller
 
         // create tempdirs for XLCommon to use
         // todo: refactor XLCommon later to not have to do this stuff
-        var gameDir = ResolveGameDirectory();
         try
         {
             // we're not downloading patches, so we can use another temp directory
             using var emptyDir = new TempDirectory();
 
-            // create a XLCommon Launcher
-            var launcher = new SqexLauncher((ISteam?) null, new NullUniqueIdCache(),
-                new ThaliakLauncherSettings(emptyDir, gameDir));
+            // create a XLCommon launcher for checking boot
+            // this intentionally has no installed boot, so we can poll the available boot versions
+            var bootLauncher = new SqexLauncher((ISteam?) null, new NullUniqueIdCache(),
+                new ThaliakLauncherSettings(emptyDir, emptyDir));
 
-            // check/potentially patch boot first
-            await CheckBoot(launcher, bootRepo, gameDir);
+            // check available boot version without patching
+            await CheckBoot(bootLauncher, bootRepo, emptyDir, false);
+
+            // create a second XLCommon launcher for game
+            // this will have our updated/patched boot present
+            var gameLauncher = new SqexLauncher((ISteam?) null, new NullUniqueIdCache(),
+                new ThaliakLauncherSettings(emptyDir, _gameDir));
+
+            // check again and potentially patch boot
+            await CheckBoot(gameLauncher, bootRepo, _gameDir, true);
 
             // now log in and check game
             // we need an actual gameDir w/ boot here so we can auth for the game patch list
-            await CheckGame(launcher, gameRepo, gameDir, account);
+            await CheckGame(gameLauncher, gameRepo, _gameDir, account);
         }
         finally
         {
@@ -94,35 +115,20 @@ public class SqexPollerService : IPoller
         }
     }
 
-
-    private DirectoryInfo ResolveGameDirectory()
-    {
-        var bootDirName = Environment.GetEnvironmentVariable("BOOT_STORAGE_DIR");
-        if (string.IsNullOrWhiteSpace(bootDirName))
-        {
-            _tempBootDir = new TempDirectory();
-            return _tempBootDir;
-        }
-
-        var bootDir = new DirectoryInfo(bootDirName);
-        if (!bootDir.Exists)
-        {
-            throw new ApplicationException("Game directory provided by BOOT_STORAGE_DIR does not exist!");
-        }
-
-        return bootDir;
-    }
-
-    private async Task CheckBoot(ILauncher launcher, XivRepository repo, DirectoryInfo gameDir)
+    private async Task CheckBoot(ILauncher launcher, XivRepository repo, DirectoryInfo gameDir, bool patch)
     {
         var bootPatches = await launcher.CheckBootVersion(gameDir);
         if (bootPatches.Length > 0)
         {
             Log.Information("Discovered JP boot patches: {0}", bootPatches);
             _reconciliationService.Reconcile(repo, bootPatches);
-            await PatchBoot(launcher, gameDir, bootPatches);
+
+            if (patch)
+            {
+                await PatchBoot(launcher, gameDir, bootPatches);
+            }
         }
-        else
+        else if (!patch)
         {
             Log.Warning("No JP boot patches found on the remote server, not reconciling");
         }
