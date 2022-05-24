@@ -15,7 +15,8 @@ namespace Thaliak.Database.Models;
 [Index(nameof(Repository))]
 public class XivVersion
 {
-    public static Regex VersionRegex = new(@"[DH]?(\d{4}\.\d{2}\.\d{2}\.\d{4}\.\d{4})([a-z])?");
+    public static Regex VersionRegex = new(@".*[DH]?(\d{4}\.\d{2}\.\d{2}\.\d{4}\.\d{4})([a-z])?(?:\.patch)?",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
@@ -65,5 +66,16 @@ public class XivVersion
         trimmed.Append('0');
 
         return ulong.Parse(trimmed.ToString());
+    }
+
+    public static string UrlToString(string url)
+    {
+        var match = VersionRegex.Match(url);
+        if (!match.Success)
+        {
+            throw new ArgumentException($"Invalid patch URL: {url}");
+        }
+
+        return match.Groups[1].ToString();
     }
 }

@@ -43,6 +43,8 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddScoped<LodestoneMaintenanceService>();
         services.AddScoped<PatchReconciliationService>();
 
+        services.AddScoped<SqexFutureScraperService>();
+
         services.AddScoped<SqexPollerService>();
         services.AddScoped<ActozPollerService>();
         services.AddScoped<ShandaPollerService>();
@@ -60,8 +62,11 @@ var host = Host.CreateDefaultBuilder(args)
 
             q.AddPollJob<LodestoneMaintenancePollJob, LodestoneMaintenanceService>();
 
-            // start the SE poller job at a slight delay to allow the lodestone poller job to work first
+            // start the SE poller jobs at a slight delay to allow the lodestone poller job to work first
             q.AddPollJob<SqexLoginPollJob, SqexPollerService>(DateTime.UtcNow.AddSeconds(15));
+            q.AddPollJob<SqexFutureScrapeJob, SqexFutureScraperService>(DateTime.UtcNow.AddSeconds(15));
+
+            // KR/CN can start instantly
             q.AddPollJob<ActozPatchListPollJob, ActozPollerService>();
             q.AddPollJob<ShandaPatchListPollJob, ShandaPollerService>();
         });

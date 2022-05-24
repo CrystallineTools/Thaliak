@@ -8,13 +8,16 @@ public class LodestoneMaintenanceService : IPoller
 {
     private static readonly Regex MaintenanceArticleRegex =
         new(
-            "<a href=\"(/lodestone/.+?)\" class=\"news__list--link ic__maintenance--list\">.+?<span class=\"news__list--tag\">\\[(.+?)\\]</span>(.+?)</p>.+?</a>");
+            "<a href=\"(/lodestone/.+?)\" class=\"news__list--link ic__maintenance--list\">.+?<span class=\"news__list--tag\">\\[(.+?)\\]</span>(.+?)</p>.+?</a>",
+            RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private static readonly Regex MaintenanceTitleRegex =
-        new(@"All Worlds (Emergency )?Maintenance \((?:(\w{3}).? (\d{1,2})(?:-(\d{1,2}))?)\)");
+        new(@"All Worlds (Emergency )?Maintenance \((?:(\w{3}).? (\d{1,2})(?:-(\d{1,2}))?)\)",
+            RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private static readonly Regex MaintenanceTimeRegex =
-        new(@"\[Date & Time\]<br>[\n\r]+([\w\d,:. ]+) to ([\w\d,:. ]+) \((\w{3})\)");
+        new(@"\[Date & Time\]<br>[\n\r]+([\w\d,:. ]+) to ([\w\d,:. ]+) \((\w{3})\)",
+            RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private const string LODESTONE_BASE_URL = "https://na.finalfantasyxiv.com";
     private const string LODESTONE_MAINTENANCE_LIST_URL = LODESTONE_BASE_URL + "/lodestone/news/category/2";
@@ -62,7 +65,7 @@ public class LodestoneMaintenanceService : IPoller
 
         var matches = MaintenanceArticleRegex.Matches(responseString);
 
-        var today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
+        var today = DateTime.UtcNow.Date;
         var list = new List<string>();
         foreach (Match match in matches)
         {

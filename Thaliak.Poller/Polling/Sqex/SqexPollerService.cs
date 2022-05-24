@@ -20,8 +20,8 @@ public class SqexPollerService : IPoller
     private readonly ThaliakContext _db;
     private readonly PatchReconciliationService _reconciliationService;
 
-    private const int BootRepoId = 1;
-    private const int GameRepoId = 2;
+    public const int BootRepoId = 1;
+    public const int GameRepoId = 2;
 
     private TempDirectory? _tempBootDir;
     private DirectoryInfo _gameDir;

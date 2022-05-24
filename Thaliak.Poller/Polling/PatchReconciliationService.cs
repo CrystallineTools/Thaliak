@@ -18,7 +18,8 @@ public class PatchReconciliationService
         _db = db;
     }
 
-    public void Reconcile(XivRepository repo, PatchListEntry[] remotePatches)
+    public void Reconcile(XivRepository repo, PatchListEntry[] remotePatches,
+        PatchReconciliationType reconciliationType = PatchReconciliationType.Offered)
     {
         // use a consistent timestamp through reconciliation of each repo's patch list
         var now = DateTime.UtcNow;
@@ -29,25 +30,6 @@ public class PatchReconciliationService
             .Include(erp => erp.GameRepository)
             .Where(erp => erp.GameRepositoryId == repo.Id)
             .ToList();
-
-        int GetEffectiveRepositoryId(int repositoryId, string patchUrl)
-        {
-            var expansionId = XivExpansionRepositoryMapping.GetExpansionId(patchUrl);
-            if (expansionId == 0)
-            {
-                return repositoryId;
-            }
-
-            foreach (var erp in expansions)
-            {
-                if (erp.ExpansionId == expansionId)
-                {
-                    return erp.ExpansionRepositoryId;
-                }
-            }
-
-            throw new InvalidDataException($"Unknown expansion ID {expansionId} for repository ID {repositoryId}!");
-        }
 
         // attach the repositories so EF knows we're not inserting new repo records
         _db.Repositories.Attach(repo);
@@ -72,64 +54,27 @@ public class PatchReconciliationService
         // let's go
         foreach (var remotePatch in remotePatches)
         {
-            var effectiveRepoId = GetEffectiveRepositoryId(repo.Id, remotePatch.Url);
+            var effectiveRepoId = GetEffectiveRepositoryId(expansions, repo.Id, remotePatch.Url);
             var localPatch = localPatches.FirstOrDefault(p =>
                 p.version.VersionString == remotePatch.VersionId && p.version.RepositoryId == effectiveRepoId);
             if (localPatch == null)
             {
-                Log.Information("Discovered new patch: {@0}", remotePatch);
-
-                // existing version?
-                var version = repo.Versions.FirstOrDefault(v =>
-                    v.VersionString == remotePatch.VersionId && v.RepositoryId == effectiveRepoId);
-                if (version == null)
-                {
-                    version = new XivVersion
-                    {
-                        VersionId = XivVersion.StringToId(remotePatch.VersionId),
-                        VersionString = remotePatch.VersionId,
-                        RepositoryId = effectiveRepoId
-                    };
-                }
-                else
-                {
-                    _db.Versions.Attach(version);
-                }
-
-                // collect patch data
-                var newPatch = new XivPatch
-                {
-                    Version = version,
-                    Repository = repo,
-                    RemoteOriginPath = remotePatch.Url,
-                    Size = remotePatch.Length,
-                    // the launcher is offering us the patch now
-                    FirstOffered = now,
-                    LastOffered = now,
-                    // it's safe to assume if the launcher is offering a patch, it exists
-                    FirstSeen = now,
-                    LastSeen = now,
-                    HashType = remotePatch.Url == remotePatch.HashType ? null : remotePatch.HashType,
-                    HashBlockSize = remotePatch.HashBlockSize == 0 ? null : remotePatch.HashBlockSize,
-                    Hashes = remotePatch.Hashes
-                };
-
-                // commit the patch
-                _db.Patches.Add(newPatch);
+                var newPatch = RecordNewPatchData(now, repo, effectiveRepoId, remotePatch, reconciliationType);
 
                 // add it to the list for alerting
                 newPatchList.Add(newPatch);
-
-                // add it to the download queue
-                DownloaderService.AddToQueue(new DownloadJob(newPatch.RemoteOriginPath));
             }
             else
             {
-                Log.Verbose("Patch already present: {@0}", remotePatch);
+                var alert = localPatch.patch.FirstOffered == null &&
+                            reconciliationType == PatchReconciliationType.Offered;
+                UpdateExistingPatchData(now, localPatch.patch, remotePatch, reconciliationType);
 
-                localPatch.patch.LastSeen = now;
-                localPatch.patch.LastOffered = now;
-                _db.Patches.Update(localPatch.patch);
+                // if we had previously seen the patch, but now it's being offered, trigger an alert for it anyways
+                if (alert)
+                {
+                    newPatchList.Add(localPatch.patch);
+                }
             }
 
             // save to DB after each patch so we have a permanent ID to rely on for versions
@@ -160,10 +105,114 @@ public class PatchReconciliationService
 
         // yeah, patches
         Log.Information("Sending Discord alerts for new patches");
-        SendDiscordAlerts(newPatchList);
+        SendDiscordAlerts(newPatchList, reconciliationType);
     }
 
-    private void SendDiscordAlerts(List<XivPatch> newPatchList)
+    private XivPatch RecordNewPatchData(DateTime now, XivRepository repo, int effectiveRepoId,
+        PatchListEntry remotePatch, PatchReconciliationType reconciliationType)
+    {
+        Log.Information("Discovered new patch: {@0}", remotePatch);
+
+        // existing version?
+        var version = repo.Versions.FirstOrDefault(v =>
+            v.VersionString == remotePatch.VersionId && v.RepositoryId == effectiveRepoId);
+        if (version == null)
+        {
+            version = new XivVersion
+            {
+                VersionId = XivVersion.StringToId(remotePatch.VersionId),
+                VersionString = remotePatch.VersionId,
+                RepositoryId = effectiveRepoId
+            };
+        }
+        else
+        {
+            _db.Versions.Attach(version);
+        }
+
+        // collect patch data
+        var newPatch = new XivPatch
+        {
+            Version = version,
+            Repository = repo,
+            RemoteOriginPath = remotePatch.Url,
+            Size = remotePatch.Length
+        };
+
+        if (reconciliationType == PatchReconciliationType.Offered)
+        {
+            // the launcher is offering us the patch now
+            newPatch.FirstOffered = now;
+            newPatch.LastOffered = now;
+
+            SetLauncherPatchMetadata(newPatch, remotePatch);
+        }
+
+        // it's safe to assume if the launcher is offering a patch, it exists
+        // todo: this isn't always a safe assumption (thanks CN)
+        newPatch.FirstSeen = now;
+        newPatch.LastSeen = now;
+
+        // commit the patch
+        _db.Patches.Add(newPatch);
+
+        // add it to the download queue
+        DownloaderService.AddToQueue(new DownloadJob(newPatch.RemoteOriginPath));
+
+        return newPatch;
+    }
+
+    private void UpdateExistingPatchData(DateTime now, XivPatch localPatch, PatchListEntry remotePatch,
+        PatchReconciliationType reconciliationType)
+    {
+        Log.Verbose("Patch already present: {@0}", remotePatch);
+
+        localPatch.LastSeen = now;
+        if (reconciliationType == PatchReconciliationType.Offered)
+        {
+            localPatch.LastOffered = now;
+
+            if (localPatch.FirstOffered == null)
+            {
+                localPatch.FirstOffered = now;
+
+                // since this is the first time the patch is being offered, update hashes/metadata accordingly
+                SetLauncherPatchMetadata(localPatch, remotePatch);
+            }
+        }
+
+        _db.Patches.Update(localPatch);
+    }
+
+    private void SetLauncherPatchMetadata(XivPatch localPatch, PatchListEntry remotePatch)
+    {
+        localPatch.Size = remotePatch.Length;
+        localPatch.HashType = remotePatch.Url == remotePatch.HashType ? null : remotePatch.HashType;
+        localPatch.HashBlockSize = remotePatch.HashBlockSize == 0 ? null : remotePatch.HashBlockSize;
+        localPatch.Hashes = remotePatch.Hashes;
+    }
+
+    private int GetEffectiveRepositoryId(List<XivExpansionRepositoryMapping> expansions, int repositoryId,
+        string patchUrl)
+    {
+        var expansionId = XivExpansionRepositoryMapping.GetExpansionId(patchUrl);
+        if (expansionId == 0)
+        {
+            return repositoryId;
+        }
+
+        foreach (var erp in expansions)
+        {
+            if (erp.ExpansionId == expansionId)
+            {
+                return erp.ExpansionRepositoryId;
+            }
+        }
+
+        throw new InvalidDataException($"Unknown expansion ID {expansionId} for repository ID {repositoryId}!");
+    }
+
+    private void SendDiscordAlerts(List<XivPatch> newPatchList, PatchReconciliationType reconciliationType)
     {
         var discordHooks = _db.DiscordHooks.ToList();
 
@@ -174,6 +223,19 @@ public class PatchReconciliationService
             try
             {
                 var embeds = new List<Embed>();
+                var title = "New FFXIV patch ";
+                var color = Color.Default;
+                switch (reconciliationType)
+                {
+                    case PatchReconciliationType.Offered:
+                        title += "offered by launcher";
+                        color = Color.Green;
+                        break;
+                    case PatchReconciliationType.Scraped:
+                        title += "seen on patch server";
+                        color = Color.LightOrange;
+                        break;
+                }
 
                 foreach (var patch in newPatchList)
                 {
@@ -203,10 +265,17 @@ public class PatchReconciliationService
                         Value = MakeSizePretty(patch.Size)
                     });
 
+                    fields.Add(new EmbedFieldBuilder
+                    {
+                        Name = "Detailed information on the Thaliak API",
+                        Value =
+                            $"https://thaliak.xiv.dev/api/versions/{patch.Repository.Slug}/{patch.Version.VersionString}"
+                    });
+
                     embeds.Add(new EmbedBuilder
                     {
-                        Color = Color.Green,
-                        Title = "New FFXIV patch detected",
+                        Color = color,
+                        Title = title,
                         Timestamp = DateTimeOffset.UtcNow,
                         Fields = fields,
                         Footer = new EmbedFooterBuilder

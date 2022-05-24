@@ -4,7 +4,8 @@ namespace Thaliak.Poller.Download;
 
 public class DownloadJob
 {
-    private static readonly Regex PatchUrlRegex = new(@"(?:https?:\/\/(.+?)\/)?(?:ff\/)?((?:game|boot)\/.+)\/(.*)");
+    private static readonly Regex PatchUrlRegex = new(@"(?:https?:\/\/(.+?)\/)?(?:ff\/)?((?:game|boot)\/.+)\/(.*)",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     public string Url { get; }
     public string Destination { get; }
