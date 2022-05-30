@@ -3,8 +3,6 @@
 </p>
 <h1 align="center" style="margin-top: 0px;">Thaliak</h1>
 
----
-
 Thaliak is a Final Fantasy XIV patch tracking service.
 
 A public version of the service is hosted at [thaliak.xiv.dev](https://thaliak.xiv.dev).
