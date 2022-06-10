@@ -59,7 +59,7 @@ public class PatchReconciliationService
                 p.version.VersionString == remotePatch.VersionId && p.version.RepositoryId == effectiveRepoId);
             if (localPatch == null)
             {
-                var newPatch = RecordNewPatchData(now, repo, effectiveRepoId, remotePatch, reconciliationType);
+                var newPatch = RecordNewPatchData(now, effectiveRepoId, remotePatch, reconciliationType);
 
                 // add it to the list for alerting
                 newPatchList.Add(newPatch);
@@ -108,13 +108,13 @@ public class PatchReconciliationService
         SendDiscordAlerts(newPatchList, reconciliationType);
     }
 
-    private XivPatch RecordNewPatchData(DateTime now, XivRepository repo, int effectiveRepoId,
-        PatchListEntry remotePatch, PatchReconciliationType reconciliationType)
+    private XivPatch RecordNewPatchData(DateTime now, int effectiveRepoId, PatchListEntry remotePatch,
+        PatchReconciliationType reconciliationType)
     {
         Log.Information("Discovered new patch: {@0}", remotePatch);
 
         // existing version?
-        var version = repo.Versions.FirstOrDefault(v =>
+        var version = _db.Versions.FirstOrDefault(v =>
             v.VersionString == remotePatch.VersionId && v.RepositoryId == effectiveRepoId);
         if (version == null)
         {
@@ -134,7 +134,7 @@ public class PatchReconciliationService
         var newPatch = new XivPatch
         {
             Version = version,
-            Repository = repo,
+            RepositoryId = effectiveRepoId,
             RemoteOriginPath = remotePatch.Url,
             Size = remotePatch.Length
         };
