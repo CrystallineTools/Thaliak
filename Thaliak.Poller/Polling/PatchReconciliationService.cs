@@ -1,10 +1,12 @@
 ﻿using Discord;
 using Discord.Webhook;
+using FlexLabs.EntityFrameworkCore.Upsert;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Thaliak.Database;
 using Thaliak.Database.Models;
 using Thaliak.Poller.Download;
+using Thaliak.Poller.Util;
 using XIVLauncher.Common.Game.Patch.PatchList;
 
 namespace Thaliak.Poller.Polling;
@@ -81,6 +83,14 @@ public class PatchReconciliationService
             _db.SaveChanges();
         }
 
+        // update the chains
+        foreach (var repoId in repoIds)
+        {
+            var expansionPatches = remotePatches.Where(p =>
+                GetEffectiveRepositoryId(expansions, repo.Id, p.Url) == repoId);
+            RecordPatchChainData(now, repoId, expansionPatches);
+        }
+
         /*
          * ———————————No patches?———————————
          * ⠀⣞⢽⢪⢣⢣⢣⢫⡺⡵⣝⡮⣗⢷⢽⢽⢽⣮⡷⡽⣜⣜⢮⢺⣜⢷⢽⢝⡽⣝
@@ -106,6 +116,73 @@ public class PatchReconciliationService
         // yeah, patches
         Log.Information("Sending Discord alerts for new patches");
         SendDiscordAlerts(newPatchList, reconciliationType);
+    }
+
+    private void RecordPatchChainData(DateTime now, int effectiveRepoId, IEnumerable<PatchListEntry> remotePatches)
+    {
+        Log.Information("Logging patch chain data for repo {repoId}", effectiveRepoId);
+
+        remotePatches = remotePatches.OrderBy(p => XivVersion.StringToId(p.VersionId));
+
+        var upserts = new List<UpsertCommandBuilder<XivPatchChain>>();
+
+        PatchListEntry? previousPatch = null;
+        foreach (var remotePatch in remotePatches)
+        {
+            // get the patch IDs
+            var dbPatches = _db.Patches
+                .Include(p => p.Version)
+                .Where(p => p.RepositoryId == effectiveRepoId)
+                .Where(p => p.Version.VersionString == remotePatch.VersionId ||
+                            (previousPatch != null && p.Version.VersionString == previousPatch.VersionId))
+                .ToList();
+
+            var dbPatch = dbPatches.FirstOrDefault(p => p.Version.VersionString == remotePatch.VersionId);
+            if (dbPatch == null)
+            {
+                Log.Error("Could not find patch in DB: {0}. Backing out of patch chain recording.",
+                    remotePatch.VersionId);
+                return;
+            }
+
+            var chain = new XivPatchChain
+            {
+                RepositoryId = effectiveRepoId,
+                FirstOffered = now,
+                LastOffered = now,
+                PatchId = dbPatch.Id,
+            };
+
+            if (previousPatch != null)
+            {
+                var dbPreviousPatch = dbPatches.FirstOrDefault(p => p.Version.VersionString == previousPatch.VersionId);
+                if (dbPreviousPatch == null)
+                {
+                    Log.Error("Could not find previous patch in DB: {0}. Backing out of patch chain recording.",
+                        previousPatch.VersionId);
+                    return;
+                }
+
+                chain.PreviousPatchId = dbPreviousPatch.Id;
+                chain.HasPrerequisitePatch = true;
+            }
+            else
+            {
+                // set to the same ID as the current patch, since we can't use null in a PK
+                chain.PreviousPatchId = dbPatch.Id;
+                chain.HasPrerequisitePatch = false;
+            }
+
+            upserts.Add(_db.PatchChains.Upsert(chain).WhenMatched(c => new XivPatchChain {LastOffered = now}));
+
+            previousPatch = remotePatch;
+        }
+
+        // now that we're pretty sure all of them exist, commit the changes
+        upserts.ForEach(u => u.Run());
+        _db.SaveChanges();
+
+        Log.Information("Successfully logged patch chain data for repo {repoId}", effectiveRepoId);
     }
 
     private XivPatch RecordNewPatchData(DateTime now, int effectiveRepoId, PatchListEntry remotePatch,

@@ -7,6 +7,7 @@ public class ThaliakContext : DbContext
 {
     public DbSet<XivAccount> Accounts { get; set; }
     public DbSet<XivPatch> Patches { get; set; }
+    public DbSet<XivPatchChain> PatchChains { get; set; }
     public DbSet<XivRepository> Repositories { get; set; }
     public DbSet<XivExpansionRepositoryMapping> ExpansionRepositoryMappings { get; set; }
     public DbSet<XivVersion> Versions { get; set; }
@@ -75,6 +76,31 @@ public class ThaliakContext : DbContext
             .WithMany()
             .HasForeignKey(erp => erp.ExpansionRepositoryId)
             .HasPrincipalKey(r => r.Id);
+
+        builder.Entity<XivPatchChain>()
+            .HasOne(c => c.Repository)
+            .WithMany()
+            .HasForeignKey(c => c.RepositoryId)
+            .HasPrincipalKey(r => r.Id);
+
+        builder.Entity<XivPatchChain>()
+            .HasOne(l => l.Patch)
+            .WithMany()
+            .HasForeignKey(l => l.PatchId)
+            .HasPrincipalKey(p => p.Id);
+
+        builder.Entity<XivPatchChain>()
+            .HasOne(l => l.PreviousPatch)
+            .WithMany()
+            .HasForeignKey(l => l.PreviousPatchId)
+            .HasPrincipalKey(p => p.Id);
+
+        builder.Entity<XivPatchChain>()
+            .HasKey(
+                nameof(XivPatchChain.RepositoryId),
+                nameof(XivPatchChain.PatchId),
+                nameof(XivPatchChain.PreviousPatchId)
+            );
 
         // seed base repository data
         builder.Entity<XivRepository>()

@@ -35,7 +35,7 @@ public class XivPatch
     /// This can be null if unknown (i.e. in the case of previously imported patches from before this tool existed).
     /// </summary>
     public DateTime? LastSeen { get; set; }
-    
+
     /// <summary>
     /// The date this patch file was first offered by the patch servers upon logging in.
     /// This can be null if unknown (i.e. in the case of previously imported patches from before this tool existed).
