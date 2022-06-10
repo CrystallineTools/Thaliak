@@ -218,11 +218,12 @@ public class PatchReconciliationService
 
         foreach (var hookEntry in discordHooks)
         {
-            Log.Information("Sending Discord alert to webhook: {@hookEntry}", hookEntry);
+            Log.Information("Sending Discord alerts to webhook: {@hookEntry}", hookEntry);
 
             try
             {
-                var embeds = new List<Embed>();
+                var hookClient = new DiscordWebhookClient(hookEntry.Url);
+
                 var title = "New FFXIV patch ";
                 var color = Color.Default;
                 switch (reconciliationType)
@@ -269,29 +270,30 @@ public class PatchReconciliationService
                     {
                         Name = "Detailed information on the Thaliak API",
                         Value =
-                            $"https://thaliak.xiv.dev/api/versions/{patch.Repository.Slug}/{patch.Version.VersionString}"
+                            $"https://thaliak.xiv.dev/api/versions/{patch.Version.Repository.Slug}/{patch.Version.VersionString}"
                     });
 
-                    embeds.Add(new EmbedBuilder
-                    {
-                        Color = color,
-                        Title = title,
-                        Timestamp = DateTimeOffset.UtcNow,
-                        Fields = fields,
-                        Footer = new EmbedFooterBuilder
+                    hookClient.SendMessageAsync(
+                        "",
+                        false,
+                        new[]
                         {
-                            Text = "thaliak.xiv.dev",
-                        }
-                    }.Build());
+                            new EmbedBuilder
+                            {
+                                Color = color,
+                                Title = title,
+                                Timestamp = DateTimeOffset.UtcNow,
+                                Fields = fields,
+                                Footer = new EmbedFooterBuilder
+                                {
+                                    Text = "thaliak.xiv.dev",
+                                }
+                            }.Build()
+                        },
+                        "Thaliak",
+                        "https://thaliak.xiv.dev/logo512.png"
+                    );
                 }
-
-                new DiscordWebhookClient(hookEntry.Url).SendMessageAsync(
-                    "",
-                    false,
-                    embeds,
-                    "Thaliak",
-                    "https://thaliak.xiv.dev/logo512.png"
-                );
             }
             catch (Exception ex)
             {
