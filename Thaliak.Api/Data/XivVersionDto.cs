@@ -4,8 +4,6 @@ namespace Thaliak.Api.Data;
 
 public class XivVersionDto
 {
-    public int Id { get; set; }
-
     public XivRepositoryDto? Repository { get; set; }
 
     public string Version { get; set; }
@@ -21,7 +19,6 @@ public class XivVersionDto
 
         return new XivVersionDto
         {
-            Id = version.Id,
             Repository = XivRepositoryDto.MapFrom(version.Repository),
             Version = version.VersionString,
             Patches = version.Patches.Select(XivPatchDto.MapFrom).ToList()

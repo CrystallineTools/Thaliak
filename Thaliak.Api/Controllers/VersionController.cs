@@ -75,6 +75,7 @@ public class VersionController : ControllerBase
             .Include(v => v.Patches)
             .WithPatchChains()
             .Include(v => v.Repository)
+            .OrderBy(v => v.VersionId)
             .ToList();
 
         return Ok(XivVersionDto.MapFrom(versions));
