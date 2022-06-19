@@ -9,7 +9,11 @@ public static class VersionExtensions
     {
         return q.Include(v => v.Patches)
             .ThenInclude(p => p.PrerequisitePatches)
+            .ThenInclude(c => c.PreviousPatch)
+            .ThenInclude(p => p.Version)
             .Include(v => v.Patches)
-            .ThenInclude(p => p.DependentPatches);
+            .ThenInclude(p => p.DependentPatches)
+            .ThenInclude(c => c.Patch)
+            .ThenInclude(p => p.Version);
     }
 }

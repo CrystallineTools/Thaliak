@@ -46,14 +46,14 @@ public class ThaliakContext : DbContext
 
         builder.Entity<XivPatchChain>()
             .HasOne(c => c.PreviousPatch)
-            .WithMany(p => p.PrerequisitePatches)
-            .HasForeignKey(c => c.PatchId)
+            .WithMany(p => p.DependentPatches)
+            .HasForeignKey(c => c.PreviousPatchId)
             .HasPrincipalKey(p => p.Id);
 
         builder.Entity<XivPatchChain>()
             .HasOne(c => c.Patch)
-            .WithMany(p => p.DependentPatches)
-            .HasForeignKey(c => c.PreviousPatchId)
+            .WithMany(p => p.PrerequisitePatches)
+            .HasForeignKey(c => c.PatchId)
             .HasPrincipalKey(p => p.Id);
 
         builder.Entity<XivFile>()

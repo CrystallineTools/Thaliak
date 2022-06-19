@@ -63,8 +63,10 @@ public class XivPatchDto
             LastSeen = patch.LastSeen,
             FirstOffered = patch.FirstOffered,
             LastOffered = patch.LastOffered,
-            PrerequisitePatches = patch.PrerequisitePatches.Select(c => c.Patch.Version.VersionString).ToList(),
-            DependentPatches = patch.DependentPatches.Select(c => c.PreviousPatch.Version.VersionString).ToList()
+            PrerequisitePatches = patch.PrerequisitePatches.Where(c => c.HasPrerequisitePatch)
+                .Select(c => c.PreviousPatch.Version.VersionString).ToList(),
+            DependentPatches = patch.DependentPatches.Where(c => c.PatchId != c.PreviousPatchId)
+                .Select(c => c.Patch.Version.VersionString).ToList()
         };
     }
 
