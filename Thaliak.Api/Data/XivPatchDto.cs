@@ -1,3 +1,5 @@
+using Thaliak.Database.Models;
+
 namespace Thaliak.Api.Data;
 
 public class XivPatchDto
@@ -19,7 +21,7 @@ public class XivPatchDto
     /// This can be null if unknown (i.e. in the case of previously imported patches from before this tool existed).
     /// </summary>
     public DateTime? LastSeen { get; set; }
-    
+
     /// <summary>
     /// The date this patch file was first offered by the patch servers upon logging in.
     /// This can be null if unknown (i.e. in the case of previously imported patches from before this tool existed).
@@ -42,4 +44,32 @@ public class XivPatchDto
     public long? HashBlockSize { get; set; }
 
     public string[]? Hashes { get; set; }
+
+    public List<string> PrerequisitePatches { get; set; } = new();
+
+    public List<string> DependentPatches { get; set; } = new();
+
+    public static XivPatchDto? MapFrom(XivPatch? patch)
+    {
+        if (patch == null)
+        {
+            return null;
+        }
+
+        return new XivPatchDto
+        {
+            RemoteOriginPath = patch.RemoteOriginPath,
+            FirstSeen = patch.FirstSeen,
+            LastSeen = patch.LastSeen,
+            FirstOffered = patch.FirstOffered,
+            LastOffered = patch.LastOffered,
+            PrerequisitePatches = patch.PrerequisitePatches.Select(c => c.Patch.Version.VersionString).ToList(),
+            DependentPatches = patch.DependentPatches.Select(c => c.PreviousPatch.Version.VersionString).ToList()
+        };
+    }
+
+    public static List<XivPatchDto?> MapFrom(IEnumerable<XivPatch?> patches)
+    {
+        return patches.Select(MapFrom).ToList();
+    }
 }

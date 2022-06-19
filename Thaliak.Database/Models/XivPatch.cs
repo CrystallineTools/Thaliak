@@ -58,4 +58,8 @@ public class XivPatch
     public long? HashBlockSize { get; set; }
 
     public string[]? Hashes { get; set; }
+
+    public List<XivPatchChain> PrerequisitePatches { get; set; }
+    
+    public List<XivPatchChain> DependentPatches { get; set; }
 }

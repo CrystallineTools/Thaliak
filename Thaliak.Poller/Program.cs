@@ -52,7 +52,8 @@ var host = Host.CreateDefaultBuilder(args)
         // set up the db context
         services.AddDbContext<ThaliakContext>(o =>
         {
-            o.UseNpgsql(ctx.Configuration.GetConnectionString("pg"));
+            o.UseNpgsql(ctx.Configuration.GetConnectionString("pg"),
+                co => co.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             o.LogTo(Log.Verbose);
         });
 

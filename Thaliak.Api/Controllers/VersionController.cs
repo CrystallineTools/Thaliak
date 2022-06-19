@@ -1,9 +1,9 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Thaliak.Api.Data;
 using Thaliak.Api.Util;
 using Thaliak.Database;
+using Thaliak.Database.Extensions;
 using Thaliak.Database.Models;
 
 namespace Thaliak.Api.Controllers;
@@ -14,12 +14,9 @@ public class VersionController : ControllerBase
 {
     private readonly ThaliakContext _db;
 
-    private readonly IMapper _map;
-
-    public VersionController(ThaliakContext db, IMapper map)
+    public VersionController(ThaliakContext db)
     {
         _db = db;
-        _map = map;
     }
 
     [HttpGet("{repository}/latest")]
@@ -44,13 +41,13 @@ public class VersionController : ControllerBase
         }
 
         var versions = baseQuery
-            .Include(v => v.Patches)
+            .WithPatchChains()
             .Include(v => v.Repository)
             .GroupBy(v => v.RepositoryId)
             .Select(g => g.OrderByDescending(v => v.VersionId).First())
             .ToList();
 
-        return Ok(_map.Map<List<XivVersionDto>>(versions));
+        return Ok(XivVersionDto.MapFrom(versions));
     }
 
     [HttpGet("{repository}")]
@@ -76,10 +73,11 @@ public class VersionController : ControllerBase
 
         var versions = baseQuery
             .Include(v => v.Patches)
+            .WithPatchChains()
             .Include(v => v.Repository)
             .ToList();
 
-        return Ok(_map.Map<List<XivVersionDto>>(versions));
+        return Ok(XivVersionDto.MapFrom(versions));
     }
 
     [HttpGet("{repository}/{version}")]
@@ -94,6 +92,7 @@ public class VersionController : ControllerBase
 
         var versions = _db.Versions
             .Include(v => v.Patches)
+            .WithPatchChains()
             .Include(v => v.Repository)
             .Where(v => v.RepositoryId == repo.Id && (v.Id.ToString() == version || v.VersionString == version))
             .OrderBy(v => v.VersionId)
@@ -101,7 +100,7 @@ public class VersionController : ControllerBase
 
         if (versions.Count == 1)
         {
-            return Ok(_map.Map<XivVersionDto>(versions.First()));
+            return Ok(XivVersionDto.MapFrom(versions.First()));
         }
         else if (versions.Count > 1)
         {

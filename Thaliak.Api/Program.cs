@@ -1,12 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Thaliak.Api.Data;
 using Thaliak.Database;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<ThaliakContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("pg")));
+builder.Services.AddDbContext<ThaliakContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("pg"),
+    co => co.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
-builder.Services.AddAutoMapper(typeof(ThaliakMapperProfile));
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();

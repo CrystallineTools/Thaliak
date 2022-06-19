@@ -44,6 +44,18 @@ public class ThaliakContext : DbContext
                 v => v == null ? null : v.Split(',', StringSplitOptions.RemoveEmptyEntries)
             );
 
+        builder.Entity<XivPatchChain>()
+            .HasOne(c => c.PreviousPatch)
+            .WithMany(p => p.PrerequisitePatches)
+            .HasForeignKey(c => c.PatchId)
+            .HasPrincipalKey(p => p.Id);
+
+        builder.Entity<XivPatchChain>()
+            .HasOne(c => c.Patch)
+            .WithMany(p => p.DependentPatches)
+            .HasForeignKey(c => c.PreviousPatchId)
+            .HasPrincipalKey(p => p.Id);
+
         builder.Entity<XivFile>()
             .HasMany(f => f.Versions)
             .WithMany(v => v.Files)
@@ -82,18 +94,6 @@ public class ThaliakContext : DbContext
             .WithMany()
             .HasForeignKey(c => c.RepositoryId)
             .HasPrincipalKey(r => r.Id);
-
-        builder.Entity<XivPatchChain>()
-            .HasOne(l => l.Patch)
-            .WithMany()
-            .HasForeignKey(l => l.PatchId)
-            .HasPrincipalKey(p => p.Id);
-
-        builder.Entity<XivPatchChain>()
-            .HasOne(l => l.PreviousPatch)
-            .WithMany()
-            .HasForeignKey(l => l.PreviousPatchId)
-            .HasPrincipalKey(p => p.Id);
 
         builder.Entity<XivPatchChain>()
             .HasKey(
