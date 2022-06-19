@@ -63,6 +63,10 @@ public class XivPatchDto
             LastSeen = patch.LastSeen,
             FirstOffered = patch.FirstOffered,
             LastOffered = patch.LastOffered,
+            Size = patch.Size,
+            HashType = patch.HashType,
+            HashBlockSize = patch.HashBlockSize,
+            Hashes = patch.Hashes,
             PrerequisitePatches = patch.PrerequisitePatches.Where(c => c.HasPrerequisitePatch)
                 .Select(c => c.PreviousPatch.Version.VersionString).ToList(),
             DependentPatches = patch.DependentPatches.Where(c => c.PatchId != c.PreviousPatchId)
