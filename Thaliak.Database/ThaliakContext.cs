@@ -61,6 +61,18 @@ public class ThaliakContext : DbContext
             .WithMany(v => v.Files)
             .UsingEntity(j => j.ToTable("VersionFiles"));
 
+        builder.Entity<XivFile>()
+            .HasKey(
+                nameof(XivFile.Name),
+                nameof(XivFile.SHA1)
+            );
+
+        // SHA1 hashes are stored as 40 character long hex strings
+        builder.Entity<XivFile>()
+            .Property(f => f.SHA1)
+            .HasMaxLength(40)
+            .IsFixedLength();
+
         builder.Entity<XivRepository>()
             .HasMany(r => r.ApplicableAccounts)
             .WithMany(a => a.ApplicableRepositories)
@@ -132,7 +144,7 @@ public class ThaliakContext : DbContext
                         Name = "ffxivneo/win32/release/ex2",
                         Description = "FFXIV Global/JP - Retail - ex2 (Stormblood) - Win32"
                     },
-                    new()
+                    new()     
                     {
                         Id = 5,
                         Name = "ffxivneo/win32/release/ex3",

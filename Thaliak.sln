@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XIVLauncher.Common", "lib\F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Poller", "Thaliak.Poller\Thaliak.Poller.csproj", "{4084A34E-3942-4704-88A3-33056419000A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Analyser", "Thaliak.Analyser\Thaliak.Analyser.csproj", "{ADA40CF3-CE32-4B2B-9525-29F8F365DA3C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{4084A34E-3942-4704-88A3-33056419000A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4084A34E-3942-4704-88A3-33056419000A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4084A34E-3942-4704-88A3-33056419000A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADA40CF3-CE32-4B2B-9525-29F8F365DA3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADA40CF3-CE32-4B2B-9525-29F8F365DA3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADA40CF3-CE32-4B2B-9525-29F8F365DA3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADA40CF3-CE32-4B2B-9525-29F8F365DA3C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{9565E611-AC6D-4C2C-BDC6-CD8649209E0A} = {65620F58-8B20-4FA2-8CE4-3FB158AD3FAD}
