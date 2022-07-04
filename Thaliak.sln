@@ -1,16 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Api", "Thaliak.Api\Thaliak.Api.csproj", "{59C61130-142B-482C-97F8-CE4A6BC68B04}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Service.Api", "Thaliak.Service.Api\Thaliak.Service.Api.csproj", "{59C61130-142B-482C-97F8-CE4A6BC68B04}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Database", "Thaliak.Database\Thaliak.Database.csproj", "{8DF9315A-A28F-43FD-A5F7-990D4A282C91}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Common.Database", "Thaliak.Common.Database\Thaliak.Common.Database.csproj", "{8DF9315A-A28F-43FD-A5F7-990D4A282C91}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{65620F58-8B20-4FA2-8CE4-3FB158AD3FAD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XIVLauncher.Common", "lib\FFXIVQuickLauncher\src\XIVLauncher.Common\XIVLauncher.Common.csproj", "{9565E611-AC6D-4C2C-BDC6-CD8649209E0A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Poller", "Thaliak.Poller\Thaliak.Poller.csproj", "{4084A34E-3942-4704-88A3-33056419000A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Service.Poller", "Thaliak.Service.Poller\Thaliak.Service.Poller.csproj", "{4084A34E-3942-4704-88A3-33056419000A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Analyser", "Thaliak.Analyser\Thaliak.Analyser.csproj", "{ADA40CF3-CE32-4B2B-9525-29F8F365DA3C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Service.Analyser", "Thaliak.Service.Analyser\Thaliak.Service.Analyser.csproj", "{ADA40CF3-CE32-4B2B-9525-29F8F365DA3C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

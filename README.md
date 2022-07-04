@@ -16,7 +16,7 @@ Most people will likely want to use the public version, but you can also use the
 - Provides an [API](https://thaliak.xiv.dev/api) that can be consumed to retrieve patch information
 - Provides a rudimentary [web interface](https://thaliak.xiv.dev) that displays patch information and API usage examples.
   - [The web interface has its own GitHub repository, available here.](https://github.com/avafloww/thaliak-web)
-- Provides Discord webhook alerts. ![](assets/screenshot-discord.png)
+- Provides Discord webhook alerts. If you would like alerts set up in your own server, please contact me (Avaflow). ![](assets/screenshot-discord.png)
 
 ### Planned
 - Automatic summary of operations in ZiPatch files

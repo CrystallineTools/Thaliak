@@ -6,5 +6,5 @@ obj/
 .idea/
 appsettings.*.json
 .DS_Store
-Thaliak.Poller/data/
+Thaliak.Service.Poller/data/
 
