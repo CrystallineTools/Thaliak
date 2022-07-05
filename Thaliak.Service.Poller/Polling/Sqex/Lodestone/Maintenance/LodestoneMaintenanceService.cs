@@ -8,7 +8,7 @@ public class LodestoneMaintenanceService : IPoller
 {
     private static readonly Regex MaintenanceArticleRegex =
         new(
-            "<a href=\"(/lodestone/.+?)\" class=\"news__list--link ic__maintenance--list\">.+?<span class=\"news__list--tag\">\\[(.+?)\\]</span>(.+?)</p>.+?</a>",
+            "<a href=\"(/lodestone/.+?)\" class=\"news__list--link(?: link)? ic__maintenance--list\">.+?<span class=\"news__list--tag\">\\[(.+?)\\]</span>(.+?)</p>.+?</a>",
             RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private static readonly Regex MaintenanceTitleRegex =
