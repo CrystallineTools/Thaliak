@@ -69,7 +69,6 @@ public class LodestoneMaintenanceService : IPoller
         var list = new List<string>();
         foreach (Match match in matches)
         {
-            
             var url = LODESTONE_BASE_URL + match.Groups[1];
             var tag = match.Groups[2].ToString();
             var title = match.Groups[3].ToString();
