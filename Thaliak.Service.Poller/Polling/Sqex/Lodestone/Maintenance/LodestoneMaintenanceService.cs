@@ -67,7 +67,6 @@ public class LodestoneMaintenanceService : IPoller
 
         var today = DateTime.UtcNow.Date;
         var list = new List<string>();
-        Log.Information("Matches: {@0}", matches.Count);
         foreach (Match match in matches)
         {
             
