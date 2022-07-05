@@ -143,7 +143,7 @@ public class SqexFutureScraperService : ScraperBase
         );
 
         List<string> urls = new();
-        for (var dt = DateTime.UtcNow.Date; dt > lastPatchDate; dt = dt.Subtract(TimeSpan.FromDays(1)))
+        for (var dt = maintenance.EndTime.Date; dt > lastPatchDate; dt = dt.Subtract(TimeSpan.FromDays(1)))
         {
             urls.Add($"{urlPrefix}D{dt.Year:D4}.{dt.Month:D2}.{dt.Day:D2}.0000.0000.patch");
         }
