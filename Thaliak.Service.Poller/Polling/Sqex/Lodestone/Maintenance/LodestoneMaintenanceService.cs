@@ -8,8 +8,8 @@ public class LodestoneMaintenanceService : IPoller
 {
     private static readonly Regex MaintenanceArticleRegex =
         new(
-            "<a href=\"(/lodestone/.+?)\" class=\"news__list--link(?: link)? ic__maintenance--list\">.+?<span class=\"news__list--tag\">\\[(.+?)\\]</span>(.+?)</p>.+?</a>",
-            RegexOptions.Compiled | RegexOptions.CultureInvariant);
+            "<a href=\"(/lodestone/.+?)\" class=\"news__list--link(?: link)? ic__maintenance--list\">.+?<span class=\"news__list--tag\">\\[(.+?)\\]</span>\\s*(.+?)\\s*</p>.+?</a>",
+            RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline);
 
     private static readonly Regex MaintenanceTitleRegex =
         new(@"All Worlds (Emergency )?Maintenance \((?:(\w{3}).? (\d{1,2})(?:-(\d{1,2}))?)\)",
@@ -67,8 +67,10 @@ public class LodestoneMaintenanceService : IPoller
 
         var today = DateTime.UtcNow.Date;
         var list = new List<string>();
+        Log.Information("Matches: {@0}", matches.Count);
         foreach (Match match in matches)
         {
+            
             var url = LODESTONE_BASE_URL + match.Groups[1];
             var tag = match.Groups[2].ToString();
             var title = match.Groups[3].ToString();
