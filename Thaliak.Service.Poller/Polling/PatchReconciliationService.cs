@@ -1,11 +1,9 @@
 ﻿using Discord;
 using Discord.Webhook;
-using FlexLabs.EntityFrameworkCore.Upsert;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Thaliak.Common.Database;
 using Thaliak.Common.Database.Models;
-using Thaliak.Service.Poller.Util;
 using Thaliak.Service.Poller.Download;
 using XIVLauncher.Common.Game.Patch.PatchList;
 
@@ -124,8 +122,6 @@ public class PatchReconciliationService
 
         remotePatches = remotePatches.OrderBy(p => XivVersion.StringToId(p.VersionId));
 
-        var upserts = new List<UpsertCommandBuilder<XivPatchChain>>();
-
         PatchListEntry? previousPatch = null;
         foreach (var remotePatch in remotePatches)
         {
@@ -164,22 +160,28 @@ public class PatchReconciliationService
                 }
 
                 chain.PreviousPatchId = dbPreviousPatch.Id;
-                chain.HasPrerequisitePatch = true;
+
+                // when the ON CONFLICT index is a partial index, we must specify predicates in the ON CONFLICT clause
+                // kinda sucks to drop down to raw SQL here, but the upsert lib didn't support this so ¯\_(ツ)_/¯
+                _db.Database.ExecuteSqlInterpolated(
+                    $@"INSERT INTO ""PatchChains"" (""RepositoryId"", ""PatchId"", ""PreviousPatchId"", ""FirstOffered"", ""LastOffered"")
+                        VALUES ({chain.RepositoryId}, {chain.PatchId}, {chain.PreviousPatchId}, {chain.FirstOffered}, {chain.LastOffered})
+                        ON CONFLICT (""PatchId"", ""PreviousPatchId"") WHERE ""PreviousPatchId"" IS NOT NULL DO UPDATE SET ""LastOffered"" = {chain.LastOffered}"
+                );
             }
             else
             {
-                // set to the same ID as the current patch, since we can't use null in a PK
-                chain.PreviousPatchId = dbPatch.Id;
-                chain.HasPrerequisitePatch = false;
+                _db.Database.ExecuteSqlInterpolated(
+                    $@"INSERT INTO ""PatchChains"" (""RepositoryId"", ""PatchId"", ""PreviousPatchId"", ""FirstOffered"", ""LastOffered"")
+                        VALUES ({chain.RepositoryId}, {chain.PatchId}, NULL, {chain.FirstOffered}, {chain.LastOffered})
+                        ON CONFLICT (""PatchId"") WHERE ""PreviousPatchId"" IS NULL DO UPDATE SET ""LastOffered"" = {chain.LastOffered}"
+                );
             }
-
-            upserts.Add(_db.PatchChains.Upsert(chain).WhenMatched(c => new XivPatchChain {LastOffered = now}));
 
             previousPatch = remotePatch;
         }
 
         // now that we're pretty sure all of them exist, commit the changes
-        upserts.ForEach(u => u.Run());
         _db.SaveChanges();
 
         Log.Information("Successfully logged patch chain data for repo {repoId}", effectiveRepoId);

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Thaliak.Common.Database;
@@ -11,9 +12,10 @@ using Thaliak.Common.Database;
 namespace Thaliak.Common.Database.Migrations
 {
     [DbContext(typeof(ThaliakContext))]
-    partial class ThaliakContextModelSnapshot : ModelSnapshot
+    [Migration("20220706045839_MakePatchChainSchemaSensible")]
+    partial class MakePatchChainSchemaSensible
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -107,12 +107,16 @@ public class ThaliakContext : DbContext
             .HasForeignKey(c => c.RepositoryId)
             .HasPrincipalKey(r => r.Id);
 
+        // https://stackoverflow.com/a/8289253
         builder.Entity<XivPatchChain>()
-            .HasKey(
-                nameof(XivPatchChain.RepositoryId),
-                nameof(XivPatchChain.PatchId),
-                nameof(XivPatchChain.PreviousPatchId)
-            );
+            .HasIndex(nameof(XivPatchChain.PatchId), nameof(XivPatchChain.PreviousPatchId))
+            .IsUnique()
+            .HasFilter(@"""PreviousPatchId"" IS NOT NULL");
+
+        builder.Entity<XivPatchChain>()
+            .HasIndex(nameof(XivPatchChain.PatchId))
+            .IsUnique()
+            .HasFilter(@"""PreviousPatchId"" IS NULL");
 
         // seed base repository data
         builder.Entity<XivRepository>()
@@ -144,7 +148,7 @@ public class ThaliakContext : DbContext
                         Name = "ffxivneo/win32/release/ex2",
                         Description = "FFXIV Global/JP - Retail - ex2 (Stormblood) - Win32"
                     },
-                    new()     
+                    new()
                     {
                         Id = 5,
                         Name = "ffxivneo/win32/release/ex3",

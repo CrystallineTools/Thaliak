@@ -67,10 +67,8 @@ public class XivPatchDto
             HashType = patch.HashType,
             HashBlockSize = patch.HashBlockSize,
             Hashes = patch.Hashes,
-            PrerequisitePatches = patch.PrerequisitePatches.Where(c => c.HasPrerequisitePatch)
-                .Select(c => c.PreviousPatch.Version.VersionString).ToList(),
-            DependentPatches = patch.DependentPatches.Where(c => c.PatchId != c.PreviousPatchId)
-                .Select(c => c.Patch.Version.VersionString).ToList()
+            PrerequisitePatches = patch.PrerequisitePatches.Select(c => c.PreviousPatch?.Version.VersionString).OfType<string>().ToList(),
+            DependentPatches = patch.DependentPatches.Select(c => c.Patch.Version.VersionString).ToList()
         };
     }
 
