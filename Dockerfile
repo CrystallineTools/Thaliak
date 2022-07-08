@@ -1,4 +1,6 @@
 FROM node:16-alpine AS build
+RUN apk add git
+
 ENV NODE_ENV production
 WORKDIR /app
 COPY package.json .
