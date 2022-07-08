@@ -6,4 +6,6 @@ export default interface Patch {
   hashType?: string;
   hashBlockSize?: number;
   hashes?: string[];
+  prerequisitePatches: string[];
+  dependentPatches: string[];
 }

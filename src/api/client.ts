@@ -14,12 +14,18 @@ class ApiClient {
     return await response.json();
   }
 
-  public async getRespositories(): Promise<Repository[]> {
+  public async getRepositories(): Promise<Repository[]> {
     return await this.get<Repository[]>('repositories');
   }
 
-  public async getLatestVersions(repository?: Repository): Promise<Version[]> {
-    return await this.get<Version[]>(`versions/${repository?.name ?? 'all'}/latest`);
+  public async getLatestVersions(repository?: Repository | string): Promise<Version[]> {
+    const repoName = typeof repository === 'string' ? repository : repository?.name ?? 'all';
+    return await this.get<Version[]>(`versions/${repoName}/latest`);
+  }
+
+  public async getAllVersions(repository?: Repository | string): Promise<Version[]> {
+    const repoName = typeof repository === 'string' ? repository : repository?.name ?? 'all';
+    return await this.get<Version[]>(`versions/${repoName}`);
   }
 }
 

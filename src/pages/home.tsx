@@ -1,34 +1,12 @@
-import { useEffect, useState } from 'react';
-import Repository from '../api/types/repository';
 import { ListGroup } from 'react-bootstrap';
 import RepositoryListItem from '../components/RepositoryListItem';
-import Version from '../api/types/version';
-import Api from '../api/client';
+import { useRecoilValue } from 'recoil';
+import { LAST_UPDATED, LATEST_VERSIONS, REPOSITORIES } from '../store';
 
-export default function Home() {
-  const [repositories, setRepositories] = useState<Repository[]>([]);
-  const [versions, setVersions] = useState<Version[]>([]);
-  const [lastUpdated, setLastUpdated] = useState<Date>();
-
-  useEffect(() => {
-    async function refresh() {
-      await Promise.all(
-        [
-          Api.getRespositories().then(setRepositories),
-          Api.getLatestVersions().then(setVersions)
-        ]
-      );
-
-      setLastUpdated(new Date());
-    }
-
-    refresh();
-
-    const timer = setTimeout(refresh, 60 * 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  repositories.map((repo) => console.log(repo));
+export default function HomePage() {
+  const repositories = useRecoilValue(REPOSITORIES);
+  const versions = useRecoilValue(LATEST_VERSIONS);
+  const lastUpdated = useRecoilValue(LAST_UPDATED);
 
   return (
     <div>
@@ -43,7 +21,7 @@ export default function Home() {
       </div>
 
       <ListGroup>
-        {repositories.map((repo) => <RepositoryListItem repo={repo} versions={versions} />)}
+        {repositories.map((repo) => <RepositoryListItem repo={repo} versions={versions} key={repo.slug} />)}
       </ListGroup>
     </div>
   );

@@ -3,6 +3,7 @@ import { ListGroup, Spinner } from 'react-bootstrap';
 import Version from '../api/types/version';
 import { useEffect, useState } from 'react';
 import RepositoryListItemVersion from './RepositoryListItemVersion';
+import { Link } from 'react-router-dom';
 
 export default function RepositoryListItem({ repo, versions }: { repo: Repository, versions: Version[] }) {
   const [loading, setLoading] = useState<boolean>(true);
@@ -23,7 +24,7 @@ export default function RepositoryListItem({ repo, versions }: { repo: Repositor
     <ListGroup.Item>
       <div className='row'>
         <div className='col'>
-          <strong className='font-monospace'>{repo.slug}</strong>
+          <Link className='font-monospace fw-bold' to={`/repository/${repo.slug}`}>{repo.slug}</Link>
           <div className='btn-group btn-group-sm ms-2'>
             <span className='btn btn-outline-secondary disabled'>
               API
