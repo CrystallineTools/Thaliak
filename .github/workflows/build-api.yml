@@ -27,7 +27,7 @@ jobs:
           context: .
           file: ./Thaliak.Service.Api/Dockerfile
           push: true
-          tags: ghcr.io/avafloww/thaliak-api:latest
+          tags: ghcr.io/avafloww/thaliak-api:legacy
       - name: Deploy to production server
         uses: appleboy/ssh-action@v0.1.4
         with:
@@ -36,4 +36,4 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
           # todo: update if we ever care about supporting a staging env
-          script: sudo /home/deploy/deploy-thaliak.sh api main
+          script: sudo /home/deploy/deploy-thaliak.sh api-legacy main
