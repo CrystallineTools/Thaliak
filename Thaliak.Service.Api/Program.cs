@@ -15,7 +15,7 @@ builder.Services.AddSwaggerGen(o =>
     {
         Version = "v1",
         Title = "Thaliak API",
-        Description = "REST API for the Thaliak version tracking tool for Final Fantasy XIV: Online",
+        Description = "(DEPRECATED; replaced with GraphQL API) REST API for the Thaliak version tracking tool for Final Fantasy XIV: Online",
         License = new OpenApiLicense
         {
             Name = "AGPL-3.0"
