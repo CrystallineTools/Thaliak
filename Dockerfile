@@ -3,11 +3,8 @@ RUN apk add git
 
 ENV NODE_ENV production
 WORKDIR /app
-COPY package.json .
-COPY yarn.lock .
-RUN yarn install --production
 COPY . .
-RUN yarn build
+RUN yarn install --immutable && yarn build
 
 FROM nginx:alpine AS web
 COPY --from=build /app/build /var/www/html
