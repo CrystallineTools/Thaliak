@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Thaliak.Common.Database.Models;
@@ -9,6 +10,9 @@ namespace Thaliak.Common.Database.Models;
 [Index(nameof(Version))]
 public class XivPatch
 {
+    private static readonly Regex PatchUrlRegex = new(@"(?:https?:\/\/(.+?)\/)?(?:ff\/)?((?:game|boot)\/.+)\/(.*)",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
@@ -23,6 +27,32 @@ public class XivPatch
     /// This is combined with the RemoteOrigin of the XivRepository to retrieve the full URL.
     /// </summary>
     public string RemoteOriginPath { get; set; }
+
+    /// <summary>
+    /// The local path component of this patch file on the local machine.
+    /// </summary>
+    /// <exception cref="Exception">if the local path component could not be determined from the URL</exception>
+    public string LocalStoragePath
+    {
+        get
+        {
+            if (_localStoragePath != null) {
+                return _localStoragePath;
+            }
+
+            var match = PatchUrlRegex.Match(RemoteOriginPath);
+            if (!match.Success) {
+                throw new Exception($"Unable to match URL to PatchUrlRegex: {RemoteOriginPath}");
+            }
+
+            _localStoragePath = $"{match.Groups[1]}/{match.Groups[2]}/{match.Groups[3]}";
+
+            return _localStoragePath;
+        }
+        private set => _localStoragePath = value;
+    }
+
+    private string? _localStoragePath;
 
     /// <summary>
     /// The date this patch file was first seen on the patch servers at the requisite URL.
@@ -60,6 +90,6 @@ public class XivPatch
     public string[]? Hashes { get; set; }
 
     public List<XivPatchChain> PrerequisitePatches { get; set; }
-    
+
     public List<XivPatchChain> DependentPatches { get; set; }
 }

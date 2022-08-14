@@ -12,6 +12,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Service.Poller", "T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Service.Analyser", "Thaliak.Service.Analyser\Thaliak.Service.Analyser.csproj", "{ADA40CF3-CE32-4B2B-9525-29F8F365DA3C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Common.Messages", "Thaliak.Common.Messages\Thaliak.Common.Messages.csproj", "{E2351FCE-C7AC-4413-9C69-30979D535062}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Analysis.Engine", "Thaliak.Analysis.Engine\Thaliak.Analysis.Engine.csproj", "{CB981E64-172E-473D-A39E-23D636CF90E7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.AdminCli", "Thaliak.AdminCli\Thaliak.AdminCli.csproj", "{1D136F75-FF49-4743-A278-ED8EEA239212}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +44,18 @@ Global
 		{ADA40CF3-CE32-4B2B-9525-29F8F365DA3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADA40CF3-CE32-4B2B-9525-29F8F365DA3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADA40CF3-CE32-4B2B-9525-29F8F365DA3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2351FCE-C7AC-4413-9C69-30979D535062}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2351FCE-C7AC-4413-9C69-30979D535062}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2351FCE-C7AC-4413-9C69-30979D535062}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2351FCE-C7AC-4413-9C69-30979D535062}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB981E64-172E-473D-A39E-23D636CF90E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB981E64-172E-473D-A39E-23D636CF90E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB981E64-172E-473D-A39E-23D636CF90E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB981E64-172E-473D-A39E-23D636CF90E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D136F75-FF49-4743-A278-ED8EEA239212}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D136F75-FF49-4743-A278-ED8EEA239212}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D136F75-FF49-4743-A278-ED8EEA239212}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D136F75-FF49-4743-A278-ED8EEA239212}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{9565E611-AC6D-4C2C-BDC6-CD8649209E0A} = {65620F58-8B20-4FA2-8CE4-3FB158AD3FAD}

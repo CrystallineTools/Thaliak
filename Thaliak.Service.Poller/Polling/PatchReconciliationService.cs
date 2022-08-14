@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Thaliak.Common.Database;
 using Thaliak.Common.Database.Models;
+using Thaliak.Common.Messages.Polling;
 using Thaliak.Service.Poller.Download;
 using XIVLauncher.Common.Game.Patch.PatchList;
 
@@ -19,7 +20,7 @@ public class PatchReconciliationService
     }
 
     public void Reconcile(XivRepository repo, PatchListEntry[] remotePatches,
-        PatchReconciliationType reconciliationType = PatchReconciliationType.Offered)
+        PatchDiscoveryType discoveryType = PatchDiscoveryType.Offered)
     {
         // use a consistent timestamp through reconciliation of each repo's patch list
         var now = DateTime.UtcNow;
@@ -52,27 +53,22 @@ public class PatchReconciliationService
         var newPatchList = new List<XivPatch>();
 
         // let's go
-        foreach (var remotePatch in remotePatches)
-        {
+        foreach (var remotePatch in remotePatches) {
             var effectiveRepoId = GetEffectiveRepositoryId(expansions, repo.Id, remotePatch.Url);
             var localPatch = localPatches.FirstOrDefault(p =>
                 p.version.VersionString == remotePatch.VersionId && p.version.RepositoryId == effectiveRepoId);
-            if (localPatch == null)
-            {
-                var newPatch = RecordNewPatchData(now, effectiveRepoId, remotePatch, reconciliationType);
+            if (localPatch == null) {
+                var newPatch = RecordNewPatchData(now, effectiveRepoId, remotePatch, discoveryType);
 
                 // add it to the list for alerting
                 newPatchList.Add(newPatch);
-            }
-            else
-            {
+            } else {
                 var alert = localPatch.patch.FirstOffered == null &&
-                            reconciliationType == PatchReconciliationType.Offered;
-                UpdateExistingPatchData(now, localPatch.patch, remotePatch, reconciliationType);
+                            discoveryType == PatchDiscoveryType.Offered;
+                UpdateExistingPatchData(now, localPatch.patch, remotePatch, discoveryType);
 
                 // if we had previously seen the patch, but now it's being offered, trigger an alert for it anyways
-                if (alert)
-                {
+                if (alert) {
                     newPatchList.Add(localPatch.patch);
                 }
             }
@@ -82,8 +78,7 @@ public class PatchReconciliationService
         }
 
         // update the chains
-        foreach (var repoId in repoIds)
-        {
+        foreach (var repoId in repoIds) {
             var expansionPatches = remotePatches.Where(p =>
                 GetEffectiveRepositoryId(expansions, repo.Id, p.Url) == repoId);
             RecordPatchChainData(now, repoId, expansionPatches);
@@ -106,14 +101,13 @@ public class PatchReconciliationService
          * ⠀⠀⠀⠀⠁⠇⠡⠩⡫⢿⣝⡻⡮⣒⢽⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
          * —————————————————————————————
          */
-        if (newPatchList.Count < 1)
-        {
+        if (newPatchList.Count < 1) {
             return;
         }
 
         // yeah, patches
         Log.Information("Sending Discord alerts for new patches");
-        SendDiscordAlerts(newPatchList, reconciliationType);
+        SendDiscordAlerts(newPatchList, discoveryType);
     }
 
     private void RecordPatchChainData(DateTime now, int effectiveRepoId, IEnumerable<PatchListEntry> remotePatches)
@@ -123,8 +117,7 @@ public class PatchReconciliationService
         remotePatches = remotePatches.OrderBy(p => XivVersion.StringToId(p.VersionId));
 
         PatchListEntry? previousPatch = null;
-        foreach (var remotePatch in remotePatches)
-        {
+        foreach (var remotePatch in remotePatches) {
             // get the patch IDs
             var dbPatches = _db.Patches
                 .Include(p => p.Version)
@@ -134,8 +127,7 @@ public class PatchReconciliationService
                 .ToList();
 
             var dbPatch = dbPatches.FirstOrDefault(p => p.Version.VersionString == remotePatch.VersionId);
-            if (dbPatch == null)
-            {
+            if (dbPatch == null) {
                 Log.Error("Could not find patch in DB: {0}. Backing out of patch chain recording.",
                     remotePatch.VersionId);
                 return;
@@ -149,11 +141,9 @@ public class PatchReconciliationService
                 PatchId = dbPatch.Id,
             };
 
-            if (previousPatch != null)
-            {
+            if (previousPatch != null) {
                 var dbPreviousPatch = dbPatches.FirstOrDefault(p => p.Version.VersionString == previousPatch.VersionId);
-                if (dbPreviousPatch == null)
-                {
+                if (dbPreviousPatch == null) {
                     Log.Error("Could not find previous patch in DB: {0}. Backing out of patch chain recording.",
                         previousPatch.VersionId);
                     return;
@@ -168,9 +158,7 @@ public class PatchReconciliationService
                         VALUES ({chain.RepositoryId}, {chain.PatchId}, {chain.PreviousPatchId}, {chain.FirstOffered}, {chain.LastOffered})
                         ON CONFLICT (""PatchId"", ""PreviousPatchId"") WHERE ""PreviousPatchId"" IS NOT NULL DO UPDATE SET ""LastOffered"" = {chain.LastOffered}"
                 );
-            }
-            else
-            {
+            } else {
                 _db.Database.ExecuteSqlInterpolated(
                     $@"INSERT INTO ""PatchChains"" (""RepositoryId"", ""PatchId"", ""PreviousPatchId"", ""FirstOffered"", ""LastOffered"")
                         VALUES ({chain.RepositoryId}, {chain.PatchId}, NULL, {chain.FirstOffered}, {chain.LastOffered})
@@ -188,24 +176,21 @@ public class PatchReconciliationService
     }
 
     private XivPatch RecordNewPatchData(DateTime now, int effectiveRepoId, PatchListEntry remotePatch,
-        PatchReconciliationType reconciliationType)
+        PatchDiscoveryType discoveryType)
     {
         Log.Information("Discovered new patch: {@0}", remotePatch);
 
         // existing version?
         var version = _db.Versions.FirstOrDefault(v =>
             v.VersionString == remotePatch.VersionId && v.RepositoryId == effectiveRepoId);
-        if (version == null)
-        {
+        if (version == null) {
             version = new XivVersion
             {
                 VersionId = XivVersion.StringToId(remotePatch.VersionId),
                 VersionString = remotePatch.VersionId,
                 RepositoryId = effectiveRepoId
             };
-        }
-        else
-        {
+        } else {
             _db.Versions.Attach(version);
         }
 
@@ -218,8 +203,7 @@ public class PatchReconciliationService
             Size = remotePatch.Length
         };
 
-        if (reconciliationType == PatchReconciliationType.Offered)
-        {
+        if (discoveryType == PatchDiscoveryType.Offered) {
             // the launcher is offering us the patch now
             newPatch.FirstOffered = now;
             newPatch.LastOffered = now;
@@ -236,23 +220,21 @@ public class PatchReconciliationService
         _db.Patches.Add(newPatch);
 
         // add it to the download queue
-        DownloaderService.AddToQueue(new DownloadJob(newPatch.RemoteOriginPath));
+        DownloaderService.AddToQueue(new DownloadJob(newPatch));
 
         return newPatch;
     }
 
     private void UpdateExistingPatchData(DateTime now, XivPatch localPatch, PatchListEntry remotePatch,
-        PatchReconciliationType reconciliationType)
+        PatchDiscoveryType discoveryType)
     {
         Log.Verbose("Patch already present: {@0}", remotePatch);
 
         localPatch.LastSeen = now;
-        if (reconciliationType == PatchReconciliationType.Offered)
-        {
+        if (discoveryType == PatchDiscoveryType.Offered) {
             localPatch.LastOffered = now;
 
-            if (localPatch.FirstOffered == null)
-            {
+            if (localPatch.FirstOffered == null) {
                 localPatch.FirstOffered = now;
 
                 // since this is the first time the patch is being offered, update hashes/metadata accordingly
@@ -275,15 +257,12 @@ public class PatchReconciliationService
         string patchUrl)
     {
         var expansionId = XivExpansionRepositoryMapping.GetExpansionId(patchUrl);
-        if (expansionId == 0)
-        {
+        if (expansionId == 0) {
             return repositoryId;
         }
 
-        foreach (var erp in expansions)
-        {
-            if (erp.ExpansionId == expansionId)
-            {
+        foreach (var erp in expansions) {
+            if (erp.ExpansionId == expansionId) {
                 return erp.ExpansionRepositoryId;
             }
         }
@@ -291,34 +270,30 @@ public class PatchReconciliationService
         throw new InvalidDataException($"Unknown expansion ID {expansionId} for repository ID {repositoryId}!");
     }
 
-    private void SendDiscordAlerts(List<XivPatch> newPatchList, PatchReconciliationType reconciliationType)
+    private void SendDiscordAlerts(List<XivPatch> newPatchList, PatchDiscoveryType discoveryType)
     {
         var discordHooks = _db.DiscordHooks.ToList();
 
-        foreach (var hookEntry in discordHooks)
-        {
+        foreach (var hookEntry in discordHooks) {
             Log.Information("Sending Discord alerts to webhook: {@hookEntry}", hookEntry);
 
-            try
-            {
+            try {
                 var hookClient = new DiscordWebhookClient(hookEntry.Url);
 
                 var title = "New FFXIV patch ";
                 var color = Color.Default;
-                switch (reconciliationType)
-                {
-                    case PatchReconciliationType.Offered:
+                switch (discoveryType) {
+                    case PatchDiscoveryType.Offered:
                         title += "offered by launcher";
                         color = Color.Green;
                         break;
-                    case PatchReconciliationType.Scraped:
+                    case PatchDiscoveryType.Scraped:
                         title += "seen on patch server";
                         color = Color.LightOrange;
                         break;
                 }
 
-                foreach (var patch in newPatchList)
-                {
+                foreach (var patch in newPatchList) {
                     var fields = new List<EmbedFieldBuilder>();
 
                     fields.Add(new EmbedFieldBuilder
@@ -373,9 +348,7 @@ public class PatchReconciliationService
                         "https://thaliak.xiv.dev/logo512.png"
                     );
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 Log.Warning(ex, "Error calling Discord webhook");
             }
         }
@@ -386,8 +359,7 @@ public class PatchReconciliationService
     {
         string[] sizes = {"B", "KB", "MB", "GB", "TB"};
         var order = 0;
-        while (len >= 1024 && order < sizes.Length - 1)
-        {
+        while (len >= 1024 && order < sizes.Length - 1) {
             order++;
             len /= 1024;
         }

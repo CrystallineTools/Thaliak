@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Thaliak.Common.Database;
@@ -11,9 +12,10 @@ using Thaliak.Common.Database;
 namespace Thaliak.Common.Database.Migrations
 {
     [DbContext(typeof(ThaliakContext))]
-    partial class ThaliakContextModelSnapshot : ModelSnapshot
+    [Migration("20220813050037_FileSizeToLong")]
+    partial class FileSizeToLong
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -183,15 +185,10 @@ namespace Thaliak.Common.Database.Migrations
                         .HasColumnType("character(40)")
                         .IsFixedLength();
 
-                    b.Property<DateTime>("LastUsed")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<decimal>("Size")
                         .HasColumnType("numeric(20,0)");
 
                     b.HasKey("Name", "SHA1");
-
-                    b.HasIndex("LastUsed");
 
                     b.ToTable("Files");
                 });
@@ -224,10 +221,6 @@ namespace Thaliak.Common.Database.Migrations
 
                     b.Property<DateTime?>("LastSeen")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("LocalStoragePath")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("RemoteOriginPath")
                         .IsRequired()

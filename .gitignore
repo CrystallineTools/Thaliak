@@ -7,4 +7,5 @@ obj/
 appsettings.*.json
 .DS_Store
 Thaliak.Service.Poller/data/
+*.DotSettings*
 

@@ -37,28 +37,24 @@ public class XivVersion
     public int RepositoryId { get; set; }
     public XivRepository Repository { get; set; }
 
-    public List<XivPatch> Patches { get; set; }
+    public List<XivPatch> Patches { get; set; } = new();
 
-    public List<XivFile> Files { get; set; }
+    public List<XivFile> Files { get; set; } = new();
 
     public static ulong StringToId(string verString)
     {
         var match = VersionRegex.Match(verString);
-        if (!match.Success)
-        {
+        if (!match.Success) {
             throw new ArgumentException($"Invalid version string: {verString}");
         }
 
         var trimmed = new StringBuilder(match.Groups[1].Value.Replace(".", ""));
-        if (match.Groups[2].Success)
-        {
+        if (match.Groups[2].Success) {
             // convert from letter to position in alphabet
             var letter = match.Groups[2].Value.ToLowerInvariant();
             var pos = letter[0] - 'a';
             trimmed.Append(pos.ToString("D2"));
-        }
-        else
-        {
+        } else {
             trimmed.Append("00");
         }
 
@@ -71,8 +67,7 @@ public class XivVersion
     public static string UrlToString(string url)
     {
         var match = VersionRegex.Match(url);
-        if (!match.Success)
-        {
+        if (!match.Success) {
             throw new ArgumentException($"Invalid patch URL: {url}");
         }
 

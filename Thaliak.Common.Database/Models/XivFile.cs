@@ -8,7 +8,7 @@ public class XivFile
     /// <summary>
     /// The versions that this file belongs to.
     /// </summary>
-    public List<XivVersion> Versions { get; set; }
+    public List<XivVersion> Versions { get; set; } = new();
 
     /// <summary>
     /// The file path and name.
@@ -23,5 +23,18 @@ public class XivFile
     /// <summary>
     /// File size in bytes.
     /// </summary>
-    public uint Size { get; set; }
+    public ulong Size { get; set; }
+
+    /// <summary>
+    /// The last time this file was used inside Thaliak.
+    /// This may be used to find files to offload to an external storage provider.
+    /// </summary>
+    public DateTime LastUsed { get; set; }
+
+    public bool IsChecksumValid => SHA1 is {Length: 40};
+
+    public string? GetStorageFileName()
+    {
+        return IsChecksumValid ? Path.Join(SHA1[..2], SHA1) : null;
+    }
 }

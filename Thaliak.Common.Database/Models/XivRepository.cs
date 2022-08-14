@@ -18,15 +18,16 @@ public class XivRepository
     {
         get
         {
-            if (_slug != null)
-            {
+            if (_slug != null) {
                 return _slug;
             }
 
             var bytes = Encoding.ASCII.GetBytes(Name);
             var output = Crc32.Hash(bytes);
             Array.Reverse(output);
-            return Convert.ToHexString(output).ToLowerInvariant();
+            _slug = Convert.ToHexString(output).ToLowerInvariant();
+
+            return _slug;
         }
         private set => _slug = value;
     }

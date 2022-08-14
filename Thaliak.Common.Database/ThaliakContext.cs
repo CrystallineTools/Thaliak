@@ -44,6 +44,10 @@ public class ThaliakContext : DbContext
                 v => v == null ? null : v.Split(',', StringSplitOptions.RemoveEmptyEntries)
             );
 
+        builder.Entity<XivPatch>()
+            .Property(r => r.LocalStoragePath)
+            .UsePropertyAccessMode(PropertyAccessMode.Property);
+
         builder.Entity<XivPatchChain>()
             .HasOne(c => c.PreviousPatch)
             .WithMany(p => p.DependentPatches)
@@ -66,6 +70,9 @@ public class ThaliakContext : DbContext
                 nameof(XivFile.Name),
                 nameof(XivFile.SHA1)
             );
+
+        builder.Entity<XivFile>()
+            .HasIndex(f => f.LastUsed);
 
         // SHA1 hashes are stored as 40 character long hex strings
         builder.Entity<XivFile>()
