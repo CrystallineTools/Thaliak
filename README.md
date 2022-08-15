@@ -3,6 +3,6 @@
 </p>
 <h1 align="center" style="margin-top: 0px;">Thaliak</h1>
 
-This is React-based web frontend for Thaliak.
+This is the React-based web frontend for Thaliak.
 
 [See the main Thaliak repository for more information.](https://github.com/avafloww/Thaliak)

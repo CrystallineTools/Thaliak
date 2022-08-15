@@ -1,5 +1,5 @@
 import Repository from '../api/types/repository';
-import { ListGroup, Spinner } from 'react-bootstrap';
+import { Badge, ListGroup, Spinner } from 'react-bootstrap';
 import Version from '../api/types/version';
 import { useEffect, useState } from 'react';
 import RepositoryListItemVersion from './RepositoryListItemVersion';
@@ -27,9 +27,14 @@ export default function RepositoryListItem({ repo, versions }: { repo: Repositor
           <Link className='font-monospace fw-bold' to={`/repository/${repo.slug}`}>{repo.slug}</Link>
           <div className='btn-group btn-group-sm ms-2'>
             <span className='btn btn-outline-secondary disabled'>
-              API
+              <Badge pill bg='warning'>
+                  Deprecated
+              </Badge>
+              {' '}
+              REST API
             </span>
-            <a className='btn btn-warning' href={`https://thaliak.xiv.dev/api/versions/${repo.slug}/${version?.version}`}>
+            <a className='btn btn-warning'
+               href={`https://thaliak.xiv.dev/api/versions/${repo.slug}/${version?.version}`}>
               This Version
             </a>
             <a className='btn btn-success' href={`https://thaliak.xiv.dev/api/versions/${repo.slug}/latest`}>
