@@ -119,7 +119,7 @@ public class ImportAllCommand : AsyncCommand<ImportAllCommand.Settings>
                 }
 
                 if (psv != null) {
-                    ApplyPatchAndStore(sv, lastPatch, settings, nextVersions.Count > 1);
+                    ApplyPatchAndStore(sv, lastPatch, settings, settings.SaveAll || nextVersions.Count > 1);
                 } else {
                     AnsiConsole.MarkupLine("[red]Could not find any staged/stored prereq version for {0}[/]",
                         currVersion.VersionString);
@@ -187,6 +187,9 @@ public class ImportAllCommand : AsyncCommand<ImportAllCommand.Settings>
 
         [CommandOption("--dry-run")]
         public bool DryRun { get; init; } = false;
+
+        [CommandOption("--save-all")]
+        public bool SaveAll { get; init; } = false;
 
         [CommandOption("--root-version")]
         public string RootVersion { get; init; } = "H2017.06.06.0000.0001a";
