@@ -83,6 +83,8 @@ public class XivPatch
     /// </summary>
     public long Size { get; set; }
 
+    public bool IsActive { get; set; }
+
     public string? HashType { get; set; }
 
     public long? HashBlockSize { get; set; }

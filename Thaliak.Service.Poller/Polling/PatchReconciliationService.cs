@@ -37,7 +37,7 @@ public class PatchReconciliationService
         _db.Repositories.AttachRange(expansions.Select(erp => erp.ExpansionRepository));
 
         // ensure we iterate through all of the expansion repositories as well
-        var repoIds = new[] {repo.Id}.Union(expansions.Select(erp => erp.ExpansionRepositoryId));
+        var repoIds = new[] {repo.Id}.Union(expansions.Select(erp => erp.ExpansionRepositoryId)).ToArray();
         var targetDbPatches = _db.Patches.Where(p => repoIds.Contains(p.RepositoryId));
         var targetDbVersions = _db.Versions.Where(v => repoIds.Contains(v.RepositoryId));
 
@@ -82,6 +82,11 @@ public class PatchReconciliationService
             var expansionPatches = remotePatches.Where(p =>
                 GetEffectiveRepositoryId(expansions, repo.Id, p.Url) == repoId);
             RecordPatchChainData(now, repoId, expansionPatches);
+        }
+
+        // update the active status after everything else
+        foreach (var repoId in repoIds) {
+            RecordActiveStatus(now, repoId);
         }
 
         /*
@@ -175,6 +180,28 @@ public class PatchReconciliationService
         Log.Information("Successfully logged patch chain data for repo {repoId}", effectiveRepoId);
     }
 
+    // called after the poll and recording of results is complete
+    private void RecordActiveStatus(DateTime now, int effectiveRepoId)
+    {
+        var patches = _db.Patches.Where(p => p.RepositoryId == effectiveRepoId)
+            .Where(p => p.LastOffered < now)
+            .Where(p => p.IsActive)
+            .ToList();
+        foreach (var item in patches) {
+            item.IsActive = false;
+        }
+
+        var patchChains = _db.PatchChains.Where(p => p.RepositoryId == effectiveRepoId)
+            .Where(p => p.LastOffered < now)
+            .Where(p => p.IsActive)
+            .ToList();
+        foreach (var item in patchChains) {
+            item.IsActive = false;
+        }
+
+        _db.SaveChanges();
+    }
+
     private XivPatch RecordNewPatchData(DateTime now, int effectiveRepoId, PatchListEntry remotePatch,
         PatchDiscoveryType discoveryType)
     {
@@ -200,13 +227,14 @@ public class PatchReconciliationService
             Version = version,
             RepositoryId = effectiveRepoId,
             RemoteOriginPath = remotePatch.Url,
-            Size = remotePatch.Length
+            Size = remotePatch.Length,
         };
 
         if (discoveryType == PatchDiscoveryType.Offered) {
             // the launcher is offering us the patch now
             newPatch.FirstOffered = now;
             newPatch.LastOffered = now;
+            newPatch.IsActive = true;
 
             SetLauncherPatchMetadata(newPatch, remotePatch);
         }
@@ -232,6 +260,7 @@ public class PatchReconciliationService
 
         localPatch.LastSeen = now;
         if (discoveryType == PatchDiscoveryType.Offered) {
+            localPatch.IsActive = true;
             localPatch.LastOffered = now;
 
             if (localPatch.FirstOffered == null) {

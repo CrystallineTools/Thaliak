@@ -18,4 +18,6 @@ public class XivPatchChain
 
     public DateTime? FirstOffered { get; set; }
     public DateTime? LastOffered { get; set; }
+    
+    public bool IsActive { get; set; }
 }
