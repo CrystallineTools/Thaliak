@@ -1,23 +1,64 @@
 import { useParams } from 'react-router-dom';
 import VersionInfoHeader from '../components/VersionInfoHeader';
-import { useRecoilValue } from 'recoil';
-import { VERSIONS } from '../store';
+import { gql, useQuery } from '@apollo/client';
+import { Spinner } from 'react-bootstrap';
+
+const QUERY = gql`
+  query GetVersionInfo($repositorySlug: String!, $versionString: String!) {
+    version(repositorySlug: $repositorySlug, versionString: $versionString) {
+      id
+      versionString
+      isActive
+      firstOffered
+      lastOffered
+      
+      repository {
+        latestVersion {
+          id
+          versionString
+        }
+      }
+
+      prerequisiteVersions {
+        id
+        versionString
+      }
+
+      dependentVersions {
+        id
+        versionString
+      }
+
+      patches {
+        id
+      }
+    }
+  }
+`;
 
 export default function VersionPage() {
   const { repoName, versionId } = useParams();
 
-  const versions = useRecoilValue(VERSIONS).filter((v) => v.repository.slug === repoName).reverse();
-  const version = versions.find((v) => v.version === versionId);
-  const latestVersion = versions[0];
+  const { loading, data } = useQuery(QUERY, {
+    variables: {
+      repositorySlug: repoName,
+      versionString: versionId,
+    }
+  });
 
-  if (!version) {
+  if (loading) {
+    return <Spinner animation='border' />;
+  }
+
+  if (!data.version) {
     return <p>Version not found.</p>;
   }
 
+  const latest = data.version.repository.latestVersion.versionString === data.version.versionString;
   return (
     <>
       <div className='row'>
-        <VersionInfoHeader version={version} latest={latestVersion} />
+        <VersionInfoHeader version={data.version} latest={latest} />
       </div>
     </>
   );

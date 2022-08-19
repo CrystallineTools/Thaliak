@@ -1,11 +1,8 @@
+import Version from './version';
+
 export default interface Patch {
-  remoteOriginPath: string;
-  firstSeen: string;
-  lastSeen: string;
-  size: number;
-  hashType?: string;
-  hashBlockSize?: number;
-  hashes?: string[];
-  prerequisitePatches: string[];
-  dependentPatches: string[];
+  firstOffered?: Date;
+  lastOffered?: Date;
+  prerequisiteVersions?: Version[];
+  dependentVersions?: Version[];
 }

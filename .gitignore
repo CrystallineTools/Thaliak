@@ -42,3 +42,6 @@ sketch
 
 # build output
 build/
+
+# downloaded schema
+/thaliak-schema.graphql

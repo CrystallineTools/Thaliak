@@ -1,8 +1,12 @@
-import Repository from './repository';
 import Patch from './patch';
 
 export default interface Version {
-  repository: Repository;
-  version: string;
-  patches: Patch[];
+  versionString: string;
+  versionId: number;
+  isActive?: boolean;
+  firstOffered?: string;
+  lastOffered?: string;
+  patches?: Patch[];
+  prerequisiteVersions?: Version[];
+  dependentVersions?: Version[];
 }

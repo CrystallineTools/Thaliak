@@ -7,18 +7,23 @@ import HomePage from './pages/home';
 import Footer from './components/Footer';
 import RepositoryPage from './pages/repository';
 import VersionPage from './pages/version';
-import { RecoilRoot } from 'recoil';
 import ThaliakContainer from './components/ThaliakContainer';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+
+const gqlClient = new ApolloClient({
+  uri: process.env.REACT_APP_GRAPHQL_URL ?? 'https://thaliak.xiv.dev/graphql',
+  cache: new InMemoryCache(),
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <ThemeProvider>
-      <BrowserRouter>
-        <RecoilRoot>
+    <ApolloProvider client={gqlClient}>
+      <ThemeProvider>
+        <BrowserRouter>
           <Navigation />
 
           <ThaliakContainer>
@@ -32,8 +37,8 @@ root.render(
           </ThaliakContainer>
 
           <Footer />
-        </RecoilRoot>
-      </BrowserRouter>
-    </ThemeProvider>
+        </BrowserRouter>
+      </ThemeProvider>
+    </ApolloProvider>
   </React.StrictMode>
 );

@@ -27,14 +27,14 @@ export default function Navigation() {
               title='API Docs'
               id='main-nav-dropdown-api-docs'>
               <NavDropdown.Item href='/graphql/'>
-                <Badge pill bg='info'>
-                  Alpha
+                <Badge pill bg='success'>
+                  New
                 </Badge>
                 {' '}
                 GraphQL API
               </NavDropdown.Item>
               <NavDropdown.Item href='/api/'>
-                <Badge pill bg='warning'>
+                <Badge pill bg='danger'>
                   Deprecated
                 </Badge>
                 {' '}
