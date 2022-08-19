@@ -1,4 +1,3 @@
-import { ListGroup, Spinner } from 'react-bootstrap';
 import RepositoryListItem from '../components/RepositoryListItem';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
@@ -6,6 +5,7 @@ import { discordLink } from '../constants';
 import { gql, useQuery } from '@apollo/client';
 import { Repository } from '../api/types/repository';
 import { useEffect, useState } from 'react';
+import Loading from '../components/Loading';
 import { AudioAlert } from '../components/AudioAlert';
 
 const QUERY = gql`
@@ -67,18 +67,18 @@ export default function HomePage() {
   }, [data]);
 
   if (loading) {
-    return <Spinner animation='border' />;
+    return <Loading />;
   }
 
   return (
     <div>
-      <div className='alert alert-warning mb-3' role='alert'>
-        <div className='alert-warning'>
-          <h5 className='card-title'>
-            <FontAwesomeIcon icon={faTriangleExclamation} className='me-2' />
+      <div className='relative p-3 mb-4 border rounded bg-orange-200 border-orange-300 text-orange-800' role='alert'>
+        <div className='bg-orange-200 border-orange-300 text-orange-800'>
+          <h5 className='mb-1 text-xl font-bold'>
+            <FontAwesomeIcon icon={faTriangleExclamation} className='mr-2' />
             REST API Deprecation & Removal Schedule
           </h5>
-          <p className='card-text'>
+          <p className='mb-0'>
             Thaliak's <a href='/graphql/'>GraphQL API</a> was released on August 14, 2022.<br />
             The legacy REST API was deprecated on the same date. No new features will be added to the REST API.<br />
             <br />
@@ -90,11 +90,11 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className='row mb-2'>
-        <div className='col'>
-          <h2>Game Version Repositories</h2>
+      <div className='flex flex-wrap mb-2'>
+        <div className='relative flex-grow max-w-full flex-1'>
+          <span className='text-3xl font-bold'>Game Version Repositories</span>
         </div>
-        <div className='col-3 text-end text-muted small my-auto'>
+        <div className='w-1/2 text-end text-gray-700 text-sm my-auto'>
           <AudioAlert repositories={data?.repositories} />
           Automatically updates every 15 seconds.
         </div>
@@ -102,21 +102,23 @@ export default function HomePage() {
 
       {groups.map((group: RepositoryGroup) => (
         <div key={group.name}>
-          <div className='row mb-1'>
-            <div className='col'>
-              <h4>
+          <div className='flex flex-wrap mb-1'>
+            <div className='relative flex-grow max-w-full flex-1'>
+              <span className='text-2xl'>
                 {GroupIcons.hasOwnProperty(group.name) &&
-                  <span className='fs-1 align-middle me-2'>{GroupIcons[group.name]}</span>
+                  <span className='text-5xl align-middle mr-2'>{GroupIcons[group.name]}</span>
                 }
-                {group.name}
-              </h4>
+                <span className='font-semibold'>
+                  {group.name}
+                </span>
+              </span>
             </div>
           </div>
-          <ListGroup className='mb-3'>
+          <div className='flex flex-col px-4 mb-4 border rounded border-gray-300'>
             {group.repositories.map((repo: Repository) => <RepositoryListItem repo={repo}
                                                                               latestVersion={repo.latestVersion}
                                                                               key={repo.slug} />)}
-          </ListGroup>
+          </div>
         </div>
       ))}
 

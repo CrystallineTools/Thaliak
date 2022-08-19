@@ -13,7 +13,7 @@ export default function RepositoryListItemVersion({ latestVersion }: { latestVer
   return (
     <span>
       <strong>{latestVersion.versionString}</strong>
-      <div className='text-muted small'>
+      <div className='relative grow max-w-full text-gray-600'>
         First seen: {latestVersion.firstOffered ? <TimeAgo datetime={latestVersion.firstOffered} /> : 'never'}<br />
         Last seen: {latestVersion.lastOffered ? <TimeAgo datetime={latestVersion.lastOffered} /> : 'never'}
       </div>

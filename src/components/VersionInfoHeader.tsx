@@ -10,7 +10,7 @@ export default function VersionInfoHeader({ version, latest }: { version: Versio
 
   return (
     <>
-      <div className='col me-auto'>
+      <div className='relative grow max-w-full me-auto'>
         <span className={deco}>{version.versionString}</span>
         <span className='small ms-2'>{version.patches?.length} patch{version.patches?.length === 1 ? '' : 'es'}</span>
         {!version.isActive && <span className='small text-muted ms-3'>superseded</span>}
@@ -24,7 +24,7 @@ export default function VersionInfoHeader({ version, latest }: { version: Versio
           </div>
         )}
       </div>
-      <div className='col text-end'>
+      <div className='relative grow max-w-full'>
         <b>First seen:</b> {version.firstOffered ?? 'unknown'}<br />
         <b>Last seen:</b> {version.lastOffered ?? 'unknown'}
       </div>

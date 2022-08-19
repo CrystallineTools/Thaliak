@@ -1,4 +1,3 @@
-import { ListGroup } from 'react-bootstrap';
 import RepositoryListItemVersion from './RepositoryListItemVersion';
 import { Link } from 'react-router-dom';
 import { LatestVersion, Repository } from '../api/types/repository';
@@ -31,21 +30,22 @@ export default function RepositoryListItem({
                                              latestVersion
                                            }: { repo: Repository, latestVersion: LatestVersion }) {
   return (
-    <ListGroup.Item>
-      <div className='row'>
-        <div className='col'>
-          <Link className='font-monospace fw-bold' to={`/repository/${repo.slug}`}>{repo.slug}</Link>
+    <div className='relative block py-3 px-0 border-spacing-x-0 border-gray-300 no-underline'>
+      <div className='flex flex-wrap'>
+        <div className='relative flex-grow max-w-full flex-1'>
+          <Link className='font-mono font-bold underline decoration-2 underline-offset-2'
+                to={`/repository/${repo.slug}`}>{repo.slug}</Link>
           {/* temporarily disabled while I figure out how to make this work with playground */}
           {/*<GraphQLButtons repo={repo} latestVersion={latestVersion} />*/}
           <br />
           {repo.description}
           <br />
-          <span className='text-muted small'>{repo.name}</span>
+          <span className='text-sm text-gray-600'>{repo.name}</span>
         </div>
-        <div className='col-3 text-end'>
+        <div className='w-1/4 text-end'>
           <RepositoryListItemVersion latestVersion={latestVersion} />
         </div>
       </div>
-    </ListGroup.Item>
+    </div>
   );
 }

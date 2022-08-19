@@ -1,8 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './custom.scss';
-import Navigation from './components/Navigation';
-import { Container, ThemeProvider } from 'react-bootstrap';
+import './custom.css';
+import TopNavigation from './components/navigation/TopNavigation';
 import HomePage from './pages/home';
 import Footer from './components/Footer';
 import RepositoryPage from './pages/repository';
@@ -22,23 +21,21 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ApolloProvider client={gqlClient}>
-      <ThemeProvider>
-        <BrowserRouter>
-          <Navigation />
+      <BrowserRouter>
+        <TopNavigation />
 
-          <ThaliakContainer>
-            <Container>
-              <Routes>
-                <Route path='/' element={<HomePage />} />
-                <Route path='/repository/:repoName' element={<RepositoryPage />} />
-                <Route path='/version/:repoName/:versionId' element={<VersionPage />} />
-              </Routes>
-            </Container>
-          </ThaliakContainer>
+        <ThaliakContainer>
+          <div className='container mt-16 mx-auto sm:px-4'>
+            <Routes>
+              <Route path='/' element={<HomePage />} />
+              <Route path='/repository/:repoName' element={<RepositoryPage />} />
+              <Route path='/version/:repoName/:versionId' element={<VersionPage />} />
+            </Routes>
 
-          <Footer />
-        </BrowserRouter>
-      </ThemeProvider>
+            <Footer />
+          </div>
+        </ThaliakContainer>
+      </BrowserRouter>
     </ApolloProvider>
   </React.StrictMode>
 );

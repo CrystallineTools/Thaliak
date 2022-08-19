@@ -1,9 +1,9 @@
 import { useParams } from 'react-router-dom';
-import { Accordion, Spinner } from 'react-bootstrap';
 import VersionListItem from '../components/VersionListItem';
 import { gql, useQuery } from '@apollo/client';
 import Version from '../api/types/version';
 import { useEffect, useState } from 'react';
+import Loading from '../components/Loading';
 
 const QUERY = gql`
   query GetVersionList($repositorySlug: String!) {
@@ -58,7 +58,7 @@ export default function RepositoryPage() {
   }, [data]);
 
   if (loading) {
-    return <Spinner animation='border' />;
+    return <Loading />;
   }
 
   if (!data.repository) {
@@ -79,7 +79,7 @@ export default function RepositoryPage() {
     </div>
     <div className='row mt-3'>
       <div className='col'>
-        <Accordion>
+        <div>
           {sortedVersions.map((v: Version) =>
             <VersionListItem
               repoName={data.repository.slug}
@@ -87,7 +87,7 @@ export default function RepositoryPage() {
               version={v}
               latest={v.versionString === data.repository.latestVersion.versionString}
             />)}
-        </Accordion>
+        </div>
       </div>
     </div>
   </>;
