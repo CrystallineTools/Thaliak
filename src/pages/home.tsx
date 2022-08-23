@@ -6,6 +6,7 @@ import { discordLink } from '../constants';
 import { gql, useQuery } from '@apollo/client';
 import { Repository } from '../api/types/repository';
 import { useEffect, useState } from 'react';
+import { AudioAlert } from '../components/AudioAlert';
 
 const QUERY = gql`
   query GetRepositoriesWithLatestVersions {
@@ -94,6 +95,7 @@ export default function HomePage() {
           <h2>Game Version Repositories</h2>
         </div>
         <div className='col-3 text-end text-muted small my-auto'>
+          <AudioAlert repositories={data?.repositories} />
           Automatically updates every 15 seconds.
         </div>
       </div>
