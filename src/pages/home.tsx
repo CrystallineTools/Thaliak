@@ -1,4 +1,4 @@
-import RepositoryListItem from '../components/RepositoryListItem';
+import RepositoryDetail from '../components/RepositoryDetail';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { discordLink } from '../constants';
@@ -6,6 +6,7 @@ import { gql, useQuery } from '@apollo/client';
 import { Repository } from '../api/types/repository';
 import { useEffect, useState } from 'react';
 import Loading from '../components/Loading';
+import ListGroup from '../components/list/ListGroup';
 import { AudioAlert } from '../components/AudioAlert';
 
 const QUERY = gql`
@@ -90,11 +91,11 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className='flex flex-wrap mb-2'>
+      <div className='flex flex-wrap flex-col sm:flex-row mb-2'>
         <div className='relative flex-grow max-w-full flex-1'>
           <span className='text-3xl font-bold'>Game Version Repositories</span>
         </div>
-        <div className='w-1/2 text-end text-gray-700 text-sm my-auto'>
+        <div className='sm:w-1/2 sm:text-end text-gray-700 text-sm my-auto'>
           <AudioAlert repositories={data?.repositories} />
           Automatically updates every 15 seconds.
         </div>
@@ -114,11 +115,15 @@ export default function HomePage() {
               </span>
             </div>
           </div>
-          <div className='flex flex-col px-4 mb-4 border rounded border-gray-300'>
-            {group.repositories.map((repo: Repository) => <RepositoryListItem repo={repo}
-                                                                              latestVersion={repo.latestVersion}
-                                                                              key={repo.slug} />)}
-          </div>
+          <ListGroup>
+            {group.repositories.map((repo: Repository) =>
+              <RepositoryDetail repo={repo}
+                                latestVersion={repo.latestVersion}
+                                key={repo.slug}
+                                linkName
+                                showLatestVersionInfo
+              />)}
+          </ListGroup>
         </div>
       ))}
 

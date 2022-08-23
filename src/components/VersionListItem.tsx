@@ -1,7 +1,7 @@
 import Version from '../api/types/version';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
-import VersionInfoHeader from './VersionInfoHeader';
+import VersionDetail from './VersionDetail';
 import { Link } from 'react-router-dom';
 
 export interface VersionListItemArgs {

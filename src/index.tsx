@@ -25,7 +25,7 @@ root.render(
         <TopNavigation />
 
         <ThaliakContainer>
-          <div className='container mt-16 mx-auto sm:px-4'>
+          <div className='container mt-16 mx-auto px-1 sm:px-4'>
             <Routes>
               <Route path='/' element={<HomePage />} />
               <Route path='/repository/:repoName' element={<RepositoryPage />} />

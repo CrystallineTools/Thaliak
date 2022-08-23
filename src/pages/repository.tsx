@@ -4,6 +4,8 @@ import { gql, useQuery } from '@apollo/client';
 import Version from '../api/types/version';
 import { useEffect, useState } from 'react';
 import Loading from '../components/Loading';
+import RepositoryDetail from '../components/RepositoryDetail';
+import ListGroup from '../components/list/ListGroup';
 
 const QUERY = gql`
   query GetVersionList($repositorySlug: String!) {
@@ -66,29 +68,17 @@ export default function RepositoryPage() {
   }
 
   return <>
-    <div className='row'>
-      <div className='col'>
-        <strong className='font-monospace'>{data.repository.slug}</strong>
-        <br />
-        {data.repository.description}
-        <br />
-        <span className='text-muted small'>{data.repository.name}</span>
-      </div>
-      <div className='col-3 text-end'>
-      </div>
-    </div>
-    <div className='row mt-3'>
-      <div className='col'>
-        <div>
-          {sortedVersions.map((v: Version) =>
-            <VersionListItem
-              repoName={data.repository.slug}
-              key={v.versionString}
-              version={v}
-              latest={v.versionString === data.repository.latestVersion.versionString}
-            />)}
-        </div>
-      </div>
-    </div>
+    <RepositoryDetail
+      repo={data.repository}
+    />
+    <ListGroup>
+      {sortedVersions.map((v: Version) =>
+        <VersionListItem
+          repoName={data.repository.slug}
+          key={v.versionString}
+          version={v}
+          latest={v.versionString === data.repository.latestVersion.versionString}
+        />)}
+    </ListGroup>
   </>;
 }

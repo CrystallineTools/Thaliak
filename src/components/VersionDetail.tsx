@@ -1,6 +1,6 @@
 import Version from '../api/types/version';
 
-export default function VersionInfoHeader({ version, latest }: { version: Version, latest: boolean }) {
+export default function VersionDetail({ version, latest }: { version: Version, latest: boolean }) {
   let deco = 'fs-5';
   if (latest) {
     deco += ' fw-bold';

@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import VersionInfoHeader from '../components/VersionInfoHeader';
+import VersionDetail from '../components/VersionDetail';
 import { gql, useQuery } from '@apollo/client';
 
 const QUERY = gql`
