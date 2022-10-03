@@ -11,7 +11,11 @@ export interface VersionListItemArgs {
 }
 
 export default function VersionListItem({ repoName, version, latest }: VersionListItemArgs) {
-  return <div>VersionListItem</div>;
+  return (
+    <div>
+      <VersionDetail version={version} latest={latest} />
+    </div>
+  )
   // return (
   //   <ListGroup.Item eventKey={version.versionString} action to={`/version/${repoName}/${version.versionString}`} as={Link}>
   //     <div className='row'>

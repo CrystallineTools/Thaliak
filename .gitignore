@@ -45,3 +45,6 @@ build/
 
 # downloaded schema
 /thaliak-schema.graphql
+
+.env
+
