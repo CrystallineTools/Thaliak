@@ -43,17 +43,16 @@ export function AudioAlert({ repositories }: AudioAlertProps) {
   }, [enabled]);
 
   return (
-    <div className={`mb-1 text-decoration-underline ${enabled ? 'text-success' : 'text-black'}`}>
+    <div className={`mb-1 underline ${enabled ? 'text-green-600' : 'text-black'}`}>
       {alarmActive && (
-        <div className='mb-1'>
-          <button onClick={() => setAlarmActive(false)} type='button' className='btn btn-sm btn-warning'>Silence</button>
-        </div>
+        <button onClick={() => setAlarmActive(false)} type='button'
+                className='py-1 px-2 mr-1 text-white text-center font-semibold text-xs rounded rounded-full bg-yellow-600'>Silence</button>
       )}
       {enabled && (
         <ReactAudioPlayer src='/alert.mp3' muted={!alarmActive} volume={1.0} autoPlay loop />
       )}
       <a onClick={() => setEnabled(!enabled)}>
-        <FontAwesomeIcon icon={enabled ? faVolumeHigh : faVolumeXmark} size='lg' className='me-2' />
+        <FontAwesomeIcon icon={enabled ? faVolumeHigh : faVolumeXmark} size='lg' className='mr-2' />
         Audio alerts {enabled ? 'enabled' : 'disabled'}. Click to {enabled ? 'disable' : 'enable'}.
       </a>
     </div>
