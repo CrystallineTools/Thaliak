@@ -1,11 +1,11 @@
 import { useParams } from 'react-router-dom';
-import VersionListItem from '../components/VersionListItem';
+import VersionListItem from '../../components/thaliak/VersionListItem';
 import { gql, useQuery } from '@apollo/client';
-import Version from '../api/types/version';
+import Version from '../../api/thaliak/types/version';
 import { useEffect, useState } from 'react';
-import Loading from '../components/Loading';
-import RepositoryDetail from '../components/RepositoryDetail';
-import ListGroup from '../components/list/ListGroup';
+import Loading from '../../components/shared/Loading';
+import RepositoryDetail from '../../components/thaliak/RepositoryDetail';
+import ListGroup from '../../components/shared/list/ListGroup';
 
 const QUERY = gql`
   query GetVersionList($repositorySlug: String!) {
@@ -45,7 +45,7 @@ const QUERY = gql`
   }
 `;
 
-export default function RepositoryPage() {
+export default function ThaliakRepositoryPage() {
   const { repoName } = useParams();
 
   const { loading, data } = useQuery(QUERY, { variables: { repositorySlug: repoName } });

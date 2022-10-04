@@ -38,15 +38,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fortawesome/free-brands-svg-icons", "npm:6.1.1"],\
             ["@fortawesome/free-solid-svg-icons", "npm:6.1.1"],\
             ["@fortawesome/react-fontawesome", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:0.1.18"],\
+            ["@types/dompurify", "npm:2.3.4"],\
             ["@types/graphql", "npm:14.5.0"],\
+            ["@types/marked", "npm:4.0.7"],\
             ["@types/node", "npm:16.11.33"],\
             ["@types/react", "npm:17.0.47"],\
             ["@types/react-dom", "npm:18.0.3"],\
             ["autoprefixer", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:10.4.8"],\
             ["classnames", "npm:2.3.1"],\
+            ["dompurify", "npm:2.4.0"],\
             ["eslint", "npm:8.22.0"],\
             ["eslint-config-react-app", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:7.0.1"],\
             ["graphql", "npm:16.5.0"],\
+            ["highlight.js", "npm:11.6.0"],\
+            ["marked", "npm:4.1.1"],\
             ["postcss", "npm:8.4.16"],\
             ["react", "npm:18.2.0"],\
             ["react-audio-player", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:0.17.0"],\
@@ -4357,6 +4362,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["@types/dompurify", [\
+        ["npm:2.3.4", {\
+          "packageLocation": "./.yarn/cache/@types-dompurify-npm-2.3.4-934f5a1643-ea55678bc9.zip/node_modules/@types/dompurify/",\
+          "packageDependencies": [\
+            ["@types/dompurify", "npm:2.3.4"],\
+            ["@types/trusted-types", "npm:2.0.2"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["@types/eslint", [\
         ["npm:7.29.0", {\
           "packageLocation": "./.yarn/cache/@types-eslint-npm-7.29.0-46534a7300-df13991c55.zip/node_modules/@types/eslint/",\
@@ -4511,6 +4526,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/@types-json5-npm-0.0.29-f63a7916bd-e60b153664.zip/node_modules/@types/json5/",\
           "packageDependencies": [\
             ["@types/json5", "npm:0.0.29"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@types/marked", [\
+        ["npm:4.0.7", {\
+          "packageLocation": "./.yarn/cache/@types-marked-npm-4.0.7-9766a6e6d5-4907b6a606.zip/node_modules/@types/marked/",\
+          "packageDependencies": [\
+            ["@types/marked", "npm:4.0.7"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -7707,6 +7731,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["dompurify", [\
+        ["npm:2.4.0", {\
+          "packageLocation": "./.yarn/cache/dompurify-npm-2.4.0-0ffecf22ef-c93ea73cf8.zip/node_modules/dompurify/",\
+          "packageDependencies": [\
+            ["dompurify", "npm:2.4.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["domutils", [\
         ["npm:1.7.0", {\
           "packageLocation": "./.yarn/cache/domutils-npm-1.7.0-7a1529fcfc-f60a725b1f.zip/node_modules/domutils/",\
@@ -9435,6 +9468,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/he-npm-1.2.0-3b73a2ff07-3d4d6babcc.zip/node_modules/he/",\
           "packageDependencies": [\
             ["he", "npm:1.2.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["highlight.js", [\
+        ["npm:11.6.0", {\
+          "packageLocation": "./.yarn/cache/highlight.js-npm-11.6.0-ea3d017805-3908eb34a4.zip/node_modules/highlight.js/",\
+          "packageDependencies": [\
+            ["highlight.js", "npm:11.6.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -11422,6 +11464,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["makeerror", "npm:1.0.12"],\
             ["tmpl", "npm:1.0.5"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["marked", [\
+        ["npm:4.1.1", {\
+          "packageLocation": "./.yarn/cache/marked-npm-4.1.1-b1d6abaf9f-717e335795.zip/node_modules/marked/",\
+          "packageDependencies": [\
+            ["marked", "npm:4.1.1"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -16204,15 +16255,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fortawesome/free-brands-svg-icons", "npm:6.1.1"],\
             ["@fortawesome/free-solid-svg-icons", "npm:6.1.1"],\
             ["@fortawesome/react-fontawesome", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:0.1.18"],\
+            ["@types/dompurify", "npm:2.3.4"],\
             ["@types/graphql", "npm:14.5.0"],\
+            ["@types/marked", "npm:4.0.7"],\
             ["@types/node", "npm:16.11.33"],\
             ["@types/react", "npm:17.0.47"],\
             ["@types/react-dom", "npm:18.0.3"],\
             ["autoprefixer", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:10.4.8"],\
             ["classnames", "npm:2.3.1"],\
+            ["dompurify", "npm:2.4.0"],\
             ["eslint", "npm:8.22.0"],\
             ["eslint-config-react-app", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:7.0.1"],\
             ["graphql", "npm:16.5.0"],\
+            ["highlight.js", "npm:11.6.0"],\
+            ["marked", "npm:4.1.1"],\
             ["postcss", "npm:8.4.16"],\
             ["react", "npm:18.2.0"],\
             ["react-audio-player", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:0.17.0"],\

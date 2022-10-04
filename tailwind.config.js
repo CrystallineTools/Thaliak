@@ -4,7 +4,15 @@ module.exports = {
     './src/**/*.{ts,tsx}'
   ],
   theme: {
-    extend: {},
+    fontFamily: {
+      sans: ['Montserrat', 'sans-serif']
+    },
+    extend: {
+      colors: {
+        'brand': '#052c47',
+        'brand-bg': '#032338',
+      }
+    },
   },
   plugins: [],
 }

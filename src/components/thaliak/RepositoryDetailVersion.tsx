@@ -1,5 +1,5 @@
 import TimeAgo from 'timeago-react';
-import { LatestVersion } from '../api/types/repository';
+import { LatestVersion } from '../../api/thaliak/types/repository';
 
 export default function RepositoryDetailVersion({ latestVersion }: { latestVersion: LatestVersion | undefined | null }) {
   if (!latestVersion) {

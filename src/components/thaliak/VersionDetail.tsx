@@ -1,4 +1,4 @@
-import Version from '../api/types/version';
+import Version from '../../api/thaliak/types/version';
 
 export default function VersionDetail({ version, latest }: { version: Version, latest: boolean }) {
   let deco = 'text-xl';

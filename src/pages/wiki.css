@@ -1,0 +1,79 @@
+.wiki-page h1 {
+    @apply text-3xl font-bold mt-4;
+}
+
+.wiki-page h2 {
+    @apply text-2xl font-semibold mt-3;
+}
+
+.wiki-page h3 {
+    @apply text-xl font-semibold mt-2;
+}
+
+.wiki-page h4 {
+    @apply text-lg mt-1;
+}
+
+.wiki-page ol {
+    @apply list-decimal list-outside ml-8;
+}
+
+.wiki-page ul {
+    @apply list-disc list-outside ml-8;
+}
+
+.wiki-page pre {
+    @apply my-1 p-3 block;
+}
+
+.wiki-page pre > code {
+    @apply p-2 block;
+}
+
+.wiki-page code {
+    @apply bg-gray-200 p-1 rounded;
+}
+
+.wiki-page blockquote {
+    @apply border-l-4 border-gray-300 pl-2 italic;
+}
+
+.wiki-page p {
+    @apply my-2;
+}
+
+.wiki-page table {
+    @apply border border-solid border-2 border-spacing-6 my-1;
+}
+
+.wiki-page thead {
+    @apply bg-gray-600 text-white;
+}
+
+.wiki-page th, .wiki-page td {
+    @apply p-2 border-solid border-2 border-slate-600;
+}
+
+.wiki-page td {
+    @apply bg-slate-100;
+}
+
+.wiki-page a {
+    @apply text-blue-600 underline;
+}
+
+.wiki-page a:hover {
+    @apply text-blue-800;
+}
+
+.wiki-page a:visited {
+    @apply text-purple-600;
+}
+
+.wiki-page a:visited:hover {
+    @apply text-purple-800;
+}
+
+.wiki-page a:active {
+    @apply text-gray-800;
+}

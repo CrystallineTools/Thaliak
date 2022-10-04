@@ -2731,6 +2731,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/dompurify@npm:^2.3.4":
+  version: 2.3.4
+  resolution: "@types/dompurify@npm:2.3.4"
+  dependencies:
+    "@types/trusted-types": "*"
+  checksum: ea55678bc9fd32fcdae904ca191f2b8cc5b475277937e5e4c024690b0c3b9c73accfb7391f56d26d0f53fcff496a013773293e189a07a79afdd2b2ed4efacd5f
+  languageName: node
+  linkType: hard
+
 "@types/eslint-scope@npm:^3.7.3":
   version: 3.7.3
   resolution: "@types/eslint-scope@npm:3.7.3"
@@ -2868,6 +2877,13 @@ __metadata:
   version: 0.0.29
   resolution: "@types/json5@npm:0.0.29"
   checksum: e60b153664572116dfea673c5bda7778dbff150498f44f998e34b5886d8afc47f16799280e4b6e241c0472aef1bc36add771c569c68fc5125fc2ae519a3eb9ac
+  languageName: node
+  linkType: hard
+
+"@types/marked@npm:^4.0.7":
+  version: 4.0.7
+  resolution: "@types/marked@npm:4.0.7"
+  checksum: 4907b6a606578cd864bad429aca3c234591e6ed56bd141c575140487269b825a480ace9a85e4d003d1de1f007004c9d9b2fe600038ded5bba75aef59118e58d5
   languageName: node
   linkType: hard
 
@@ -3023,7 +3039,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/trusted-types@npm:^2.0.2":
+"@types/trusted-types@npm:*, @types/trusted-types@npm:^2.0.2":
   version: 2.0.2
   resolution: "@types/trusted-types@npm:2.0.2"
   checksum: 3371eef5f1c50e1c3c07a127c1207b262ba65b83dd167a1c460fc1b135a3fb0c97b9f508efebd383f239cc5dd5b7169093686a692a501fde9c3f7208657d9b0d
@@ -5356,6 +5372,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dompurify@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "dompurify@npm:2.4.0"
+  checksum: c93ea73cf8e3ba044588450198563e56ce6902e36d0e16e3699df2fa59e82c4fdd11d4ad04ef5024569ce96a35b46f29d0bbea522516add33cd39a7f56a8a675
+  languageName: node
+  linkType: hard
+
 "domutils@npm:^1.7.0":
   version: 1.7.0
   resolution: "domutils@npm:1.7.0"
@@ -6810,6 +6833,13 @@ __metadata:
   bin:
     he: bin/he
   checksum: 3d4d6babccccd79c5c5a3f929a68af33360d6445587d628087f39a965079d84f18ce9c3d3f917ee1e3978916fc833bb8b29377c3b403f919426f91bc6965e7a7
+  languageName: node
+  linkType: hard
+
+"highlight.js@npm:^11.6.0":
+  version: 11.6.0
+  resolution: "highlight.js@npm:11.6.0"
+  checksum: 3908eb34a4b442ca1e20c1ae6415ea935fbbcdb2b532a89948d82b0fa4ad41fc5de3802a0de4e88a0bcb7d97d4445579048cd2aab1d105ac47f59dd58a9a98ae
   languageName: node
   linkType: hard
 
@@ -8557,6 +8587,15 @@ __metadata:
   dependencies:
     tmpl: 1.0.5
   checksum: b38a025a12c8146d6eeea5a7f2bf27d51d8ad6064da8ca9405fcf7bf9b54acd43e3b30ddd7abb9b1bfa4ddb266019133313482570ddb207de568f71ecfcf6060
+  languageName: node
+  linkType: hard
+
+"marked@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "marked@npm:4.1.1"
+  bin:
+    marked: bin/marked.js
+  checksum: 717e3357952ee53de831bf0eb110ed075bebca2376c58bcdf7ee523ef540d45308ad6d51b2c933da0968832ea4386f31c142ca65443e77c098e84f6cce73e418
   languageName: node
   linkType: hard
 
@@ -12040,15 +12079,20 @@ __metadata:
     "@fortawesome/free-brands-svg-icons": ^6.1.1
     "@fortawesome/free-solid-svg-icons": ^6.1.1
     "@fortawesome/react-fontawesome": ^0.1.18
+    "@types/dompurify": ^2.3.4
     "@types/graphql": ^14.5.0
+    "@types/marked": ^4.0.7
     "@types/node": ^16.7.13
     "@types/react": ^17.0.47
     "@types/react-dom": ^18.0.0
     autoprefixer: ^10.4.8
     classnames: ^2.3.1
+    dompurify: ^2.4.0
     eslint: ^8.22.0
     eslint-config-react-app: ^7.0.1
     graphql: ^16.5.0
+    highlight.js: ^11.6.0
+    marked: ^4.1.1
     postcss: ^8.4.16
     react: ^18.2.0
     react-audio-player: ^0.17.0

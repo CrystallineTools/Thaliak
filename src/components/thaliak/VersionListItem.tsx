@@ -1,4 +1,4 @@
-import Version from '../api/types/version';
+import Version from '../../api/thaliak/types/version';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import VersionDetail from './VersionDetail';
@@ -17,7 +17,7 @@ export default function VersionListItem({ repoName, version, latest }: VersionLi
     </div>
   )
   // return (
-  //   <ListGroup.Item eventKey={version.versionString} action to={`/version/${repoName}/${version.versionString}`} as={Link}>
+  //   <ListGroup.Item eventKey={version.versionString} action to={`/thaliak/version/${repoName}/${version.versionString}`} as={Link}>
   //     <div className='row'>
   //       <VersionInfoHeader version={version} latest={latest} />
   //
