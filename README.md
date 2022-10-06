@@ -3,4 +3,6 @@
 </p>
 <h1 align="center" style="margin-top: 0px;">The Ewer</h1>
 
+<img height="30" src="https://raw.githubusercontent.com/EwerXIV/ewer-web/main/src/components/shared/powered-by-vercel.svg" />
+
 This is the React-based web frontend for The Ewer and Thaliak.
