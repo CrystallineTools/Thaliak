@@ -34,7 +34,7 @@ export function AudioAlert({ repositories }: AudioAlertProps) {
       console.log('TRIGGERED');
       setAlarmActive(true);
     }
-  }, [repositories]);
+  }, [prevVersions, repositories]);
 
   useEffect(() => {
     if (!enabled) {

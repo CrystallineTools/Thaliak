@@ -1,8 +1,5 @@
 import Version from '../../api/thaliak/types/version';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import VersionDetail from './VersionDetail';
-import { Link } from 'react-router-dom';
 
 export interface VersionListItemArgs {
   repoName: string;
