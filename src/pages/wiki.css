@@ -43,7 +43,7 @@
 }
 
 .wiki-page table {
-    @apply border border-solid border-2 border-spacing-6 my-1;
+    @apply border border-solid border-2 border-spacing-4 my-1;
 }
 
 .wiki-page thead {
