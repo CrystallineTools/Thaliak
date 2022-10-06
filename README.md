@@ -3,6 +3,8 @@
 </p>
 <h1 align="center" style="margin-top: 0px;">The Ewer</h1>
 
-<img height="30" src="https://raw.githubusercontent.com/EwerXIV/ewer-web/main/src/components/shared/powered-by-vercel.svg" />
-
 This is the React-based web frontend for The Ewer and Thaliak.
+
+## Contributing
+
+Please read [The Ewer Code of Conduct](https://github.com/EwerXIV/wiki/blob/main/CODE_OF_CONDUCT.md) prior to opening a pull request or issue.

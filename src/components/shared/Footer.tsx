@@ -1,4 +1,4 @@
-import poweredByVercel from './powered-by-vercel.svg';
+import netlifyLogo from './netlify-logo.svg';
 
 export default function Footer() {
   return (
@@ -19,8 +19,8 @@ export default function Footer() {
               {process.env.REACT_APP_GIT_SHA!}
               </a>
           </span>
-          <a href='https://vercel.com/?utm_source=ewer-xiv&utm_campaign=oss'>
-            <img src={poweredByVercel} alt='Powered by Vercel' className='block mt-0.5 h-7 ml-auto' />
+          <a href='https://www.netlify.com/?utm_source=ewer-xiv&utm_campaign=oss' className='align-middle'>
+            Powered by <img src={netlifyLogo} alt='Powered by Netlify' className='block mt-0.5 h-5 ml-auto inline-block align-middle' />
           </a>
         </div>
       </div>
