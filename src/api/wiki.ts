@@ -7,4 +7,4 @@ class WikiClient {
   }
 }
 
-export const Wiki = new WikiClient(process.env.REACT_APP_WIKI_API ?? 'https://thinwiki.omphalos.dev');
+export const Wiki = new WikiClient(process.env.REACT_APP_WIKI_API ?? 'https://wiki-api.ewer.cc');
