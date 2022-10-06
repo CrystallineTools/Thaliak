@@ -43,8 +43,7 @@
 }
 
 .wiki-page table {
-  border-spacing: 1.5rem 1.5rem;
-  @apply border border-solid border-2 my-1;
+  @apply border border-solid border-2 border-spacing-6 my-1;
 }
 
 .wiki-page thead {

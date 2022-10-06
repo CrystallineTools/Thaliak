@@ -19,7 +19,7 @@ export default function Footer() {
               {process.env.REACT_APP_GIT_SHA!}
               </a>
           </span>
-          <a href='https://vercel.com/?utm_source=EwerXIV&utm_campaign=oss'>
+          <a href='https://vercel.com/?utm_source=ewer-xiv&utm_campaign=oss'>
             <img src={poweredByVercel} alt='Powered by Vercel' className='block mt-0.5 h-7 ml-auto' />
           </a>
         </div>
