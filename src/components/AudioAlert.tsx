@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faVolumeHigh, faVolumeXmark } from '@fortawesome/free-solid-svg-icons';
-import { Repository } from '../../api/thaliak/types/repository';
+import { Repository } from '../api/types/repository';
 import ReactAudioPlayer from 'react-audio-player';
 
 interface AudioAlertProps {
@@ -34,7 +34,7 @@ export function AudioAlert({ repositories }: AudioAlertProps) {
       console.log('TRIGGERED');
       setAlarmActive(true);
     }
-  }, [prevVersions, repositories]);
+  }, [repositories]);
 
   useEffect(() => {
     if (!enabled) {
@@ -51,10 +51,10 @@ export function AudioAlert({ repositories }: AudioAlertProps) {
       {enabled && (
         <ReactAudioPlayer src='/alert.mp3' muted={!alarmActive} volume={1.0} autoPlay loop />
       )}
-      <button onClick={() => setEnabled(!enabled)}>
+      <a onClick={() => setEnabled(!enabled)}>
         <FontAwesomeIcon icon={enabled ? faVolumeHigh : faVolumeXmark} size='lg' className='mr-2' />
         Audio alerts {enabled ? 'enabled' : 'disabled'}. Click to {enabled ? 'disable' : 'enable'}.
-      </button>
+      </a>
     </div>
   );
 }
