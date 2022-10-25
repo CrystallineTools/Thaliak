@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
-import { faAngleDown, faBars, faCircleDollarToSlot } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faCircleDollarToSlot } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { discordLink, githubMainRepoLink, githubSponsorsLink } from '../../constants';
 import cn from 'classnames';
@@ -9,7 +9,6 @@ import logo from './logo.svg';
 
 export default function TopNavigation() {
   const [isOpen, setIsOpen] = useState(false);
-  const [apiDropdownOpen, setApiDropdownOpen] = useState(false);
 
   return (
     <nav
@@ -41,31 +40,11 @@ export default function TopNavigation() {
             </li>
 
             <li className='py-2 sm:py-0'>
-              <button className={`${apiDropdownOpen ? 'text-gray-100' : 'text-gray-400'} hover:text-gray-100 sm:px-2`}
-                      id='main-nav-dropdown-api-docs'
-                      onClick={() => setApiDropdownOpen(!apiDropdownOpen)}>
-                API Docs
-                <FontAwesomeIcon icon={faAngleDown} className='text-xs ml-2' />
-                <ul
-                  className={cn('min-w-max absolute bg-white text-base z-50 float-left list-none' +
-                    'text-left rounded-md shadow-md mt-1 bg-clip-padding border-none', { hidden: !apiDropdownOpen })}>
-                  <li>
-                    <a href='/graphql/'
-                       className='text-sm text-left py-2 px-4 font-normal block whitespace-nowrap text-gray-700 hover:bg-gray-100'>
-                      GraphQL API
-                    </a>
-
-                    <a href='/api/'
-                       className='text-sm text-left py-2 px-4 font-normal block whitespace-nowrap text-gray-700 hover:bg-gray-100'>
-                    <span
-                      className='py-1 px-2 mr-1 text-white text-center font-semibold text-xs align-baseline rounded rounded-full bg-red-600'>
-                      Deprecated
-                    </span>
-                      REST API
-                    </a>
-                  </li>
-                </ul>
-              </button>
+              <a className='text-gray-400 hover:text-gray-100 sm:px-2'
+                 id='main-nav-dropdown-api-docs'
+                 href='/graphql/'>
+                GraphQL API
+              </a>
             </li>
 
           </ul>
