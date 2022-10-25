@@ -6,10 +6,14 @@ using Microsoft.EntityFrameworkCore;
 namespace Thaliak.Common.Database.Models;
 
 [Index(nameof(Slug))]
+[Index(nameof(ServiceRegion))]
 public class XivRepository
 {
     [Key]
     public int Id { get; set; }
+    
+    public XivServiceRegion ServiceRegion { get; set; }
+    public int ServiceRegionId { get; set; }
 
     public string Name { get; set; }
     public string? Description { get; set; }

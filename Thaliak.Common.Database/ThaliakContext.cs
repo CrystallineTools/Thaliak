@@ -8,6 +8,7 @@ public class ThaliakContext : DbContext
     public DbSet<XivAccount> Accounts { get; set; }
     public DbSet<XivPatch> Patches { get; set; }
     public DbSet<XivPatchChain> PatchChains { get; set; }
+    public DbSet<XivServiceRegion> ServiceRegions { get; set; }
     public DbSet<XivRepository> Repositories { get; set; }
     public DbSet<XivExpansionRepositoryMapping> ExpansionRepositoryMappings { get; set; }
     public DbSet<XivVersion> Versions { get; set; }
@@ -89,6 +90,12 @@ public class ThaliakContext : DbContext
             .Property(r => r.Slug)
             .UsePropertyAccessMode(PropertyAccessMode.Property);
 
+        builder.Entity<XivRepository>()
+            .HasOne(r => r.ServiceRegion)
+            .WithMany(sr => sr.Repositories)
+            .HasForeignKey(r => r.ServiceRegionId)
+            .HasPrincipalKey(sr => sr.Id);
+
         builder.Entity<XivExpansionRepositoryMapping>()
             .HasKey(
                 nameof(XivExpansionRepositoryMapping.GameRepositoryId),
@@ -125,6 +132,29 @@ public class ThaliakContext : DbContext
             .IsUnique()
             .HasFilter(@"""PreviousPatchId"" IS NULL");
 
+        // seed service region data
+        builder.Entity<XivServiceRegion>()
+            .HasData(
+                new XivServiceRegion
+                {
+                    Id = 1,
+                    Name = "FFXIV Global",
+                    Icon = "🇺🇳"
+                },
+                new XivServiceRegion
+                {
+                    Id = 2,
+                    Name = "FFXIV Korea",
+                    Icon = "🇰🇷"
+                },
+                new XivServiceRegion
+                {
+                    Id = 3,
+                    Name = "FFXIV China",
+                    Icon = "🇨🇳"
+                }
+            );
+
         // seed base repository data
         builder.Entity<XivRepository>()
             .HasData(
@@ -136,99 +166,115 @@ public class ThaliakContext : DbContext
                         Id = 1,
                         Name = "ffxivneo/win32/release/boot",
                         Description = "FFXIV Global/JP - Retail - Boot - Win32",
+                        ServiceRegionId = 1
                     },
                     new()
                     {
                         Id = 2,
                         Name = "ffxivneo/win32/release/game",
-                        Description = "FFXIV Global/JP - Retail - Base Game - Win32"
+                        Description = "FFXIV Global/JP - Retail - Base Game - Win32",
+                        ServiceRegionId = 1
                     },
                     new()
                     {
                         Id = 3,
                         Name = "ffxivneo/win32/release/ex1",
-                        Description = "FFXIV Global/JP - Retail - ex1 (Heavensward) - Win32"
+                        Description = "FFXIV Global/JP - Retail - ex1 (Heavensward) - Win32",
+                        ServiceRegionId = 1
                     },
                     new()
                     {
                         Id = 4,
                         Name = "ffxivneo/win32/release/ex2",
-                        Description = "FFXIV Global/JP - Retail - ex2 (Stormblood) - Win32"
+                        Description = "FFXIV Global/JP - Retail - ex2 (Stormblood) - Win32",
+                        ServiceRegionId = 1
                     },
                     new()
                     {
                         Id = 5,
                         Name = "ffxivneo/win32/release/ex3",
-                        Description = "FFXIV Global/JP - Retail - ex3 (Shadowbringers) - Win32"
+                        Description = "FFXIV Global/JP - Retail - ex3 (Shadowbringers) - Win32",
+                        ServiceRegionId = 1
                     },
                     new()
                     {
                         Id = 6,
                         Name = "ffxivneo/win32/release/ex4",
-                        Description = "FFXIV Global/JP - Retail - ex4 (Endwalker) - Win32"
+                        Description = "FFXIV Global/JP - Retail - ex4 (Endwalker) - Win32",
+                        ServiceRegionId = 1
                     },
                     // Korea
                     new()
                     {
                         Id = 7,
                         Name = "actoz/win32/release_ko/game",
-                        Description = "FFXIV Korea - Retail - Base Game - Win32"
+                        Description = "FFXIV Korea - Retail - Base Game - Win32",
+                        ServiceRegionId = 2
                     },
                     new()
                     {
                         Id = 8,
                         Name = "actoz/win32/release_ko/ex1",
-                        Description = "FFXIV Korea - Retail - ex1 (Heavensward) - Win32"
+                        Description = "FFXIV Korea - Retail - ex1 (Heavensward) - Win32",
+                        ServiceRegionId = 2
                     },
                     new()
                     {
                         Id = 9,
                         Name = "actoz/win32/release_ko/ex2",
-                        Description = "FFXIV Korea - Retail - ex2 (Stormblood) - Win32"
+                        Description = "FFXIV Korea - Retail - ex2 (Stormblood) - Win32",
+                        ServiceRegionId = 2
                     },
                     new()
                     {
                         Id = 10,
                         Name = "actoz/win32/release_ko/ex3",
-                        Description = "FFXIV Korea - Retail - ex3 (Shadowbringers) - Win32"
+                        Description = "FFXIV Korea - Retail - ex3 (Shadowbringers) - Win32",
+                        ServiceRegionId = 2
                     },
                     new()
                     {
                         Id = 11,
                         Name = "actoz/win32/release_ko/ex4",
-                        Description = "FFXIV Korea - Retail - ex4 (Endwalker) - Win32"
+                        Description = "FFXIV Korea - Retail - ex4 (Endwalker) - Win32",
+                        ServiceRegionId = 2
                     },
                     // China
                     new()
                     {
                         Id = 12,
                         Name = "shanda/win32/release_chs/game",
-                        Description = "FFXIV China - Retail - Base Game - Win32"
+                        Description = "FFXIV China - Retail - Base Game - Win32",
+                        ServiceRegionId = 3
                     },
                     new()
                     {
                         Id = 13,
                         Name = "shanda/win32/release_chs/ex1",
-                        Description = "FFXIV China - Retail - ex1 (Heavensward) - Win32"
+                        Description = "FFXIV China - Retail - ex1 (Heavensward) - Win32",
+                        ServiceRegionId = 3
                     },
                     new()
                     {
                         Id = 14,
                         Name = "shanda/win32/release_chs/ex2",
-                        Description = "FFXIV China - Retail - ex2 (Stormblood) - Win32"
+                        Description = "FFXIV China - Retail - ex2 (Stormblood) - Win32",
+                        ServiceRegionId = 3
                     },
                     new()
                     {
                         Id = 15,
                         Name = "shanda/win32/release_chs/ex3",
-                        Description = "FFXIV China - Retail - ex3 (Shadowbringers) - Win32"
+                        Description = "FFXIV China - Retail - ex3 (Shadowbringers) - Win32",
+                        ServiceRegionId = 3
                     },
                     new()
                     {
                         Id = 16,
                         Name = "shanda/win32/release_chs/ex4",
-                        Description = "FFXIV China - Retail - ex4 (Endwalker) - Win32"
-                    },
+                        Description = "FFXIV China - Retail - ex4 (Endwalker) - Win32",
+                        ServiceRegionId = 3
+                    }
                 }
             );
 
