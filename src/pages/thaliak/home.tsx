@@ -1,7 +1,4 @@
 import RepositoryDetail from '../../components/thaliak/RepositoryDetail';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { discordLink } from '../../constants';
 import { gql, useQuery } from '@apollo/client';
 import { Repository } from '../../api/thaliak/types/repository';
 import { useEffect, useState } from 'react';
@@ -73,24 +70,6 @@ export default function ThaliakHomePage() {
 
   return (
     <div>
-      <div className='relative p-3 mb-4 border rounded bg-orange-200 border-orange-300 text-orange-800' role='alert'>
-        <div className='bg-orange-200 border-orange-300 text-orange-800'>
-          <h5 className='mb-1 text-xl font-bold'>
-            <FontAwesomeIcon icon={faTriangleExclamation} className='mr-2' />
-            REST API Deprecation & Removal Schedule
-          </h5>
-          <p className='mb-0'>
-            Thaliak's <a href='src/pages/thaliak/home'>GraphQL API</a> was released on August 14, 2022.<br />
-            The legacy REST API was deprecated on the same date. No new features will be added to the REST API.<br />
-            <br />
-            Barring the unexpected, <b>the REST API will be discontinued after October 15, 2022</b>.<br />
-            Please migrate all applications to the GraphQL API before this date.<br />
-            <br />
-            For questions or support, <a href={discordLink}>join The Ewer Discord server</a>.
-          </p>
-        </div>
-      </div>
-
       <div className='flex flex-wrap flex-col sm:flex-row mb-2'>
         <div className='relative flex-grow max-w-full flex-1'>
           <span className='text-3xl font-bold'>Game Version Repositories</span>
