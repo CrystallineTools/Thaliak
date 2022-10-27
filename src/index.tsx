@@ -30,6 +30,7 @@ root.render(
             <Routes>
               <Route path='/' element={<HomePage />} />
               <Route path='/graphql' element={<GraphQLPage />} />
+              <Route path='/graphql/:selectedVersion' element={<GraphQLPage />} />
               <Route path='/repository/:repoName' element={<RepositoryPage />} />
               <Route path='/version/:repoName/:versionId' element={<VersionPage />} />
             </Routes>

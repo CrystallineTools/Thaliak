@@ -6,6 +6,7 @@ import cn from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { createGraphiQLFetcher } from '@graphiql/toolkit';
+import { useParams } from 'react-router-dom';
 
 const apiVersions = ['2022-08-14'];
 const defaultQuery = `query {
@@ -24,6 +25,7 @@ const defaultQuery = `query {
 `;
 
 export default function GraphQLPage() {
+  const { selectedVersion } = useParams();
   const { setTheme } = useTheme();
 
   const [loading, setLoading] = useState(true);
@@ -33,6 +35,14 @@ export default function GraphQLPage() {
   const fetcher = createGraphiQLFetcher({ url: endpoint });
 
   useEffect(() => {
+    if (selectedVersion !== undefined) {
+      if (apiVersions.includes(selectedVersion)) {
+        setVersion(selectedVersion);
+      } else {
+        alert(`Invalid API version: ${selectedVersion}. Defaulting to ${version}.\nYou can select a version from the dropdown.`);
+      }
+    }
+
     setTheme('light');
     setLoading(false);
   }, []);
