@@ -40,11 +40,11 @@ export default function TopNavigation() {
             </li>
 
             <li className='py-2 sm:py-0'>
-              <a className='text-gray-400 hover:text-gray-100 sm:px-2'
+              <Link className='text-gray-400 hover:text-gray-100 sm:px-2'
                  id='main-nav-dropdown-api-docs'
-                 href='/graphql/'>
+                 to='/graphql/'>
                 GraphQL API
-              </a>
+              </Link>
             </li>
 
           </ul>
