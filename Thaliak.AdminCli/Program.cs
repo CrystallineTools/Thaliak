@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
-using Spectre.Cli.Extensions.DependencyInjection;
+using Spectre.Console.Cli.Extensions.DependencyInjection;
 using Spectre.Console.Cli;
 using Thaliak.AdminCli.Commands.Analysis;
 using Thaliak.Common.Database;
