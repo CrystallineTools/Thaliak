@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Thaliak.Common.Database;
@@ -11,13 +12,14 @@ using Thaliak.Common.Database;
 namespace Thaliak.Common.Database.Migrations
 {
     [DbContext(typeof(ThaliakContext))]
-    partial class ThaliakContextModelSnapshot : ModelSnapshot
+    [Migration("20221208075948_ConvertToSnakeCase")]
+    partial class ConvertToSnakeCase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.10")
+                .HasAnnotation("ProductVersion", "6.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -329,7 +331,7 @@ namespace Thaliak.Common.Database.Migrations
                     b.HasIndex("PatchId")
                         .IsUnique()
                         .HasDatabaseName("ix_patch_chains_patch_id")
-                        .HasFilter("\"previous_patch_id\" IS NULL");
+                        .HasFilter("\"PreviousPatchId\" IS NULL");
 
                     b.HasIndex("PreviousPatchId")
                         .HasDatabaseName("ix_patch_chains_previous_patch_id");
@@ -340,7 +342,7 @@ namespace Thaliak.Common.Database.Migrations
                     b.HasIndex("PatchId", "PreviousPatchId")
                         .IsUnique()
                         .HasDatabaseName("ix_patch_chains_patch_id_previous_patch_id")
-                        .HasFilter("\"previous_patch_id\" IS NOT NULL");
+                        .HasFilter("\"PreviousPatchId\" IS NOT NULL");
 
                     b.ToTable("patch_chains", (string)null);
                 });
@@ -612,7 +614,7 @@ namespace Thaliak.Common.Database.Migrations
                     b.HasIndex("ApplicableRepositoriesId")
                         .HasDatabaseName("ix_account_repositories_applicable_repositories_id");
 
-                    b.ToTable("account_repositories", (string)null);
+                    b.ToTable("AccountRepositories", (string)null);
                 });
 
             modelBuilder.Entity("XivFileXivVersion", b =>
@@ -635,7 +637,7 @@ namespace Thaliak.Common.Database.Migrations
                     b.HasIndex("FilesName", "FilesSHA1")
                         .HasDatabaseName("ix_version_files_files_name_files_sha1");
 
-                    b.ToTable("version_files", (string)null);
+                    b.ToTable("VersionFiles", (string)null);
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivExpansionRepositoryMapping", b =>

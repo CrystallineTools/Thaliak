@@ -1,0 +1,18 @@
+[package]
+name = "thaliak-api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+thaliak-macros = { path = "../thaliak-macros" }
+thaliak-db = { path = "../thaliak-db" }
+log.workspace = true
+maplit.workspace = true
+env_logger = "0.10.0"
+pretty_env_logger = "0.4.0"
+juniper = "0.15.10"
+juniper_hyper = "0.8.0"
+hyper = { version = "0.14.13", features = ["http1", "http2", "server", "runtime"] }
+tokio = { version = "1.23.0", features = ["full"] }
+inventory = "0.3.2"
+once_cell = "1.16.0"

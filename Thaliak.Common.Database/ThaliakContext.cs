@@ -64,7 +64,7 @@ public class ThaliakContext : DbContext
         builder.Entity<XivFile>()
             .HasMany(f => f.Versions)
             .WithMany(v => v.Files)
-            .UsingEntity(j => j.ToTable("VersionFiles"));
+            .UsingEntity(j => j.ToTable("version_files"));
 
         builder.Entity<XivFile>()
             .HasKey(
@@ -84,7 +84,7 @@ public class ThaliakContext : DbContext
         builder.Entity<XivRepository>()
             .HasMany(r => r.ApplicableAccounts)
             .WithMany(a => a.ApplicableRepositories)
-            .UsingEntity(j => j.ToTable("AccountRepositories"));
+            .UsingEntity(j => j.ToTable("account_repositories"));
 
         builder.Entity<XivRepository>()
             .Property(r => r.Slug)
@@ -125,12 +125,12 @@ public class ThaliakContext : DbContext
         builder.Entity<XivPatchChain>()
             .HasIndex(nameof(XivPatchChain.PatchId), nameof(XivPatchChain.PreviousPatchId))
             .IsUnique()
-            .HasFilter(@"""PreviousPatchId"" IS NOT NULL");
+            .HasFilter(@"""previous_patch_id"" IS NOT NULL");
 
         builder.Entity<XivPatchChain>()
             .HasIndex(nameof(XivPatchChain.PatchId))
             .IsUnique()
-            .HasFilter(@"""PreviousPatchId"" IS NULL");
+            .HasFilter(@"""previous_patch_id"" IS NULL");
 
         // seed service region data
         builder.Entity<XivServiceRegion>()

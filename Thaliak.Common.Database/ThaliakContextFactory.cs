@@ -8,7 +8,8 @@ public class ThaliakContextFactory : IDesignTimeDbContextFactory<ThaliakContext>
     public ThaliakContext CreateDbContext(string[] args)
     {
         var ob = new DbContextOptionsBuilder<ThaliakContext>();
-        ob.UseNpgsql("Host=localhost;Database=thaliak");
+        ob.UseNpgsql("Host=localhost;Database=thaliak")
+            .UseSnakeCaseNamingConvention(ignoreMigrationTable: true);
 
         return new ThaliakContext(ob.Options);
     }

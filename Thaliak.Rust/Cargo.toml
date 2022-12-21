@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "thaliak-macros",
+    "thaliak-db",
+    "thaliak-api"
+]
+
+[workspace.dependencies]
+dotenvy = "0.15.6"
+log = "0.4.17"
+anyhow = "1.0.66"
+maplit = "1.0.2"
