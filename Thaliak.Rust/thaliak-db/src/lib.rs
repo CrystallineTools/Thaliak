@@ -1,3 +1,5 @@
+use std::borrow::BorrowMut;
+use std::sync::{LockResult, Mutex};
 use anyhow::{anyhow, Error};
 use diesel::{PgConnection};
 use diesel::r2d2::{ConnectionManager, Pool, PooledConnection};
@@ -26,11 +28,11 @@ pub fn setup() -> Result<(), Error> {
     let pool = Pool::builder()
         .test_on_check_out(true)
         .build(manager)?;
-    CONNECTION.set(pool).map_err(|_| anyhow!("failed to set connection"))?;
+    CONNECTION.set(pool).map_err(|_| anyhow!("failed to get connection"))?;
     
     // run migrations
     info!("running migrations");
-    let mut connection = get_connection();
+    let connection = &mut get_pool().get().unwrap();
     let migrations_run = connection.run_pending_migrations(MIGRATIONS).unwrap();
     info!("migrations run: {:?}", migrations_run);
     
@@ -41,6 +43,6 @@ pub fn get_pool() -> DbConnectionPool {
     CONNECTION.get().unwrap().clone()
 }
 
-pub fn get_connection() -> DbConnection {
-    CONNECTION.get().unwrap().get().unwrap()
+pub fn with_connection<F, T>(f: F) -> T where F: FnOnce(&mut DbConnection) -> T {
+    f(&mut get_pool().get().unwrap())
 }

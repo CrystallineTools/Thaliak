@@ -7,23 +7,28 @@ use diesel::prelude::*;
 use chrono::DateTime;
 use chrono::offset::Utc;
 
+use bigdecimal::BigDecimal;
+
 #[derive(Queryable, Debug, Identifiable)]
-#[diesel(primary_key(applicable_accounts_id, applicable_repositories_id), table_name = account_repositories)]
+#[diesel(
+    table_name = account_repositories,
+    primary_key(applicable_accounts_id, applicable_repositories_id)
+)]
 pub struct AccountRepository {
-    pub applicable_accounts_id: u32,
-    pub applicable_repositories_id: u32,
+    pub applicable_accounts_id: i32,
+    pub applicable_repositories_id: i32,
 }
 
 #[derive(Queryable, Debug, Identifiable)]
 pub struct Account {
-    pub id: u32,
+    pub id: i32,
     pub username: String,
     pub password: String,
 }
 
 #[derive(Queryable, Debug, Identifiable)]
 pub struct DiscordHook {
-    pub id: u32,
+    pub id: i32,
     pub url: String,
     pub name: Option<String>,
 }
@@ -31,9 +36,9 @@ pub struct DiscordHook {
 #[derive(Queryable, Debug, Identifiable)]
 #[diesel(primary_key(game_repository_id, expansion_id, expansion_repository_id))]
 pub struct ExpansionRepositoryMapping {
-    pub game_repository_id: u32,
-    pub expansion_id: u32,
-    pub expansion_repository_id: u32,
+    pub game_repository_id: i32,
+    pub expansion_id: i32,
+    pub expansion_repository_id: i32,
 }
 
 #[derive(Queryable, Debug, Identifiable)]
@@ -47,21 +52,24 @@ pub struct File {
 
 #[derive(Queryable, Debug, Identifiable)]
 pub struct PatchChain {
-    pub repository_id: u32,
-    pub patch_id: u32,
-    pub previous_patch_id: Option<u32>,
+    pub repository_id: i32,
+    pub patch_id: i32,
+    pub previous_patch_id: Option<i32>,
     pub first_offered: Option<DateTime<Utc>>,
     pub last_offered: Option<DateTime<Utc>>,
-    pub id: u32,
+    pub id: i32,
     pub is_active: bool,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
-#[diesel(table_name = patches)]
+#[derive(Queryable, Debug, Identifiable, Associations)]
+#[diesel(
+    table_name = patches,
+    belongs_to(Version, foreign_key = version_id)
+)]
 pub struct Patch {
-    pub id: u32,
-    pub version_id: u32,
-    pub repository_id: u32,
+    pub id: i32,
+    pub version_id: i32,
+    pub repository_id: i32,
     pub remote_origin_path: String,
     pub first_seen: Option<DateTime<Utc>>,
     pub last_seen: Option<DateTime<Utc>>,
@@ -75,35 +83,42 @@ pub struct Patch {
     pub is_active: bool,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
-#[diesel(table_name = repositories)]
+#[derive(Queryable, Debug, Identifiable, Associations)]
+#[diesel(
+    table_name = repositories,
+    belongs_to(ServiceRegion, foreign_key = service_region_id)
+)]
 pub struct Repository {
-    pub id: u32,
+    pub id: i32,
     pub name: String,
     pub description: Option<String>,
     pub slug: String,
-    pub service_region_id: u32,
+    pub service_region_id: i32,
 }
 
 #[derive(Queryable, Debug, Identifiable)]
 pub struct ServiceRegion {
-    pub id: u32,
+    pub id: i32,
     pub name: String,
     pub icon: String,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
-#[diesel(primary_key(versions_id, files_name, files_sha1))]
+#[derive(Queryable, Debug, Identifiable, Associations)]
+#[diesel(
+    primary_key(versions_id, files_name, files_sha1),
+    belongs_to(Version, foreign_key = versions_id)
+)]
 pub struct VersionFile {
-    pub versions_id: u32,
+    pub versions_id: i32,
     pub files_name: String,
     pub files_sha1: String,
 }
 
-#[derive(Queryable, Debug)]
+#[derive(Queryable, Debug, Identifiable, Associations)]
+#[diesel(belongs_to(Repository, foreign_key = repository_id))]
 pub struct Version {
-    pub id: u32,
-    pub version_id: u64,
+    pub id: i32,
+    pub version_id: BigDecimal,
     pub version_string: String,
-    pub repository_id: u32,
+    pub repository_id: i32,
 }

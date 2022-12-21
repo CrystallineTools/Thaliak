@@ -1,11 +1,13 @@
+use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use std::future::Future;
+use std::ops::DerefMut;
 use std::pin::Pin;
 use std::sync::{Arc};
 use hyper::{Body, Request, Response};
 use juniper::Context;
 use once_cell::sync::Lazy;
-use thaliak_db::{DbConnectionPool};
+use thaliak_db::{DbConnection, DbConnectionPool};
 
 pub mod ver_2022_08_14;
 
@@ -43,6 +45,11 @@ pub struct GqlContext {
     pub(crate) pool: DbConnectionPool,
 }
 impl Context for GqlContext {}
+impl GqlContext {
+    pub fn with_db<T>(&self, f: impl FnOnce(&mut DbConnection) -> T) -> T {
+        f(&mut self.pool.get().unwrap())
+    }
+}
 
 macro_rules! add_api_version {
     ($($version:literal => $handler:path),* $(,)?) => {

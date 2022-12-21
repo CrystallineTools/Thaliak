@@ -16,3 +16,5 @@ hyper = { version = "0.14.13", features = ["http1", "http2", "server", "runtime"
 tokio = { version = "1.23.0", features = ["full"] }
 inventory = "0.3.2"
 once_cell = "1.16.0"
+diesel = { version = "2.0.2", features = ["postgres", "r2d2", "numeric"] }
+bigdecimal = "0.3.0"
