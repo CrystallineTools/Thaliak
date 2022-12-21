@@ -23,8 +23,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: .
-          file: ./Thaliak.Web/Dockerfile
+          context: Thaliak.Web/
+          file: Dockerfile
           push: true
           tags: ghcr.io/avafloww/thaliak-web:latest
       - name: Deploy to production server
