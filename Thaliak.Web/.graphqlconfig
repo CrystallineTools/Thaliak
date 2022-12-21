@@ -1,0 +1,15 @@
+{
+  "name": "Thaliak (Production) GraphQL Schema",
+  "schemaPath": "thaliak-schema.graphql",
+  "extensions": {
+    "endpoints": {
+      "thaliak.xiv.dev": {
+        "url": "https://thaliak.xiv.dev/graphql/",
+        "headers": {
+          "user-agent": "JS GraphQL"
+        },
+        "introspect": true
+      }
+    }
+  }
+}
