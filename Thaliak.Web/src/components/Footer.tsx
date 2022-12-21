@@ -5,7 +5,7 @@ export default function Footer() {
         <div className='w-4/5 mr-auto'>
           FINAL FANTASY is a registered trademark of Square Enix Holdings Co., Ltd.
           <br />
-          FINAL FANTASY XIV © 2010-2022 SQUARE ENIX CO., LTD. All Rights Reserved.
+          FINAL FANTASY XIV © 2010-2023 SQUARE ENIX CO., LTD. All Rights Reserved.
           <br />
           We are not affiliated with SQUARE ENIX CO., LTD. in any way.
         </div>
