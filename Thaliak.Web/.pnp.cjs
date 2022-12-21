@@ -50,7 +50,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-config-react-app", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:7.0.1"],\
             ["graphiql", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:2.0.10"],\
             ["graphql", "npm:16.5.0"],\
-            ["postcss", "npm:8.4.16"],\
+            ["postcss", "npm:8.4.20"],\
             ["react", "npm:18.2.0"],\
             ["react-audio-player", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:0.17.0"],\
             ["react-dom", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:18.2.0"],\
@@ -6298,7 +6298,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["fraction.js", "npm:4.2.0"],\
             ["normalize-range", "npm:0.1.2"],\
             ["picocolors", "npm:1.0.0"],\
-            ["postcss", "npm:8.4.16"],\
+            ["postcss", "npm:8.4.20"],\
             ["postcss-value-parser", "npm:4.2.0"]\
           ],\
           "packagePeers": [\
@@ -13239,10 +13239,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "HARD"\
         }],\
-        ["npm:8.4.16", {\
-          "packageLocation": "./.yarn/cache/postcss-npm-8.4.16-7367383579-10eee25efd.zip/node_modules/postcss/",\
+        ["npm:8.4.20", {\
+          "packageLocation": "./.yarn/cache/postcss-npm-8.4.20-b87cd5ecc8-1a5609ea1c.zip/node_modules/postcss/",\
           "packageDependencies": [\
-            ["postcss", "npm:8.4.16"],\
+            ["postcss", "npm:8.4.20"],\
             ["nanoid", "npm:3.3.4"],\
             ["picocolors", "npm:1.0.0"],\
             ["source-map-js", "npm:1.0.2"]\
@@ -13838,7 +13838,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["postcss-import", "virtual:c73a0f7c79e041342c55982e9e3a317b63250ee2779bea1d7b00a237e4918083c5ca93afe497563c972adf6df89d998add1b0efc1621a8ae37ec3cd7f4437051#npm:14.1.0"],\
             ["@types/postcss", null],\
-            ["postcss", "npm:8.4.16"],\
+            ["postcss", "npm:8.4.20"],\
             ["postcss-value-parser", "npm:4.2.0"],\
             ["read-cache", "npm:1.0.0"],\
             ["resolve", "patch:resolve@npm%3A1.22.1#~builtin<compat/resolve>::version=1.22.1&hash=07638b"]\
@@ -13886,7 +13886,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["postcss-js", "virtual:c73a0f7c79e041342c55982e9e3a317b63250ee2779bea1d7b00a237e4918083c5ca93afe497563c972adf6df89d998add1b0efc1621a8ae37ec3cd7f4437051#npm:4.0.0"],\
             ["@types/postcss", null],\
             ["camelcase-css", "npm:2.0.1"],\
-            ["postcss", "npm:8.4.16"]\
+            ["postcss", "npm:8.4.20"]\
           ],\
           "packagePeers": [\
             "@types/postcss",\
@@ -13948,7 +13948,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/postcss", null],\
             ["@types/ts-node", null],\
             ["lilconfig", "npm:2.0.5"],\
-            ["postcss", "npm:8.4.16"],\
+            ["postcss", "npm:8.4.20"],\
             ["ts-node", null],\
             ["yaml", "npm:1.10.2"]\
           ],\
@@ -14305,7 +14305,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["postcss-nested", "virtual:c73a0f7c79e041342c55982e9e3a317b63250ee2779bea1d7b00a237e4918083c5ca93afe497563c972adf6df89d998add1b0efc1621a8ae37ec3cd7f4437051#npm:5.0.6"],\
             ["@types/postcss", null],\
-            ["postcss", "npm:8.4.16"],\
+            ["postcss", "npm:8.4.20"],\
             ["postcss-selector-parser", "npm:6.0.10"]\
           ],\
           "packagePeers": [\
@@ -16982,7 +16982,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["normalize-path", "npm:3.0.0"],\
             ["object-hash", "npm:3.0.0"],\
             ["picocolors", "npm:1.0.0"],\
-            ["postcss", "npm:8.4.16"],\
+            ["postcss", "npm:8.4.20"],\
             ["postcss-import", "virtual:c73a0f7c79e041342c55982e9e3a317b63250ee2779bea1d7b00a237e4918083c5ca93afe497563c972adf6df89d998add1b0efc1621a8ae37ec3cd7f4437051#npm:14.1.0"],\
             ["postcss-js", "virtual:c73a0f7c79e041342c55982e9e3a317b63250ee2779bea1d7b00a237e4918083c5ca93afe497563c972adf6df89d998add1b0efc1621a8ae37ec3cd7f4437051#npm:4.0.0"],\
             ["postcss-load-config", "virtual:c73a0f7c79e041342c55982e9e3a317b63250ee2779bea1d7b00a237e4918083c5ca93afe497563c972adf6df89d998add1b0efc1621a8ae37ec3cd7f4437051#npm:3.1.4"],\
@@ -17158,7 +17158,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-config-react-app", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:7.0.1"],\
             ["graphiql", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:2.0.10"],\
             ["graphql", "npm:16.5.0"],\
-            ["postcss", "npm:8.4.16"],\
+            ["postcss", "npm:8.4.20"],\
             ["react", "npm:18.2.0"],\
             ["react-audio-player", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:0.17.0"],\
             ["react-dom", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:18.2.0"],\
