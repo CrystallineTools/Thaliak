@@ -12,7 +12,7 @@ export default function Footer() {
         <div className='mt-2 sm:mt-0 relative flex-grow max-w-full flex-1 text-end'>
           version{' '}
           <a className='underline'
-             href={`https://github.com/avafloww/thaliak-web/commit/${process.env.REACT_APP_GIT_SHA!}`}>
+             href={`https://github.com/avafloww/Thaliak/commit/${process.env.REACT_APP_GIT_SHA!}`}>
             {process.env.REACT_APP_GIT_SHA!}
           </a>
         </div>
