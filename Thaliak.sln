@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Analysis.Engine", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.AdminCli", "Thaliak.AdminCli\Thaliak.AdminCli.csproj", "{1D136F75-FF49-4743-A278-ED8EEA239212}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Thaliak.Web", "Thaliak.Web\Thaliak.Web.shproj", "{194898E2-6FA4-4EAE-AE13-C846D8926488}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -1,8 +1,10 @@
-name: docker build
+name: docker build Thaliak.Web
 on:
   push:
     branches:
       - 'main'
+    paths:
+      - 'Thaliak.Web/**'
 
 jobs:
   docker:
@@ -22,7 +24,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./Dockerfile
+          file: ./Thaliak.Web/Dockerfile
           push: true
           tags: ghcr.io/avafloww/thaliak-web:latest
       - name: Deploy to production server
