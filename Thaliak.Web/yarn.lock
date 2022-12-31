@@ -7173,10 +7173,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:*, graphql@npm:^16.5.0":
+"graphql@npm:*":
   version: 16.5.0
   resolution: "graphql@npm:16.5.0"
   checksum: a82a926d085818934d04fdf303a269af170e79de943678bd2726370a96194f9454ade9d6d76c2de69afbd7b9f0b4f8061619baecbbddbe82125860e675ac219e
+  languageName: node
+  linkType: hard
+
+"graphql@npm:^16.6.0":
+  version: 16.6.0
+  resolution: "graphql@npm:16.6.0"
+  checksum: bf1d9e3c1938ce3c1a81e909bd3ead1ae4707c577f91cff1ca2eca474bfbc7873d5d7b942e1e9777ff5a8304421dba57a4b76d7a29eb19de8711cb70e3c2415e
   languageName: node
   linkType: hard
 
@@ -12720,7 +12727,7 @@ __metadata:
     eslint: ^8.30.0
     eslint-config-react-app: ^7.0.1
     graphiql: ^2.2.0
-    graphql: ^16.5.0
+    graphql: ^16.6.0
     postcss: ^8.4.20
     react: ^18.2.0
     react-audio-player: ^0.17.0

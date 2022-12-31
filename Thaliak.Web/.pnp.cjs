@@ -49,7 +49,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint", "npm:8.30.0"],\
             ["eslint-config-react-app", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:7.0.1"],\
             ["graphiql", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:2.2.0"],\
-            ["graphql", "npm:16.5.0"],\
+            ["graphql", "npm:16.6.0"],\
             ["postcss", "npm:8.4.20"],\
             ["react", "npm:18.2.0"],\
             ["react-audio-player", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:0.17.0"],\
@@ -120,7 +120,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@wry/context", "npm:0.6.1"],\
             ["@wry/equality", "npm:0.5.3"],\
             ["@wry/trie", "npm:0.3.2"],\
-            ["graphql", "npm:16.5.0"],\
+            ["graphql", "npm:16.6.0"],\
             ["graphql-tag", "virtual:6698accffe10b014db8fbc9af4a99c683d9113607b53da17061978df0d2e44b1411a91f890ae8fe563de18d45439fe2ffc94ee11c980d202473db2ce705bd67e#npm:2.12.6"],\
             ["graphql-ws", null],\
             ["hoist-non-react-statics", "npm:3.3.2"],\
@@ -3453,7 +3453,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["codemirror", "npm:5.65.9"],\
             ["codemirror-graphql", "virtual:1db9912e61a4792cc480aa96e4ddb55d76da3e188e73c0ab497792915d991c7c78f209fcab53b3b925ea57f0b8aeb72dff82658549e2ca603c17481e75c5fb88#npm:2.0.2"],\
             ["copy-to-clipboard", "npm:3.3.2"],\
-            ["graphql", "npm:16.5.0"],\
+            ["graphql", "npm:16.6.0"],\
             ["graphql-language-service", "virtual:90c5456e1de46752d44707147bd6fc7b7994deaccdf47127ea17eb8f865d07a1fe694c93fd9739000f6d8afd54b2661ee78f36788a65b10ca52537d49f8df353#npm:5.1.0"],\
             ["markdown-it", "npm:12.3.2"],\
             ["react", "npm:18.2.0"],\
@@ -3487,7 +3487,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["codemirror", "npm:5.65.9"],\
             ["codemirror-graphql", "virtual:90c5456e1de46752d44707147bd6fc7b7994deaccdf47127ea17eb8f865d07a1fe694c93fd9739000f6d8afd54b2661ee78f36788a65b10ca52537d49f8df353#npm:2.0.0"],\
             ["copy-to-clipboard", "npm:3.3.2"],\
-            ["graphql", "npm:16.5.0"],\
+            ["graphql", "npm:16.6.0"],\
             ["graphql-language-service", "virtual:90c5456e1de46752d44707147bd6fc7b7994deaccdf47127ea17eb8f865d07a1fe694c93fd9739000f6d8afd54b2661ee78f36788a65b10ca52537d49f8df353#npm:5.1.0"],\
             ["markdown-it", "npm:12.3.2"],\
             ["react", "npm:18.2.0"],\
@@ -3520,7 +3520,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@n1ru4l/push-pull-async-iterable-iterator", "npm:3.2.0"],\
             ["@types/graphql", "npm:14.5.0"],\
             ["@types/graphql-ws", null],\
-            ["graphql", "npm:16.5.0"],\
+            ["graphql", "npm:16.6.0"],\
             ["graphql-ws", null],\
             ["meros", "virtual:0e6cb03afe419989c4bdd23f9d81399b7be7cc020b6a46b6170c3d6a187c1baa21b09138140aa92698d64dfd3fdb06a3e526ea9410f12375800053c0e8a05c3e#npm:1.2.1"]\
           ],\
@@ -3546,7 +3546,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@graphql-typed-document-node/core", "virtual:6698accffe10b014db8fbc9af4a99c683d9113607b53da17061978df0d2e44b1411a91f890ae8fe563de18d45439fe2ffc94ee11c980d202473db2ce705bd67e#npm:3.1.1"],\
             ["@types/graphql", "npm:14.5.0"],\
-            ["graphql", "npm:16.5.0"]\
+            ["graphql", "npm:16.6.0"]\
           ],\
           "packagePeers": [\
             "@types/graphql",\
@@ -7224,7 +7224,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/codemirror__language", null],\
             ["@types/graphql", "npm:14.5.0"],\
             ["codemirror", "npm:5.65.9"],\
-            ["graphql", "npm:16.5.0"],\
+            ["graphql", "npm:16.6.0"],\
             ["graphql-language-service", "virtual:1da8cfe7a08a56bedec5ec269b729b163a080cd82f3cbd59c7965e8a268b82a78b282ba1f38fa55ccb6555c833dc4467ec8a5fb0c198da4812ce39bad2868fcb#npm:5.0.6"]\
           ],\
           "packagePeers": [\
@@ -7246,7 +7246,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/codemirror__language", null],\
             ["@types/graphql", "npm:14.5.0"],\
             ["codemirror", "npm:5.65.9"],\
-            ["graphql", "npm:16.5.0"],\
+            ["graphql", "npm:16.6.0"],\
             ["graphql-language-service", "virtual:90c5456e1de46752d44707147bd6fc7b7994deaccdf47127ea17eb8f865d07a1fe694c93fd9739000f6d8afd54b2661ee78f36788a65b10ca52537d49f8df353#npm:5.1.0"]\
           ],\
           "packagePeers": [\
@@ -10040,7 +10040,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/react", "npm:17.0.47"],\
             ["@types/react-dom", "npm:18.0.10"],\
             ["entities", "npm:2.2.0"],\
-            ["graphql", "npm:16.5.0"],\
+            ["graphql", "npm:16.6.0"],\
             ["graphql-language-service", "virtual:90c5456e1de46752d44707147bd6fc7b7994deaccdf47127ea17eb8f865d07a1fe694c93fd9739000f6d8afd54b2661ee78f36788a65b10ca52537d49f8df353#npm:5.1.0"],\
             ["markdown-it", "npm:12.3.2"],\
             ["react", "npm:18.2.0"],\
@@ -10062,6 +10062,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/graphql-npm-16.5.0-348f68b718-a82a926d08.zip/node_modules/graphql/",\
           "packageDependencies": [\
             ["graphql", "npm:16.5.0"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:16.6.0", {\
+          "packageLocation": "./.yarn/cache/graphql-npm-16.6.0-301c470966-bf1d9e3c19.zip/node_modules/graphql/",\
+          "packageDependencies": [\
+            ["graphql", "npm:16.6.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -10086,7 +10093,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["graphql-language-service", "virtual:1da8cfe7a08a56bedec5ec269b729b163a080cd82f3cbd59c7965e8a268b82a78b282ba1f38fa55ccb6555c833dc4467ec8a5fb0c198da4812ce39bad2868fcb#npm:5.0.6"],\
             ["@types/graphql", "npm:14.5.0"],\
-            ["graphql", "npm:16.5.0"],\
+            ["graphql", "npm:16.6.0"],\
             ["nullthrows", "npm:1.1.1"],\
             ["vscode-languageserver-types", "npm:3.17.2"]\
           ],\
@@ -10101,7 +10108,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["graphql-language-service", "virtual:90c5456e1de46752d44707147bd6fc7b7994deaccdf47127ea17eb8f865d07a1fe694c93fd9739000f6d8afd54b2661ee78f36788a65b10ca52537d49f8df353#npm:5.1.0"],\
             ["@types/graphql", "npm:14.5.0"],\
-            ["graphql", "npm:16.5.0"],\
+            ["graphql", "npm:16.6.0"],\
             ["nullthrows", "npm:1.1.1"],\
             ["vscode-languageserver-types", "npm:3.17.2"]\
           ],\
@@ -10125,7 +10132,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["graphql-tag", "virtual:6698accffe10b014db8fbc9af4a99c683d9113607b53da17061978df0d2e44b1411a91f890ae8fe563de18d45439fe2ffc94ee11c980d202473db2ce705bd67e#npm:2.12.6"],\
             ["@types/graphql", "npm:14.5.0"],\
-            ["graphql", "npm:16.5.0"],\
+            ["graphql", "npm:16.6.0"],\
             ["tslib", "npm:2.4.0"]\
           ],\
           "packagePeers": [\
@@ -17294,7 +17301,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint", "npm:8.30.0"],\
             ["eslint-config-react-app", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:7.0.1"],\
             ["graphiql", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:2.2.0"],\
-            ["graphql", "npm:16.5.0"],\
+            ["graphql", "npm:16.6.0"],\
             ["postcss", "npm:8.4.20"],\
             ["react", "npm:18.2.0"],\
             ["react-audio-player", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:0.17.0"],\
