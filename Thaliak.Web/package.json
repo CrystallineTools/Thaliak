@@ -52,7 +52,7 @@
   "packageManager": "yarn@3.2.2",
   "devDependencies": {
     "@types/graphql": "^14.5.0",
-    "autoprefixer": "^10.4.8",
+    "autoprefixer": "^10.4.13",
     "eslint": "^8.30.0",
     "eslint-config-react-app": "^7.0.1",
     "postcss": "^8.4.20",
