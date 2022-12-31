@@ -1919,12 +1919,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/free-solid-svg-icons@npm:^6.1.1":
-  version: 6.1.1
-  resolution: "@fortawesome/free-solid-svg-icons@npm:6.1.1"
+"@fortawesome/free-solid-svg-icons@npm:^6.2.1":
+  version: 6.2.1
+  resolution: "@fortawesome/free-solid-svg-icons@npm:6.2.1"
   dependencies:
-    "@fortawesome/fontawesome-common-types": 6.1.1
-  checksum: 9c42f45af9e75410d9e20a110c4262ded1a778887dc3b1200c0576f6b226e6a5568fb85a862090b45b06060f878798ddde60b987ef56aafccbaa1e7a378dd17c
+    "@fortawesome/fontawesome-common-types": 6.2.1
+  checksum: a24170b676fced926cccdd08171357b20714483ceddeb052985a9acae3a347ffe853de2e757bf95cc7add74807d82eb1cc578e17430c32ca2c6a844c8276f91a
   languageName: node
   linkType: hard
 
@@ -12693,7 +12693,7 @@ __metadata:
     "@apollo/client": ^3.6.9
     "@fortawesome/fontawesome-svg-core": ^6.2.1
     "@fortawesome/free-brands-svg-icons": ^6.1.1
-    "@fortawesome/free-solid-svg-icons": ^6.1.1
+    "@fortawesome/free-solid-svg-icons": ^6.2.1
     "@fortawesome/react-fontawesome": ^0.2.0
     "@graphiql/react": ^0.13.4
     "@graphiql/toolkit": ^0.8.0

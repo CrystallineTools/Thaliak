@@ -36,7 +36,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@apollo/client", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:3.6.9"],\
             ["@fortawesome/fontawesome-svg-core", "npm:6.2.1"],\
             ["@fortawesome/free-brands-svg-icons", "npm:6.1.1"],\
-            ["@fortawesome/free-solid-svg-icons", "npm:6.1.1"],\
+            ["@fortawesome/free-solid-svg-icons", "npm:6.2.1"],\
             ["@fortawesome/react-fontawesome", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:0.2.0"],\
             ["@graphiql/react", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:0.13.4"],\
             ["@graphiql/toolkit", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:0.8.0"],\
@@ -3376,11 +3376,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@fortawesome/free-solid-svg-icons", [\
-        ["npm:6.1.1", {\
-          "packageLocation": "./.yarn/unplugged/@fortawesome-free-solid-svg-icons-npm-6.1.1-ab68dfcd79/node_modules/@fortawesome/free-solid-svg-icons/",\
+        ["npm:6.2.1", {\
+          "packageLocation": "./.yarn/unplugged/@fortawesome-free-solid-svg-icons-npm-6.2.1-ea5991f75e/node_modules/@fortawesome/free-solid-svg-icons/",\
           "packageDependencies": [\
-            ["@fortawesome/free-solid-svg-icons", "npm:6.1.1"],\
-            ["@fortawesome/fontawesome-common-types", "npm:6.1.1"]\
+            ["@fortawesome/free-solid-svg-icons", "npm:6.2.1"],\
+            ["@fortawesome/fontawesome-common-types", "npm:6.2.1"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -17261,7 +17261,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@apollo/client", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:3.6.9"],\
             ["@fortawesome/fontawesome-svg-core", "npm:6.2.1"],\
             ["@fortawesome/free-brands-svg-icons", "npm:6.1.1"],\
-            ["@fortawesome/free-solid-svg-icons", "npm:6.1.1"],\
+            ["@fortawesome/free-solid-svg-icons", "npm:6.2.1"],\
             ["@fortawesome/react-fontawesome", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:0.2.0"],\
             ["@graphiql/react", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:0.13.4"],\
             ["@graphiql/toolkit", "virtual:e076ffd623f14bed65fcd5207cacd987e538098d6b5667789286c4d7226265c349535bfde51789c5d307d1c75f4c9941d48b3e8033cc0d2c81a396498ae0446a#npm:0.8.0"],\
