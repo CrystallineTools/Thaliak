@@ -1,11 +1,11 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faBars, faCircleDollarToSlot } from '@fortawesome/free-solid-svg-icons';
-import { Link } from 'react-router-dom';
+import { Link } from '@remix-run/react';
 import { discordLink, githubMainRepoLink, githubSponsorsLink } from '../../constants';
 import cn from 'classnames';
 import { useState } from 'react';
-import logo from './logo.svg';
+import { LogoSvg } from './LogoSvg';
 
 export default function TopNavigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,13 +15,7 @@ export default function TopNavigation() {
       className='fixed top-0 left-0 right-0 z-40 items-center justify-between sm:justify-start bg-slate-800 text-white'>
       <div className='container mx-auto flex flex-wrap sm:flex-row py-1.5 px-4'>
         <Link className='inline-block py-1 mr-4 text-xl text-gray-100' to='/'>
-          <img
-            alt='logo'
-            src={logo}
-            width='30'
-            height='30'
-            className='inline-block align-top'
-          />{' '}
+          <LogoSvg width='30' height='30' className='inline-block align-top' />{' '}
           Thaliak
         </Link>
         <button
@@ -32,7 +26,7 @@ export default function TopNavigation() {
           <FontAwesomeIcon icon={faBars} />
         </button>
         <div
-          className={cn('collapse navbar-collapse w-full flex-grow items-center sm:flex sm:w-auto', { hidden: !isOpen })}
+          className={cn('w-full flex-grow items-center sm:visible sm:flex sm:w-auto', { hidden: !isOpen })}
           id='main-nav'>
           <ul className='flex flex-col pl-0 mb-0 list-none mr-auto sm:flex-row'>
             <li className='py-2 sm:py-0'>

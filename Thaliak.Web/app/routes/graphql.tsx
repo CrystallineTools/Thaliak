@@ -6,7 +6,7 @@ import cn from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { createGraphiQLFetcher } from '@graphiql/toolkit';
-import { useParams } from 'react-router-dom';
+import { useParams } from '@remix-run/react';
 
 const apiVersions = ['2022-08-14'];
 const defaultQuery = `query {

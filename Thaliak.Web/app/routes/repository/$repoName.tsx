@@ -1,11 +1,11 @@
-import { useParams } from 'react-router-dom';
-import VersionListItem from '../components/VersionListItem';
+import { useParams } from '@remix-run/react';
+import VersionListItem from '../../components/VersionListItem';
 import { gql, useQuery } from '@apollo/client';
-import Version from '../api/types/version';
+import Version from '../../api/types/version';
 import { useEffect, useState } from 'react';
-import Loading from '../components/Loading';
-import RepositoryDetail from '../components/RepositoryDetail';
-import ListGroup from '../components/list/ListGroup';
+import Loading from '../../components/Loading';
+import RepositoryDetail from '../../components/RepositoryDetail';
+import ListGroup from '../../components/list/ListGroup';
 
 const QUERY = gql`
   query GetVersionList($repositorySlug: String!) {

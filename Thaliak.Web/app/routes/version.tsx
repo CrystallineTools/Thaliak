@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams } from '@remix-run/react';
 import VersionDetail from '../components/VersionDetail';
 import { gql, useQuery } from '@apollo/client';
 import Loading from '../components/Loading';

@@ -1,5 +1,5 @@
 import RepositoryDetailVersion from './RepositoryDetailVersion';
-import { Link } from 'react-router-dom';
+import { Link } from '@remix-run/react';
 import { LatestVersion, Repository } from '../api/types/repository';
 
 function GraphQLButtons({ repo, latestVersion }: { repo: Repository, latestVersion: LatestVersion }) {

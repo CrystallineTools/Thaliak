@@ -36,8 +36,10 @@ sketch
 
 # build output
 build/
+public/build/
 
 # downloaded schema
 /thaliak-schema.graphql
 
 .env
+.cache/

@@ -10,6 +10,9 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@graphiql/react": "^0.13.4",
     "@graphiql/toolkit": "^0.8.0",
+    "@remix-run/node": "^1.11.1",
+    "@remix-run/react": "^1.11.1",
+    "@remix-run/serve": "^1.11.1",
     "@types/node": "^16.7.13",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
@@ -26,9 +29,11 @@
     "typescript": "^4.9.4"
   },
   "scripts": {
-    "start": "REACT_APP_GIT_SHA=$(git rev-parse --short HEAD) react-scripts start",
-    "build": "REACT_APP_GIT_SHA=$(git rev-parse --short HEAD) react-scripts build",
-    "eject": "react-scripts eject"
+    "dev": "concurrently \"yarn dev:css\" \"REACT_APP_GIT_SHA=$(git rev-parse --short HEAD) remix dev\"",
+    "dev:css": "tailwindcss -w -i ./styles/app.css -o app/styles/app.css",
+    "build": "yarn build:css && REACT_APP_GIT_SHA=$(git rev-parse --short HEAD) remix build",
+    "build:css": "tailwindcss -m -i ./styles/app.css -o app/styles/app.css",
+    "start": "remix-serve build"
   },
   "eslintConfig": {
     "extends": [
@@ -49,8 +54,10 @@
   },
   "packageManager": "yarn@3.3.1",
   "devDependencies": {
+    "@remix-run/dev": "^1.11.1",
     "@types/graphql": "^14.5.0",
     "autoprefixer": "^10.4.13",
+    "concurrently": "^7.6.0",
     "eslint": "^8.30.0",
     "eslint-config-react-app": "^7.0.1",
     "postcss": "^8.4.20",

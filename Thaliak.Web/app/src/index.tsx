@@ -7,7 +7,7 @@ import Footer from './components/Footer';
 import RepositoryPage from './pages/repository';
 import VersionPage from './pages/version';
 import ThaliakContainer from './components/ThaliakContainer';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from '@remix-run/react';
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import GraphQLPage from './pages/graphql';
 
@@ -22,7 +22,6 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ApolloProvider client={gqlClient}>
-      <BrowserRouter>
         <TopNavigation />
 
         <ThaliakContainer>
@@ -37,7 +36,6 @@ root.render(
             <Footer />
           </div>
         </ThaliakContainer>
-      </BrowserRouter>
     </ApolloProvider>
   </React.StrictMode>
 );
