@@ -13,5 +13,5 @@ RUN yarn install --immutable && yarn build
 FROM nginx:alpine AS web
 COPY --from=build /app/build /var/www/html
 COPY Thaliak.Web/nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
+EXPOSE 5000
 CMD ["nginx", "-g", "daemon off;"]
