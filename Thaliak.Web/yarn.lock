@@ -12746,7 +12746,7 @@ __metadata:
     react-router-dom: ^6.7.0
     react-scripts: ^5.0.1
     tailwindcss: ^3.2.4
-    timeago-react: ^3.0.4
+    timeago-react: ^3.0.5
     timeago.js: ^4.0.2
     typescript: ^4.9.4
   languageName: unknown
@@ -12766,14 +12766,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"timeago-react@npm:^3.0.4":
-  version: 3.0.4
-  resolution: "timeago-react@npm:3.0.4"
+"timeago-react@npm:^3.0.5":
+  version: 3.0.5
+  resolution: "timeago-react@npm:3.0.5"
   dependencies:
     timeago.js: ^4.0.0
   peerDependencies:
-    react: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: b9b30a31a84d73bd4a6ae47715d4b6d0a225a8d4b29e83f0ac5cc1d47433b8f35f2e53bea64db1ee5eb461cec2433ec7699f7205a20edb26d564078d3a2ddc68
+    react: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: 79a2c9d7ef774d71a1babe15a637bb109fece886af8206c772fb70104a531afecd88449e92489f58ba728761345f4685fee37a44976e60580d779a35f0acbec9
   languageName: node
   linkType: hard
 
