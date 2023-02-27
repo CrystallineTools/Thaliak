@@ -65,15 +65,25 @@ CREATE VIEW ""Files"" AS
             FROM version_files vf;
 
             CREATE VIEW ""Versions"" AS
-                SELECT
-            rv.id AS ""Id"",
-            rv.repository_id AS ""RepositoryId"",
-            rv.version_string AS ""VersionString"",
-            p.first_seen AS ""FirstSeen"",
-            p.last_seen AS ""LastSeen"",
-            p.is_active AS ""IsActive""
-            FROM repo_versions rv, patches p
-                WHERE rv.id = p.repo_version_id;
+            SELECT rv.id             AS ""Id"",
+                   rv.repository_id  AS ""RepositoryId"",
+                   CASE
+                       WHEN (regexp_match(rv.version_string, '[a-z]$'))[1] IS NOT NULL THEN
+                           concat(
+                                   regexp_replace(rv.version_string, '\D', '', 'g'),
+                                   lpad((ascii((regexp_match(rv.version_string, '[a-z]$'))[1]) - 96)::text, 2, '0'),
+                                   '0'
+                               )::bigint
+                       ELSE
+                           concat(regexp_replace(rv.version_string, '\D', '', 'g'), '000')::bigint
+                       END           AS ""VersionId"",
+                   rv.version_string AS ""VersionString"",
+                   p.first_seen      AS ""FirstSeen"",
+                   p.last_seen       AS ""LastSeen"",
+                   p.is_active       AS ""IsActive""
+            FROM repo_versions rv,
+                 patches p
+            WHERE rv.id = p.repo_version_id;
 ");
         }
 
