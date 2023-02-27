@@ -18,16 +18,16 @@ CREATE VIEW ""Files"" AS
             FROM files;
 
             CREATE VIEW ""PatchChains"" AS
-                SELECT
-            u.repository_id AS ""RepositoryId"",
-            np.id AS ""PatchId"",
-            pp.id AS ""PreviousPatchId"",
-            u.first_offered AS ""FirstOffered"",
-            u.last_offered AS ""LastOffered"",
-            u.id AS ""Id"",
-            u.is_active AS ""IsActive""
-            FROM upgrade_paths u, patches np, patches pp
-            WHERE u.repo_version_id = np.id AND u.repo_version_id = pp.id;
+            SELECT u.repository_id AS ""RepositoryId"",
+                   np.id           AS ""PatchId"",
+                   pp.id           AS ""PreviousPatchId"",
+                   u.first_offered AS ""FirstOffered"",
+                   u.last_offered  AS ""LastOffered"",
+                   u.id            AS ""Id"",
+                   u.is_active     AS ""IsActive""
+            FROM upgrade_paths u
+            INNER JOIN patches np ON u.repo_version_id = np.repo_version_id
+            LEFT JOIN patches pp ON u.previous_repo_version_id = pp.repo_version_id;
 
             CREATE VIEW ""Patches"" AS
                 SELECT
