@@ -12,7 +12,7 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import GraphQLPage from './pages/graphql';
 
 const gqlClient = new ApolloClient({
-  uri: process.env.REACT_APP_GRAPHQL_URL ?? 'https://thaliak.xiv.dev/graphql',
+  uri: process.env.REACT_APP_GRAPHQL_URL ?? 'https://thaliak.xiv.dev/graphql/2022-08-14',
   cache: new InMemoryCache(),
 });
 

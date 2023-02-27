@@ -1,6 +1,6 @@
 import { GraphiQL } from 'graphiql';
 import 'graphiql/graphiql.min.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@graphiql/react';
 import cn from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -8,7 +8,7 @@ import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { createGraphiQLFetcher } from '@graphiql/toolkit';
 import { useParams } from 'react-router-dom';
 
-const apiVersions = ['2022-08-14'];
+const apiVersions = ['2022-08-14', 'beta'];
 const defaultQuery = `query {
   repositories {
     id
@@ -31,8 +31,8 @@ export default function GraphQLPage() {
   const [loading, setLoading] = useState(true);
   const [version, setVersion] = useState(apiVersions[0]);
 
-  const endpoint = `https://thaliak.xiv.dev/graphql/${version}`;
-  const fetcher = createGraphiQLFetcher({ url: endpoint });
+  const endpoint = useMemo(() => `https://thaliak.xiv.dev/graphql/${version}`, [version]);
+  const fetcher = useMemo(() => createGraphiQLFetcher({ url: endpoint }), [endpoint]);
 
   useEffect(() => {
     if (selectedVersion !== undefined) {
