@@ -29,9 +29,9 @@ public class ImportAllCommand : AsyncCommand<ImportAllCommand.Settings>
         AnsiConsole.MarkupLine("[aqua]doin[/]");
 
         // todo: eventually don't hardcode this
-        var versionsQuery = _db.Versions
+        var versionsQuery = _db.RepoVersions
             .Include(v => v.Files)
-            .WithPatchChains()
+            .WithUpgradePaths()
             .Where(v => v.RepositoryId == 2);
 
         var rootVersion = versionsQuery.FirstOrDefault(v => v.VersionString == settings.RootVersion);
@@ -48,34 +48,33 @@ public class ImportAllCommand : AsyncCommand<ImportAllCommand.Settings>
         return 0;
     }
 
-    private void RecurseVersion(IQueryable<XivVersion> versionsQuery, XivVersion currVersion, Settings settings)
+    private void RecurseVersion(IQueryable<XivRepoVersion> versionsQuery, XivRepoVersion currRepoVersion, Settings settings)
     {
         // select from the db so we have all chains
-        currVersion = versionsQuery.First(v => v.VersionString == currVersion.VersionString);
+        currRepoVersion = versionsQuery.First(v => v.VersionString == currRepoVersion.VersionString);
 
         // 1. restore root version (or apply root patches if not found)
         // 2. if patches were applied, add this version to storage
         // 3. find next version in chain (if multiple, pick the newest one, and pivot on the rest)
         // 4. loop
-        var sv = new StoredVersion(_db, settings.StorageDirectory, currVersion, settings.StagingDirectory);
+        var sv = new StoredVersion(_db, settings.StorageDirectory, currRepoVersion, settings.StagingDirectory);
 
-        if (currVersion.Patches.Count > 1) {
+        if (currRepoVersion.Patches.Count > 1) {
             throw new Exception(
-                $"Version {currVersion.VersionString} has more than one patch, and this is not supported!");
+                $"Version {currRepoVersion.VersionString} has more than one patch, and this is not supported!");
         }
 
-        var lastPatch = currVersion.Patches.Last();
-        XivVersion[] prereqs = lastPatch.PrerequisitePatches.Select(p => p.PreviousPatch?.Version)
+        var lastPatch = currRepoVersion.Patches.Last();
+        XivRepoVersion[] prereqs = currRepoVersion.PrerequisiteVersions.Select(p => p.PreviousRepoVersion)
             .Where(x => x != null).ToArray()!;
         var depVersions = prereqs.Select(v => v.VersionString).ToArray();
         var depVersionStr = prereqs.Length > 0 ? $"[yellow]{string.Join("[silver],[/] ", depVersions)}[/]" : "none";
-        AnsiConsole.MarkupLine("[aqua]{0}[/] [silver](depends on: {1})[/]", currVersion.VersionString, depVersionStr);
+        AnsiConsole.MarkupLine("[aqua]{0}[/] [silver](depends on: {1})[/]", currRepoVersion.VersionString, depVersionStr);
 
         // find the next version
-        var nextVersions = lastPatch.DependentPatches
+        var nextVersions = currRepoVersion.DependentVersions
             .OrderByDescending(c => c.LastOffered)
-            .Select(c => c.Patch)
-            .Select(p => p.Version)
+            .Select(c => c.RepoVersion)
             .ToList();
 
         if (settings.DryRun) {
@@ -108,7 +107,7 @@ public class ImportAllCommand : AsyncCommand<ImportAllCommand.Settings>
                     psv = FindStoredVersion(versionsQuery, settings, prereqs, tsv => tsv.CheckStored());
                     if (psv != null) {
                         // stage it
-                        AnsiConsole.MarkupLine("[yellow]staging prereq version {0}[/]", psv.Version.VersionString);
+                        AnsiConsole.MarkupLine("[yellow]staging prereq version {0}[/]", psv.RepoVersion.VersionString);
                         psv.StageFromStorage(true);
 
                         // make sure we staged successfully
@@ -122,7 +121,7 @@ public class ImportAllCommand : AsyncCommand<ImportAllCommand.Settings>
                     ApplyPatchAndStore(sv, lastPatch, settings, settings.SaveAll || nextVersions.Count > 1);
                 } else {
                     AnsiConsole.MarkupLine("[red]Could not find any staged/stored prereq version for {0}[/]",
-                        currVersion.VersionString);
+                        currRepoVersion.VersionString);
                 }
             }
         }
@@ -149,8 +148,8 @@ public class ImportAllCommand : AsyncCommand<ImportAllCommand.Settings>
                 repoDir = repoDir.Parent;
             }
 
-            Repository.Ffxiv.SetVer(repoDir, patch.Version.VersionString);
-            Repository.Ffxiv.SetVer(repoDir, patch.Version.VersionString, true);
+            Repository.Ffxiv.SetVer(repoDir, patch.RepoVersion.VersionString);
+            Repository.Ffxiv.SetVer(repoDir, patch.RepoVersion.VersionString, true);
 
             // store it
             AnsiConsole.MarkupLine("[yellow]storing patched data...[/]");
@@ -161,8 +160,8 @@ public class ImportAllCommand : AsyncCommand<ImportAllCommand.Settings>
         }
     }
 
-    private StoredVersion? FindStoredVersion(IQueryable<XivVersion> versionsQuery, Settings settings,
-        XivVersion[] versions, Func<StoredVersion, bool> action)
+    private StoredVersion? FindStoredVersion(IQueryable<XivRepoVersion> versionsQuery, Settings settings,
+        XivRepoVersion[] versions, Func<StoredVersion, bool> action)
     {
         foreach (var ver in versions) {
             var fresh = versionsQuery.First(v => v.VersionString == ver.VersionString);

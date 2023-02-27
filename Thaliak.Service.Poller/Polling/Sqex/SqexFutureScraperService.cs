@@ -75,7 +75,7 @@ public class SqexFutureScraperService : ScraperBase
 
                     discovered.Add(new PatchListEntry
                     {
-                        VersionId = XivVersion.UrlToString(url),
+                        VersionId = XivRepoVersion.UrlToString(url),
                         Url = url,
                         Length = result.size ?? 0
                     });
@@ -106,10 +106,10 @@ public class SqexFutureScraperService : ScraperBase
 
     private void PopulateUrlList(MaintenanceInfo maintenance)
     {
-        var latest = _db.Versions.Where(v => v.RepositoryId == SqexPollerService.GameRepoId)
+        var latest = _db.RepoVersions.Where(v => v.RepositoryId == SqexPollerService.GameRepoId)
             .Include(v => v.Patches)
             .Where(v => v.Patches.Count > 0)
-            .OrderByDescending(v => v.VersionId)
+            .OrderByDescending(v => v.VersionString)
             .FirstOrDefault();
         if (latest == null) {
             // I don't care to support this special case; if we don't know of any versions then don't bother...

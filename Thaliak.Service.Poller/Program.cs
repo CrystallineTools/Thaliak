@@ -53,7 +53,8 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddDbContext<ThaliakContext>(o =>
         {
             o.UseNpgsql(ctx.Configuration.GetConnectionString("pg"),
-                co => co.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+                co => co.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery))
+                .UseSnakeCaseNamingConvention(ignoreMigrationTable: true);
             o.LogTo(Log.Verbose);
         });
 
@@ -76,6 +77,13 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .UseSerilog()
     .Build();
+
+// apply migrations on boot
+using (var scope = host.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ThaliakContext>();
+    db.Database.Migrate();
+}
 
 // go!
 await host.RunAsync();

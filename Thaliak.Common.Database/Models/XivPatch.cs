@@ -7,7 +7,7 @@ namespace Thaliak.Common.Database.Models;
 /// <summary>
 /// Represents information about a single XIV .patch file.
 /// </summary>
-[Index(nameof(Version))]
+[Index(nameof(RepoVersion))]
 public class XivPatch
 {
     private static readonly Regex PatchUrlRegex = new(@"(?:https?:\/\/(.+?)\/)?(?:ff\/)?((?:game|boot)\/.+)\/(.*)",
@@ -16,11 +16,8 @@ public class XivPatch
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    public int VersionId { get; set; }
-    public XivVersion Version { get; set; }
-
-    public int RepositoryId { get; set; }
-    public XivRepository Repository { get; set; }
+    public int RepoVersionId { get; set; }
+    public XivRepoVersion RepoVersion { get; set; }
 
     /// <summary>
     /// The origin path component of this patch file on SE's servers.
@@ -90,8 +87,4 @@ public class XivPatch
     public long? HashBlockSize { get; set; }
 
     public string[]? Hashes { get; set; }
-
-    public List<XivPatchChain> PrerequisitePatches { get; set; }
-
-    public List<XivPatchChain> DependentPatches { get; set; }
 }

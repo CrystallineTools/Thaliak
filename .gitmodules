@@ -1,3 +1,6 @@
 [submodule "lib/FFXIVQuickLauncher"]
 	path = lib/FFXIVQuickLauncher
 	url = https://github.com/avafloww/FFXIVQuickLauncher.git
+[submodule "lib/EFCore.NamingConventions"]
+	path = lib/EFCore.NamingConventions
+	url = git@github.com:avafloww/EFCore.NamingConventions.git

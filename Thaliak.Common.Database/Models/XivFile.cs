@@ -1,14 +1,17 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace Thaliak.Common.Database.Models;
 
 /// <summary>
 /// Information about a single file in a single version.
 /// </summary>
+[Index(nameof(LastUsed))]
 public class XivFile
 {
     /// <summary>
     /// The versions that this file belongs to.
     /// </summary>
-    public List<XivVersion> Versions { get; set; } = new();
+    public List<XivRepoVersion> Versions { get; set; } = new();
 
     /// <summary>
     /// The file path and name.

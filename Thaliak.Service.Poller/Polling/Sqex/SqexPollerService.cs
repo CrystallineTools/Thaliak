@@ -65,12 +65,10 @@ public class SqexPollerService : IPoller
 
         // fetch the boot/game repos
         var bootRepo = _db.Repositories
-            .Include(r => r.Versions)
-            .Include(r => r.Patches)
+            .Include(r => r.RepoVersions)
             .FirstOrDefault(r => r.Id == BootRepoId);
         var gameRepo = _db.Repositories
-            .Include(r => r.Versions)
-            .Include(r => r.Patches)
+            .Include(r => r.RepoVersions)
             .FirstOrDefault(r => r.Id == GameRepoId);
         if (bootRepo == null || gameRepo == null)
         {

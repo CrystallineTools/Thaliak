@@ -6,14 +6,14 @@ using Microsoft.EntityFrameworkCore;
 namespace Thaliak.Common.Database.Models;
 
 [Index(nameof(Slug))]
-[Index(nameof(ServiceRegion))]
+[Index(nameof(Service))]
 public class XivRepository
 {
     [Key]
     public int Id { get; set; }
     
-    public XivServiceRegion ServiceRegion { get; set; }
-    public int ServiceRegionId { get; set; }
+    public XivService Service { get; set; }
+    public int ServiceId { get; set; }
 
     public string Name { get; set; }
     public string? Description { get; set; }
@@ -38,9 +38,9 @@ public class XivRepository
 
     public List<XivAccount> ApplicableAccounts { get; set; }
 
-    public List<XivVersion> Versions { get; set; }
-
-    public List<XivPatch> Patches { get; set; }
+    public List<XivRepoVersion> RepoVersions { get; set; }
+    
+    public List<XivUpgradePath> UpgradePaths { get; set; }
 
     private string? _slug;
 }

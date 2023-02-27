@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Thaliak.Common.Database;
@@ -11,9 +12,10 @@ using Thaliak.Common.Database;
 namespace Thaliak.Common.Database.Migrations
 {
     [DbContext(typeof(ThaliakContext))]
-    partial class ThaliakContextModelSnapshot : ModelSnapshot
+    [Migration("20230227005756_ConvertSchemaToSnakeCase")]
+    partial class ConvertSchemaToSnakeCase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,25 +23,6 @@ namespace Thaliak.Common.Database.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("game_version_repo_versions", b =>
-                {
-                    b.Property<int>("GameVersionsId")
-                        .HasColumnType("integer")
-                        .HasColumnName("game_versions_id");
-
-                    b.Property<int>("RepoVersionsId")
-                        .HasColumnType("integer")
-                        .HasColumnName("repo_versions_id");
-
-                    b.HasKey("GameVersionsId", "RepoVersionsId")
-                        .HasName("pk_game_version_repo_versions");
-
-                    b.HasIndex("RepoVersionsId")
-                        .HasDatabaseName("ix_game_version_repo_versions_repo_versions_id");
-
-                    b.ToTable("game_version_repo_versions", (string)null);
-                });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.DiscordHookEntry", b =>
                 {
@@ -234,51 +217,6 @@ namespace Thaliak.Common.Database.Migrations
                     b.ToTable("files", (string)null);
                 });
 
-            modelBuilder.Entity("Thaliak.Common.Database.Models.XivGameVersion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("HotfixLevel")
-                        .HasColumnType("integer")
-                        .HasColumnName("hotfix_level");
-
-                    b.Property<string>("MarketingName")
-                        .HasColumnType("text")
-                        .HasColumnName("marketing_name");
-
-                    b.Property<string>("PatchInfoUrl")
-                        .HasColumnType("text")
-                        .HasColumnName("patch_info_url");
-
-                    b.Property<int>("ServiceId")
-                        .HasColumnType("integer")
-                        .HasColumnName("service_id");
-
-                    b.Property<string>("VersionName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("version_name");
-
-                    b.HasKey("Id")
-                        .HasName("pk_game_versions");
-
-                    b.HasIndex("HotfixLevel")
-                        .HasDatabaseName("ix_game_versions_hotfix_level");
-
-                    b.HasIndex("ServiceId")
-                        .HasDatabaseName("ix_game_versions_service_id");
-
-                    b.HasIndex("VersionName")
-                        .HasDatabaseName("ix_game_versions_version_name");
-
-                    b.ToTable("game_versions", (string)null);
-                });
-
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivPatch", b =>
                 {
                     b.Property<int>("Id")
@@ -334,6 +272,10 @@ namespace Thaliak.Common.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("repo_version_id");
 
+                    b.Property<int>("RepositoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("repository_id");
+
                     b.Property<long>("Size")
                         .HasColumnType("bigint")
                         .HasColumnName("size");
@@ -343,6 +285,9 @@ namespace Thaliak.Common.Database.Migrations
 
                     b.HasIndex("RepoVersionId")
                         .HasDatabaseName("ix_patches_repo_version_id");
+
+                    b.HasIndex("RepositoryId")
+                        .HasDatabaseName("ix_patches_repository_id");
 
                     b.ToTable("patches", (string)null);
                 });
@@ -612,13 +557,13 @@ namespace Thaliak.Common.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_offered");
 
-                    b.Property<int?>("PreviousRepoVersionId")
+                    b.Property<int>("PatchId")
                         .HasColumnType("integer")
-                        .HasColumnName("previous_repo_version_id");
+                        .HasColumnName("patch_id");
 
-                    b.Property<int>("RepoVersionId")
+                    b.Property<int?>("PreviousPatchId")
                         .HasColumnType("integer")
-                        .HasColumnName("repo_version_id");
+                        .HasColumnName("previous_patch_id");
 
                     b.Property<int>("RepositoryId")
                         .HasColumnType("integer")
@@ -627,21 +572,21 @@ namespace Thaliak.Common.Database.Migrations
                     b.HasKey("Id")
                         .HasName("pk_upgrade_paths");
 
-                    b.HasIndex("PreviousRepoVersionId")
-                        .HasDatabaseName("ix_upgrade_paths_previous_repo_version_id");
-
-                    b.HasIndex("RepoVersionId")
+                    b.HasIndex("PatchId")
                         .IsUnique()
-                        .HasDatabaseName("ix_upgrade_paths_repo_version_id")
-                        .HasFilter("\"previous_repo_version_id\" IS NULL");
+                        .HasDatabaseName("ix_upgrade_paths_patch_id")
+                        .HasFilter("\"previous_patch_id\" IS NULL");
+
+                    b.HasIndex("PreviousPatchId")
+                        .HasDatabaseName("ix_upgrade_paths_previous_patch_id");
 
                     b.HasIndex("RepositoryId")
                         .HasDatabaseName("ix_upgrade_paths_repository_id");
 
-                    b.HasIndex("RepoVersionId", "PreviousRepoVersionId")
+                    b.HasIndex("PatchId", "PreviousPatchId")
                         .IsUnique()
-                        .HasDatabaseName("ix_upgrade_paths_repo_version_id_previous_repo_version_id")
-                        .HasFilter("\"previous_repo_version_id\" IS NOT NULL");
+                        .HasDatabaseName("ix_upgrade_paths_patch_id_previous_patch_id")
+                        .HasFilter("\"previous_patch_id\" IS NOT NULL");
 
                     b.ToTable("upgrade_paths", (string)null);
                 });
@@ -688,23 +633,6 @@ namespace Thaliak.Common.Database.Migrations
                     b.ToTable("version_files", (string)null);
                 });
 
-            modelBuilder.Entity("game_version_repo_versions", b =>
-                {
-                    b.HasOne("Thaliak.Common.Database.Models.XivGameVersion", null)
-                        .WithMany()
-                        .HasForeignKey("GameVersionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_game_version_repo_versions_game_versions_game_versions_id");
-
-                    b.HasOne("Thaliak.Common.Database.Models.XivRepoVersion", null)
-                        .WithMany()
-                        .HasForeignKey("RepoVersionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_game_version_repo_versions_repo_versions_repo_versions_id");
-                });
-
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivExpansionRepositoryMapping", b =>
                 {
                     b.HasOne("Thaliak.Common.Database.Models.XivRepository", "ExpansionRepository")
@@ -726,18 +654,6 @@ namespace Thaliak.Common.Database.Migrations
                     b.Navigation("GameRepository");
                 });
 
-            modelBuilder.Entity("Thaliak.Common.Database.Models.XivGameVersion", b =>
-                {
-                    b.HasOne("Thaliak.Common.Database.Models.XivService", "Service")
-                        .WithMany("GameVersions")
-                        .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_game_versions_services_service_id");
-
-                    b.Navigation("Service");
-                });
-
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivPatch", b =>
                 {
                     b.HasOne("Thaliak.Common.Database.Models.XivRepoVersion", "RepoVersion")
@@ -747,7 +663,16 @@ namespace Thaliak.Common.Database.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_patches_repo_versions_repo_version_id");
 
+                    b.HasOne("Thaliak.Common.Database.Models.XivRepository", "Repository")
+                        .WithMany("Patches")
+                        .HasForeignKey("RepositoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_patches_repositories_repository_id");
+
                     b.Navigation("RepoVersion");
+
+                    b.Navigation("Repository");
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivRepository", b =>
@@ -765,7 +690,7 @@ namespace Thaliak.Common.Database.Migrations
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivRepoVersion", b =>
                 {
                     b.HasOne("Thaliak.Common.Database.Models.XivRepository", "Repository")
-                        .WithMany("RepoVersions")
+                        .WithMany("Versions")
                         .HasForeignKey("RepositoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -776,28 +701,28 @@ namespace Thaliak.Common.Database.Migrations
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivUpgradePath", b =>
                 {
-                    b.HasOne("Thaliak.Common.Database.Models.XivRepoVersion", "PreviousRepoVersion")
-                        .WithMany("DependentVersions")
-                        .HasForeignKey("PreviousRepoVersionId")
-                        .HasConstraintName("fk_upgrade_paths_repo_versions_previous_repo_version_id");
-
-                    b.HasOne("Thaliak.Common.Database.Models.XivRepoVersion", "RepoVersion")
-                        .WithMany("PrerequisiteVersions")
-                        .HasForeignKey("RepoVersionId")
+                    b.HasOne("Thaliak.Common.Database.Models.XivPatch", "Patch")
+                        .WithMany("PrerequisitePatches")
+                        .HasForeignKey("PatchId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_upgrade_paths_repo_versions_repo_version_id");
+                        .HasConstraintName("fk_upgrade_paths_patches_patch_id");
+
+                    b.HasOne("Thaliak.Common.Database.Models.XivPatch", "PreviousPatch")
+                        .WithMany("DependentPatches")
+                        .HasForeignKey("PreviousPatchId")
+                        .HasConstraintName("fk_upgrade_paths_patches_previous_patch_id");
 
                     b.HasOne("Thaliak.Common.Database.Models.XivRepository", "Repository")
-                        .WithMany("UpgradePaths")
+                        .WithMany()
                         .HasForeignKey("RepositoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_upgrade_paths_repositories_repository_id");
 
-                    b.Navigation("PreviousRepoVersion");
+                    b.Navigation("Patch");
 
-                    b.Navigation("RepoVersion");
+                    b.Navigation("PreviousPatch");
 
                     b.Navigation("Repository");
                 });
@@ -836,26 +761,27 @@ namespace Thaliak.Common.Database.Migrations
                         .HasConstraintName("fk_version_files_files_files_temp_id");
                 });
 
+            modelBuilder.Entity("Thaliak.Common.Database.Models.XivPatch", b =>
+                {
+                    b.Navigation("DependentPatches");
+
+                    b.Navigation("PrerequisitePatches");
+                });
+
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivRepository", b =>
                 {
-                    b.Navigation("RepoVersions");
+                    b.Navigation("Patches");
 
-                    b.Navigation("UpgradePaths");
+                    b.Navigation("Versions");
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivRepoVersion", b =>
                 {
-                    b.Navigation("DependentVersions");
-
                     b.Navigation("Patches");
-
-                    b.Navigation("PrerequisiteVersions");
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivService", b =>
                 {
-                    b.Navigation("GameVersions");
-
                     b.Navigation("Repositories");
                 });
 #pragma warning restore 612, 618

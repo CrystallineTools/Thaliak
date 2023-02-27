@@ -16,6 +16,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.AdminCli", "Thaliak
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Thaliak.Web", "Thaliak.Web\Thaliak.Web.shproj", "{194898E2-6FA4-4EAE-AE13-C846D8926488}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCore.NamingConventions", "lib\EFCore.NamingConventions\EFCore.NamingConventions\EFCore.NamingConventions.csproj", "{0631DFE1-6EA7-47CF-B733-43AD32F92C18}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,8 +48,13 @@ Global
 		{1D136F75-FF49-4743-A278-ED8EEA239212}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D136F75-FF49-4743-A278-ED8EEA239212}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D136F75-FF49-4743-A278-ED8EEA239212}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0631DFE1-6EA7-47CF-B733-43AD32F92C18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0631DFE1-6EA7-47CF-B733-43AD32F92C18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0631DFE1-6EA7-47CF-B733-43AD32F92C18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0631DFE1-6EA7-47CF-B733-43AD32F92C18}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{9565E611-AC6D-4C2C-BDC6-CD8649209E0A} = {65620F58-8B20-4FA2-8CE4-3FB158AD3FAD}
+		{0631DFE1-6EA7-47CF-B733-43AD32F92C18} = {65620F58-8B20-4FA2-8CE4-3FB158AD3FAD}
 	EndGlobalSection
 EndGlobal

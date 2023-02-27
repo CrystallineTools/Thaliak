@@ -7,13 +7,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.5" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.5">
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.14" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.14">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.5" />
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.4" />
-        <PackageReference Include="System.IO.Hashing" Version="6.0.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.14" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.8" />
+        <PackageReference Include="System.IO.Hashing" Version="6.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\lib\EFCore.NamingConventions\EFCore.NamingConventions\EFCore.NamingConventions.csproj" />
     </ItemGroup>
 </Project>

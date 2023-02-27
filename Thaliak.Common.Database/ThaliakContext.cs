@@ -7,11 +7,12 @@ public class ThaliakContext : DbContext
 {
     public DbSet<XivAccount> Accounts { get; set; }
     public DbSet<XivPatch> Patches { get; set; }
-    public DbSet<XivPatchChain> PatchChains { get; set; }
-    public DbSet<XivServiceRegion> ServiceRegions { get; set; }
+    public DbSet<XivUpgradePath> UpgradePaths { get; set; }
+    public DbSet<XivService> Services { get; set; }
     public DbSet<XivRepository> Repositories { get; set; }
     public DbSet<XivExpansionRepositoryMapping> ExpansionRepositoryMappings { get; set; }
-    public DbSet<XivVersion> Versions { get; set; }
+    public DbSet<XivGameVersion> GameVersions { get; set; }
+    public DbSet<XivRepoVersion> RepoVersions { get; set; }
     public DbSet<XivFile> Files { get; set; }
     public DbSet<DiscordHookEntry> DiscordHooks { get; set; }
 
@@ -19,24 +20,83 @@ public class ThaliakContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.Entity<XivVersion>()
-            .HasOne(v => v.Repository)
-            .WithMany(r => r.Versions)
-            .HasForeignKey(v => v.RepositoryId)
+        //
+        // Service
+        //
+        builder.Entity<XivService>()
+            .HasMany(s => s.GameVersions)
+            .WithOne(gv => gv.Service)
+            .HasForeignKey(gv => gv.ServiceId)
+            .HasPrincipalKey(s => s.Id);
+        
+        builder.Entity<XivService>()
+            .HasMany(s => s.Repositories)
+            .WithOne(r => r.Service)
+            .HasForeignKey(r => r.ServiceId)
+            .HasPrincipalKey(s => s.Id);
+        
+        //
+        // GameVersion
+        //
+        builder.Entity<XivGameVersion>()
+            .HasMany(gv => gv.RepoVersions)
+            .WithMany(rv => rv.GameVersions)
+            .UsingEntity("game_version_repo_versions");
+        
+        //
+        // Repository
+        //
+        builder.Entity<XivRepository>()
+            .HasMany(r => r.RepoVersions)
+            .WithOne(rv => rv.Repository)
+            .HasForeignKey(rv => rv.RepositoryId)
             .HasPrincipalKey(r => r.Id);
+        
+        //
+        // RepoVersion
+        //
+        builder.Entity<XivRepoVersion>()
+            .HasMany(rv => rv.Patches)
+            .WithOne(p => p.RepoVersion)
+            .HasForeignKey(p => p.RepoVersionId)
+            .HasPrincipalKey(rv => rv.Id);
 
-        builder.Entity<XivPatch>()
-            .HasOne(p => p.Version)
-            .WithMany(v => v.Patches)
-            .HasForeignKey(p => p.VersionId)
-            .HasPrincipalKey(v => v.Id);
+        //
+        // UpgradePath
+        //
+        builder.Entity<XivUpgradePath>()
+            .HasOne(c => c.PreviousRepoVersion)
+            .WithMany(p => p.DependentVersions)
+            .HasForeignKey(c => c.PreviousRepoVersionId)
+            .HasPrincipalKey(p => p.Id);
 
-        builder.Entity<XivPatch>()
-            .HasOne(p => p.Repository)
-            .WithMany(r => r.Patches)
-            .HasForeignKey(p => p.RepositoryId)
+        builder.Entity<XivUpgradePath>()
+            .HasOne(c => c.RepoVersion)
+            .WithMany(p => p.PrerequisiteVersions)
+            .HasForeignKey(c => c.RepoVersionId)
+            .HasPrincipalKey(p => p.Id);
+        
+        builder.Entity<XivUpgradePath>()
+            .HasOne(c => c.Repository)
+            .WithMany(r => r.UpgradePaths)
+            .HasForeignKey(c => c.RepositoryId)
             .HasPrincipalKey(r => r.Id);
+        
+        // https://stackoverflow.com/a/8289253
+        builder.Entity<XivUpgradePath>()
+            .HasIndex(nameof(XivUpgradePath.RepoVersionId), nameof(XivUpgradePath.PreviousRepoVersionId))
+            .IsUnique()
+            .HasFilter(@"""previous_repo_version_id"" IS NOT NULL");
 
+        builder.Entity<XivUpgradePath>()
+            .HasIndex(nameof(XivUpgradePath.RepoVersionId))
+            .IsUnique()
+            .HasFilter(@"""previous_repo_version_id"" IS NULL");
+        
+        //
+        // Patch
+        //
+        
         // store patch hashes as comma-separated strings
         builder.Entity<XivPatch>()
             .Property(p => p.Hashes)
@@ -44,58 +104,15 @@ public class ThaliakContext : DbContext
                 v => v == null ? null : string.Join(',', v),
                 v => v == null ? null : v.Split(',', StringSplitOptions.RemoveEmptyEntries)
             );
-
+        
+        // ensure the local storage path is correctly stored
         builder.Entity<XivPatch>()
             .Property(r => r.LocalStoragePath)
             .UsePropertyAccessMode(PropertyAccessMode.Property);
-
-        builder.Entity<XivPatchChain>()
-            .HasOne(c => c.PreviousPatch)
-            .WithMany(p => p.DependentPatches)
-            .HasForeignKey(c => c.PreviousPatchId)
-            .HasPrincipalKey(p => p.Id);
-
-        builder.Entity<XivPatchChain>()
-            .HasOne(c => c.Patch)
-            .WithMany(p => p.PrerequisitePatches)
-            .HasForeignKey(c => c.PatchId)
-            .HasPrincipalKey(p => p.Id);
-
-        builder.Entity<XivFile>()
-            .HasMany(f => f.Versions)
-            .WithMany(v => v.Files)
-            .UsingEntity(j => j.ToTable("VersionFiles"));
-
-        builder.Entity<XivFile>()
-            .HasKey(
-                nameof(XivFile.Name),
-                nameof(XivFile.SHA1)
-            );
-
-        builder.Entity<XivFile>()
-            .HasIndex(f => f.LastUsed);
-
-        // SHA1 hashes are stored as 40 character long hex strings
-        builder.Entity<XivFile>()
-            .Property(f => f.SHA1)
-            .HasMaxLength(40)
-            .IsFixedLength();
-
-        builder.Entity<XivRepository>()
-            .HasMany(r => r.ApplicableAccounts)
-            .WithMany(a => a.ApplicableRepositories)
-            .UsingEntity(j => j.ToTable("AccountRepositories"));
-
-        builder.Entity<XivRepository>()
-            .Property(r => r.Slug)
-            .UsePropertyAccessMode(PropertyAccessMode.Property);
-
-        builder.Entity<XivRepository>()
-            .HasOne(r => r.ServiceRegion)
-            .WithMany(sr => sr.Repositories)
-            .HasForeignKey(r => r.ServiceRegionId)
-            .HasPrincipalKey(sr => sr.Id);
-
+        
+        //
+        // ExpansionRepositoryMapping
+        //
         builder.Entity<XivExpansionRepositoryMapping>()
             .HasKey(
                 nameof(XivExpansionRepositoryMapping.GameRepositoryId),
@@ -114,40 +131,60 @@ public class ThaliakContext : DbContext
             .WithMany()
             .HasForeignKey(erp => erp.ExpansionRepositoryId)
             .HasPrincipalKey(r => r.Id);
+        
+        //
+        // File
+        //
+        
+        // SHA1 hashes are stored as 40 character long hex strings
+        builder.Entity<XivFile>()
+            .Property(f => f.SHA1)
+            .HasMaxLength(40)
+            .IsFixedLength();
+        
+        //
+        // UNMIGRATED BELOW
+        //
+        builder.Entity<XivFile>()
+            .HasMany(f => f.Versions)
+            .WithMany(v => v.Files)
+            .UsingEntity(j => j.ToTable("version_files"));
 
-        builder.Entity<XivPatchChain>()
-            .HasOne(c => c.Repository)
-            .WithMany()
-            .HasForeignKey(c => c.RepositoryId)
-            .HasPrincipalKey(r => r.Id);
+        builder.Entity<XivFile>()
+            .HasKey(
+                nameof(XivFile.Name),
+                nameof(XivFile.SHA1)
+            );
 
-        // https://stackoverflow.com/a/8289253
-        builder.Entity<XivPatchChain>()
-            .HasIndex(nameof(XivPatchChain.PatchId), nameof(XivPatchChain.PreviousPatchId))
-            .IsUnique()
-            .HasFilter(@"""PreviousPatchId"" IS NOT NULL");
+        builder.Entity<XivRepository>()
+            .HasMany(r => r.ApplicableAccounts)
+            .WithMany(a => a.ApplicableRepositories)
+            .UsingEntity(j => j.ToTable("account_repositories"));
 
-        builder.Entity<XivPatchChain>()
-            .HasIndex(nameof(XivPatchChain.PatchId))
-            .IsUnique()
-            .HasFilter(@"""PreviousPatchId"" IS NULL");
+        builder.Entity<XivRepository>()
+            .Property(r => r.Slug)
+            .UsePropertyAccessMode(PropertyAccessMode.Property);
 
+        //
+        // Data Seeding
+        //
+        
         // seed service region data
-        builder.Entity<XivServiceRegion>()
+        builder.Entity<XivService>()
             .HasData(
-                new XivServiceRegion
+                new XivService
                 {
                     Id = 1,
                     Name = "FFXIV Global",
                     Icon = "🇺🇳"
                 },
-                new XivServiceRegion
+                new XivService
                 {
                     Id = 2,
                     Name = "FFXIV Korea",
                     Icon = "🇰🇷"
                 },
-                new XivServiceRegion
+                new XivService
                 {
                     Id = 3,
                     Name = "FFXIV China",
@@ -166,42 +203,42 @@ public class ThaliakContext : DbContext
                         Id = 1,
                         Name = "ffxivneo/win32/release/boot",
                         Description = "FFXIV Global/JP - Retail - Boot - Win32",
-                        ServiceRegionId = 1
+                        ServiceId = 1
                     },
                     new()
                     {
                         Id = 2,
                         Name = "ffxivneo/win32/release/game",
                         Description = "FFXIV Global/JP - Retail - Base Game - Win32",
-                        ServiceRegionId = 1
+                        ServiceId = 1
                     },
                     new()
                     {
                         Id = 3,
                         Name = "ffxivneo/win32/release/ex1",
                         Description = "FFXIV Global/JP - Retail - ex1 (Heavensward) - Win32",
-                        ServiceRegionId = 1
+                        ServiceId = 1
                     },
                     new()
                     {
                         Id = 4,
                         Name = "ffxivneo/win32/release/ex2",
                         Description = "FFXIV Global/JP - Retail - ex2 (Stormblood) - Win32",
-                        ServiceRegionId = 1
+                        ServiceId = 1
                     },
                     new()
                     {
                         Id = 5,
                         Name = "ffxivneo/win32/release/ex3",
                         Description = "FFXIV Global/JP - Retail - ex3 (Shadowbringers) - Win32",
-                        ServiceRegionId = 1
+                        ServiceId = 1
                     },
                     new()
                     {
                         Id = 6,
                         Name = "ffxivneo/win32/release/ex4",
                         Description = "FFXIV Global/JP - Retail - ex4 (Endwalker) - Win32",
-                        ServiceRegionId = 1
+                        ServiceId = 1
                     },
                     // Korea
                     new()
@@ -209,35 +246,35 @@ public class ThaliakContext : DbContext
                         Id = 7,
                         Name = "actoz/win32/release_ko/game",
                         Description = "FFXIV Korea - Retail - Base Game - Win32",
-                        ServiceRegionId = 2
+                        ServiceId = 2
                     },
                     new()
                     {
                         Id = 8,
                         Name = "actoz/win32/release_ko/ex1",
                         Description = "FFXIV Korea - Retail - ex1 (Heavensward) - Win32",
-                        ServiceRegionId = 2
+                        ServiceId = 2
                     },
                     new()
                     {
                         Id = 9,
                         Name = "actoz/win32/release_ko/ex2",
                         Description = "FFXIV Korea - Retail - ex2 (Stormblood) - Win32",
-                        ServiceRegionId = 2
+                        ServiceId = 2
                     },
                     new()
                     {
                         Id = 10,
                         Name = "actoz/win32/release_ko/ex3",
                         Description = "FFXIV Korea - Retail - ex3 (Shadowbringers) - Win32",
-                        ServiceRegionId = 2
+                        ServiceId = 2
                     },
                     new()
                     {
                         Id = 11,
                         Name = "actoz/win32/release_ko/ex4",
                         Description = "FFXIV Korea - Retail - ex4 (Endwalker) - Win32",
-                        ServiceRegionId = 2
+                        ServiceId = 2
                     },
                     // China
                     new()
@@ -245,35 +282,35 @@ public class ThaliakContext : DbContext
                         Id = 12,
                         Name = "shanda/win32/release_chs/game",
                         Description = "FFXIV China - Retail - Base Game - Win32",
-                        ServiceRegionId = 3
+                        ServiceId = 3
                     },
                     new()
                     {
                         Id = 13,
                         Name = "shanda/win32/release_chs/ex1",
                         Description = "FFXIV China - Retail - ex1 (Heavensward) - Win32",
-                        ServiceRegionId = 3
+                        ServiceId = 3
                     },
                     new()
                     {
                         Id = 14,
                         Name = "shanda/win32/release_chs/ex2",
                         Description = "FFXIV China - Retail - ex2 (Stormblood) - Win32",
-                        ServiceRegionId = 3
+                        ServiceId = 3
                     },
                     new()
                     {
                         Id = 15,
                         Name = "shanda/win32/release_chs/ex3",
                         Description = "FFXIV China - Retail - ex3 (Shadowbringers) - Win32",
-                        ServiceRegionId = 3
+                        ServiceId = 3
                     },
                     new()
                     {
                         Id = 16,
                         Name = "shanda/win32/release_chs/ex4",
                         Description = "FFXIV China - Retail - ex4 (Endwalker) - Win32",
-                        ServiceRegionId = 3
+                        ServiceId = 3
                     }
                 }
             );

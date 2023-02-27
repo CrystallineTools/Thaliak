@@ -38,16 +38,9 @@ public class PatchReconciliationService
 
         // ensure we iterate through all of the expansion repositories as well
         var repoIds = new[] {repo.Id}.Union(expansions.Select(erp => erp.ExpansionRepositoryId)).ToArray();
-        var targetDbPatches = _db.Patches.Where(p => repoIds.Contains(p.RepositoryId));
-        var targetDbVersions = _db.Versions.Where(v => repoIds.Contains(v.RepositoryId));
-
-        // prepare the list of patches we currently have
-        var localPatches = targetDbPatches.Join(
-            targetDbVersions,
-            patch => patch.Version,
-            version => version,
-            (patch, version) => new {patch, version}
-        );
+        var localPatches = _db.Patches
+            .Include(p => p.RepoVersion)
+            .Where(p => repoIds.Contains(p.RepoVersion.RepositoryId));
 
         // keep track of newly discovered patches
         var newPatchList = new List<XivPatch>();
@@ -56,20 +49,20 @@ public class PatchReconciliationService
         foreach (var remotePatch in remotePatches) {
             var effectiveRepoId = GetEffectiveRepositoryId(expansions, repo.Id, remotePatch.Url);
             var localPatch = localPatches.FirstOrDefault(p =>
-                p.version.VersionString == remotePatch.VersionId && p.version.RepositoryId == effectiveRepoId);
+                p.RepoVersion.VersionString == remotePatch.VersionId && p.RepoVersion.RepositoryId == effectiveRepoId);
             if (localPatch == null) {
                 var newPatch = RecordNewPatchData(now, effectiveRepoId, remotePatch, discoveryType);
 
                 // add it to the list for alerting
                 newPatchList.Add(newPatch);
             } else {
-                var alert = localPatch.patch.FirstOffered == null &&
+                var alert = localPatch.FirstOffered == null &&
                             discoveryType == PatchDiscoveryType.Offered;
-                UpdateExistingPatchData(now, localPatch.patch, remotePatch, discoveryType);
+                UpdateExistingPatchData(now, localPatch, remotePatch, discoveryType);
 
                 // if we had previously seen the patch, but now it's being offered, trigger an alert for it anyways
                 if (alert) {
-                    newPatchList.Add(localPatch.patch);
+                    newPatchList.Add(localPatch);
                 }
             }
 
@@ -81,7 +74,7 @@ public class PatchReconciliationService
         foreach (var repoId in repoIds) {
             var expansionPatches = remotePatches.Where(p =>
                 GetEffectiveRepositoryId(expansions, repo.Id, p.Url) == repoId);
-            RecordPatchChainData(now, repoId, expansionPatches);
+            RecordUpgradePathData(now, repoId, expansionPatches);
         }
 
         // update the active status after everything else
@@ -115,59 +108,58 @@ public class PatchReconciliationService
         SendDiscordAlerts(newPatchList, discoveryType);
     }
 
-    private void RecordPatchChainData(DateTime now, int effectiveRepoId, IEnumerable<PatchListEntry> remotePatches)
+    private void RecordUpgradePathData(DateTime now, int effectiveRepoId, IEnumerable<PatchListEntry> remotePatches)
     {
-        Log.Information("Logging patch chain data for repo {repoId}", effectiveRepoId);
+        Log.Information("Logging upgrade path data for repo {repoId}", effectiveRepoId);
 
-        remotePatches = remotePatches.OrderBy(p => XivVersion.StringToId(p.VersionId));
+        remotePatches = remotePatches.OrderBy(p => p.VersionId);
 
         PatchListEntry? previousPatch = null;
         foreach (var remotePatch in remotePatches) {
             // get the patch IDs
-            var dbPatches = _db.Patches
-                .Include(p => p.Version)
-                .Where(p => p.RepositoryId == effectiveRepoId)
-                .Where(p => p.Version.VersionString == remotePatch.VersionId ||
-                            (previousPatch != null && p.Version.VersionString == previousPatch.VersionId))
+            var dbVersions = _db.RepoVersions
+                .Where(rv => rv.RepositoryId == effectiveRepoId)
+                .Where(rv => rv.VersionString == remotePatch.VersionId ||
+                            (previousPatch != null && rv.VersionString == previousPatch.VersionId))
                 .ToList();
 
-            var dbPatch = dbPatches.FirstOrDefault(p => p.Version.VersionString == remotePatch.VersionId);
-            if (dbPatch == null) {
-                Log.Error("Could not find patch in DB: {0}. Backing out of patch chain recording.",
+            var dbVersion = dbVersions.FirstOrDefault(rv => rv.VersionString == remotePatch.VersionId);
+            if (dbVersion == null) {
+                Log.Error("Could not find version in DB: {0}. Backing out of upgrade path recording.",
                     remotePatch.VersionId);
                 return;
             }
 
-            var chain = new XivPatchChain
+            var path = new XivUpgradePath
             {
                 RepositoryId = effectiveRepoId,
                 FirstOffered = now,
                 LastOffered = now,
-                PatchId = dbPatch.Id,
+                RepoVersionId = dbVersion.Id,
             };
 
             if (previousPatch != null) {
-                var dbPreviousPatch = dbPatches.FirstOrDefault(p => p.Version.VersionString == previousPatch.VersionId);
-                if (dbPreviousPatch == null) {
-                    Log.Error("Could not find previous patch in DB: {0}. Backing out of patch chain recording.",
+                var dbPreviousVersion = dbVersions.FirstOrDefault(rv => rv.VersionString == previousPatch.VersionId);
+                if (dbPreviousVersion == null) {
+                    Log.Error("Could not find previous version in DB: {0}. Backing out of upgrade path recording.",
                         previousPatch.VersionId);
                     return;
                 }
 
-                chain.PreviousPatchId = dbPreviousPatch.Id;
+                path.PreviousRepoVersionId = dbPreviousVersion.Id;
 
                 // when the ON CONFLICT index is a partial index, we must specify predicates in the ON CONFLICT clause
                 // kinda sucks to drop down to raw SQL here, but the upsert lib didn't support this so ¯\_(ツ)_/¯
                 _db.Database.ExecuteSqlInterpolated(
-                    $@"INSERT INTO ""PatchChains"" (""RepositoryId"", ""PatchId"", ""PreviousPatchId"", ""FirstOffered"", ""LastOffered"")
-                        VALUES ({chain.RepositoryId}, {chain.PatchId}, {chain.PreviousPatchId}, {chain.FirstOffered}, {chain.LastOffered})
-                        ON CONFLICT (""PatchId"", ""PreviousPatchId"") WHERE ""PreviousPatchId"" IS NOT NULL DO UPDATE SET ""LastOffered"" = {chain.LastOffered}"
+                    $@"INSERT INTO ""upgrade_paths"" (""repository_id"", ""repo_version_id"", ""previous_repo_version_id"", ""first_offered"", ""last_offered"")
+                        VALUES ({path.RepositoryId}, {path.RepoVersionId}, {path.PreviousRepoVersionId}, {path.FirstOffered}, {path.LastOffered})
+                        ON CONFLICT (""repo_version_id"", ""previous_repo_version_id"") WHERE ""previous_repo_version_id"" IS NOT NULL DO UPDATE SET ""last_offered"" = {path.LastOffered}"
                 );
             } else {
                 _db.Database.ExecuteSqlInterpolated(
-                    $@"INSERT INTO ""PatchChains"" (""RepositoryId"", ""PatchId"", ""PreviousPatchId"", ""FirstOffered"", ""LastOffered"")
-                        VALUES ({chain.RepositoryId}, {chain.PatchId}, NULL, {chain.FirstOffered}, {chain.LastOffered})
-                        ON CONFLICT (""PatchId"") WHERE ""PreviousPatchId"" IS NULL DO UPDATE SET ""LastOffered"" = {chain.LastOffered}"
+                    $@"INSERT INTO ""upgrade_paths"" (""repository_id"", ""repo_version_id"", ""previous_repo_version_id"", ""first_offered"", ""last_offered"")
+                        VALUES ({path.RepositoryId}, {path.RepoVersionId}, NULL, {path.FirstOffered}, {path.LastOffered})
+                        ON CONFLICT (""repo_version_id"") WHERE ""previous_repo_version_id"" IS NULL DO UPDATE SET ""last_offered"" = {path.LastOffered}"
                 );
             }
 
@@ -177,13 +169,15 @@ public class PatchReconciliationService
         // now that we're pretty sure all of them exist, commit the changes
         _db.SaveChanges();
 
-        Log.Information("Successfully logged patch chain data for repo {repoId}", effectiveRepoId);
+        Log.Information("Successfully logged upgrade path data for repo {repoId}", effectiveRepoId);
     }
 
     // called after the poll and recording of results is complete
     private void RecordActiveStatus(DateTime now, int effectiveRepoId)
     {
-        var patches = _db.Patches.Where(p => p.RepositoryId == effectiveRepoId)
+        var patches = _db.Patches
+            .Include(p => p.RepoVersion)
+            .Where(p => p.RepoVersion.RepositoryId == effectiveRepoId)
             .Where(p => p.LastOffered < now)
             .Where(p => p.IsActive)
             .ToList();
@@ -191,11 +185,11 @@ public class PatchReconciliationService
             item.IsActive = false;
         }
 
-        var patchChains = _db.PatchChains.Where(p => p.RepositoryId == effectiveRepoId)
+        var upgradePaths = _db.UpgradePaths.Where(p => p.RepositoryId == effectiveRepoId)
             .Where(p => p.LastOffered < now)
             .Where(p => p.IsActive)
             .ToList();
-        foreach (var item in patchChains) {
+        foreach (var item in upgradePaths) {
             item.IsActive = false;
         }
 
@@ -208,24 +202,22 @@ public class PatchReconciliationService
         Log.Information("Discovered new patch: {@0}", remotePatch);
 
         // existing version?
-        var version = _db.Versions.FirstOrDefault(v =>
+        var version = _db.RepoVersions.FirstOrDefault(v =>
             v.VersionString == remotePatch.VersionId && v.RepositoryId == effectiveRepoId);
         if (version == null) {
-            version = new XivVersion
+            version = new XivRepoVersion
             {
-                VersionId = XivVersion.StringToId(remotePatch.VersionId),
                 VersionString = remotePatch.VersionId,
                 RepositoryId = effectiveRepoId
             };
         } else {
-            _db.Versions.Attach(version);
+            _db.RepoVersions.Attach(version);
         }
 
         // collect patch data
         var newPatch = new XivPatch
         {
-            Version = version,
-            RepositoryId = effectiveRepoId,
+            RepoVersion = version,
             RemoteOriginPath = remotePatch.Url,
             Size = remotePatch.Length,
         };
@@ -328,13 +320,13 @@ public class PatchReconciliationService
                     fields.Add(new EmbedFieldBuilder
                     {
                         Name = "Repository",
-                        Value = $"{patch.Version.Repository.Name} ({patch.Version.Repository.Slug})"
+                        Value = $"{patch.RepoVersion.Repository.Name} ({patch.RepoVersion.Repository.Slug})"
                     });
 
                     fields.Add(new EmbedFieldBuilder
                     {
                         Name = "Version",
-                        Value = patch.Version.VersionString
+                        Value = patch.RepoVersion.VersionString
                     });
 
                     fields.Add(new EmbedFieldBuilder
@@ -347,13 +339,6 @@ public class PatchReconciliationService
                     {
                         Name = "Size",
                         Value = MakeSizePretty(patch.Size)
-                    });
-
-                    fields.Add(new EmbedFieldBuilder
-                    {
-                        Name = "Detailed information on the Thaliak API",
-                        Value =
-                            $"https://thaliak.xiv.dev/api/versions/{patch.Version.Repository.Slug}/{patch.Version.VersionString}"
                     });
 
                     hookClient.SendMessageAsync(

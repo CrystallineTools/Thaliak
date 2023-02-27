@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Thaliak.Common.Database;
@@ -11,9 +12,10 @@ using Thaliak.Common.Database;
 namespace Thaliak.Common.Database.Migrations
 {
     [DbContext(typeof(ThaliakContext))]
-    partial class ThaliakContextModelSnapshot : ModelSnapshot
+    [Migration("20230227013314_RenameUpgradePathsColumn")]
+    partial class RenameUpgradePathsColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -334,6 +336,10 @@ namespace Thaliak.Common.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("repo_version_id");
 
+                    b.Property<int>("RepositoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("repository_id");
+
                     b.Property<long>("Size")
                         .HasColumnType("bigint")
                         .HasColumnName("size");
@@ -343,6 +349,9 @@ namespace Thaliak.Common.Database.Migrations
 
                     b.HasIndex("RepoVersionId")
                         .HasDatabaseName("ix_patches_repo_version_id");
+
+                    b.HasIndex("RepositoryId")
+                        .HasDatabaseName("ix_patches_repository_id");
 
                     b.ToTable("patches", (string)null);
                 });
@@ -747,7 +756,16 @@ namespace Thaliak.Common.Database.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_patches_repo_versions_repo_version_id");
 
+                    b.HasOne("Thaliak.Common.Database.Models.XivRepository", "Repository")
+                        .WithMany("Patches")
+                        .HasForeignKey("RepositoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_patches_repositories_repository_id");
+
                     b.Navigation("RepoVersion");
+
+                    b.Navigation("Repository");
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivRepository", b =>
@@ -789,7 +807,7 @@ namespace Thaliak.Common.Database.Migrations
                         .HasConstraintName("fk_upgrade_paths_repo_versions_repo_version_id");
 
                     b.HasOne("Thaliak.Common.Database.Models.XivRepository", "Repository")
-                        .WithMany("UpgradePaths")
+                        .WithMany()
                         .HasForeignKey("RepositoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -838,9 +856,9 @@ namespace Thaliak.Common.Database.Migrations
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivRepository", b =>
                 {
-                    b.Navigation("RepoVersions");
+                    b.Navigation("Patches");
 
-                    b.Navigation("UpgradePaths");
+                    b.Navigation("RepoVersions");
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivRepoVersion", b =>

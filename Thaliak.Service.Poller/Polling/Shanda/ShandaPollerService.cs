@@ -25,8 +25,7 @@ public class ShandaPollerService : IPoller
         Log.Information("ShandaPollerService: starting poll operation");
 
         var gameRepo = _db.Repositories
-            .Include(r => r.Versions)
-            .Include(r => r.Patches)
+            .Include(r => r.RepoVersions)
             .FirstOrDefault(r => r.Id == GameRepoId);
         if (gameRepo == null)
         {

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Thaliak.Common.Database;
@@ -11,106 +12,75 @@ using Thaliak.Common.Database;
 namespace Thaliak.Common.Database.Migrations
 {
     [DbContext(typeof(ThaliakContext))]
-    partial class ThaliakContextModelSnapshot : ModelSnapshot
+    [Migration("20230227004556_RenameTablePatchChains")]
+    partial class RenameTablePatchChains
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.14")
+                .HasAnnotation("ProductVersion", "6.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("game_version_repo_versions", b =>
-                {
-                    b.Property<int>("GameVersionsId")
-                        .HasColumnType("integer")
-                        .HasColumnName("game_versions_id");
-
-                    b.Property<int>("RepoVersionsId")
-                        .HasColumnType("integer")
-                        .HasColumnName("repo_versions_id");
-
-                    b.HasKey("GameVersionsId", "RepoVersionsId")
-                        .HasName("pk_game_version_repo_versions");
-
-                    b.HasIndex("RepoVersionsId")
-                        .HasDatabaseName("ix_game_version_repo_versions_repo_versions_id");
-
-                    b.ToTable("game_version_repo_versions", (string)null);
-                });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.DiscordHookEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
-                        .HasColumnType("text")
-                        .HasColumnName("name");
+                        .HasColumnType("text");
 
                     b.Property<string>("Url")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("url");
+                        .HasColumnType("text");
 
-                    b.HasKey("Id")
-                        .HasName("pk_discord_hooks");
+                    b.HasKey("Id");
 
-                    b.ToTable("discord_hooks", (string)null);
+                    b.ToTable("DiscordHooks");
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivAccount", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("password");
+                        .HasColumnType("text");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("username");
+                        .HasColumnType("text");
 
-                    b.HasKey("Id")
-                        .HasName("pk_accounts");
+                    b.HasKey("Id");
 
-                    b.ToTable("accounts", (string)null);
+                    b.ToTable("Accounts");
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivExpansionRepositoryMapping", b =>
                 {
                     b.Property<int>("GameRepositoryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("game_repository_id");
+                        .HasColumnType("integer");
 
                     b.Property<int>("ExpansionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("expansion_id");
+                        .HasColumnType("integer");
 
                     b.Property<int>("ExpansionRepositoryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("expansion_repository_id");
+                        .HasColumnType("integer");
 
-                    b.HasKey("GameRepositoryId", "ExpansionId", "ExpansionRepositoryId")
-                        .HasName("pk_expansion_repository_mappings");
+                    b.HasKey("GameRepositoryId", "ExpansionId", "ExpansionRepositoryId");
 
-                    b.HasIndex("ExpansionRepositoryId")
-                        .HasDatabaseName("ix_expansion_repository_mappings_expansion_repository_id");
+                    b.HasIndex("ExpansionRepositoryId");
 
-                    b.ToTable("expansion_repository_mappings", (string)null);
+                    b.ToTable("ExpansionRepositoryMappings");
 
                     b.HasData(
                         new
@@ -208,182 +178,113 @@ namespace Thaliak.Common.Database.Migrations
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivFile", b =>
                 {
                     b.Property<string>("Name")
-                        .HasColumnType("text")
-                        .HasColumnName("name");
+                        .HasColumnType("text");
 
                     b.Property<string>("SHA1")
                         .HasMaxLength(40)
                         .HasColumnType("character(40)")
-                        .HasColumnName("sha1")
                         .IsFixedLength();
 
                     b.Property<DateTime>("LastUsed")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_used");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("Size")
-                        .HasColumnType("numeric(20,0)")
-                        .HasColumnName("size");
+                        .HasColumnType("numeric(20,0)");
 
-                    b.HasKey("Name", "SHA1")
-                        .HasName("pk_files");
+                    b.HasKey("Name", "SHA1");
 
-                    b.HasIndex("LastUsed")
-                        .HasDatabaseName("ix_files_last_used");
+                    b.HasIndex("LastUsed");
 
-                    b.ToTable("files", (string)null);
-                });
-
-            modelBuilder.Entity("Thaliak.Common.Database.Models.XivGameVersion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("HotfixLevel")
-                        .HasColumnType("integer")
-                        .HasColumnName("hotfix_level");
-
-                    b.Property<string>("MarketingName")
-                        .HasColumnType("text")
-                        .HasColumnName("marketing_name");
-
-                    b.Property<string>("PatchInfoUrl")
-                        .HasColumnType("text")
-                        .HasColumnName("patch_info_url");
-
-                    b.Property<int>("ServiceId")
-                        .HasColumnType("integer")
-                        .HasColumnName("service_id");
-
-                    b.Property<string>("VersionName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("version_name");
-
-                    b.HasKey("Id")
-                        .HasName("pk_game_versions");
-
-                    b.HasIndex("HotfixLevel")
-                        .HasDatabaseName("ix_game_versions_hotfix_level");
-
-                    b.HasIndex("ServiceId")
-                        .HasDatabaseName("ix_game_versions_service_id");
-
-                    b.HasIndex("VersionName")
-                        .HasDatabaseName("ix_game_versions_version_name");
-
-                    b.ToTable("game_versions", (string)null);
+                    b.ToTable("Files");
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivPatch", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("FirstOffered")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("first_offered");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("FirstSeen")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("first_seen");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<long?>("HashBlockSize")
-                        .HasColumnType("bigint")
-                        .HasColumnName("hash_block_size");
+                        .HasColumnType("bigint");
 
                     b.Property<string>("HashType")
-                        .HasColumnType("text")
-                        .HasColumnName("hash_type");
+                        .HasColumnType("text");
 
                     b.Property<string>("Hashes")
-                        .HasColumnType("text")
-                        .HasColumnName("hashes");
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime?>("LastOffered")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_offered");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("LastSeen")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_seen");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LocalStoragePath")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("local_storage_path");
+                        .HasColumnType("text");
 
                     b.Property<string>("RemoteOriginPath")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("remote_origin_path");
+                        .HasColumnType("text");
 
                     b.Property<int>("RepoVersionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("repo_version_id");
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RepositoryId")
+                        .HasColumnType("integer");
 
                     b.Property<long>("Size")
-                        .HasColumnType("bigint")
-                        .HasColumnName("size");
+                        .HasColumnType("bigint");
 
-                    b.HasKey("Id")
-                        .HasName("pk_patches");
+                    b.HasKey("Id");
 
-                    b.HasIndex("RepoVersionId")
-                        .HasDatabaseName("ix_patches_repo_version_id");
+                    b.HasIndex("RepoVersionId");
 
-                    b.ToTable("patches", (string)null);
+                    b.HasIndex("RepositoryId");
+
+                    b.ToTable("Patches");
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivRepository", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
-                        .HasColumnType("text")
-                        .HasColumnName("description");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
+                        .HasColumnType("text");
 
                     b.Property<int>("ServiceId")
-                        .HasColumnType("integer")
-                        .HasColumnName("service_id");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Slug")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("slug");
+                        .HasColumnType("text");
 
-                    b.HasKey("Id")
-                        .HasName("pk_repositories");
+                    b.HasKey("Id");
 
-                    b.HasIndex("ServiceId")
-                        .HasDatabaseName("ix_repositories_service_id");
+                    b.HasIndex("ServiceId");
 
-                    b.HasIndex("Slug")
-                        .HasDatabaseName("ix_repositories_slug");
+                    b.HasIndex("Slug");
 
-                    b.ToTable("repositories", (string)null);
+                    b.ToTable("Repositories");
 
                     b.HasData(
                         new
@@ -520,55 +421,45 @@ namespace Thaliak.Common.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("RepositoryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("repository_id");
+                        .HasColumnType("integer");
 
                     b.Property<string>("VersionString")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("version_string");
+                        .HasColumnType("text");
 
-                    b.HasKey("Id")
-                        .HasName("pk_repo_versions");
+                    b.HasKey("Id");
 
-                    b.HasIndex("RepositoryId")
-                        .HasDatabaseName("ix_repo_versions_repository_id");
+                    b.HasIndex("RepositoryId");
 
-                    b.HasIndex("VersionString")
-                        .HasDatabaseName("ix_repo_versions_version_string");
+                    b.HasIndex("VersionString");
 
-                    b.ToTable("repo_versions", (string)null);
+                    b.ToTable("RepoVersions");
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivService", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Icon")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("icon");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
+                        .HasColumnType("text");
 
-                    b.HasKey("Id")
-                        .HasName("pk_services");
+                    b.HasKey("Id");
 
-                    b.ToTable("services", (string)null);
+                    b.ToTable("Services");
 
                     b.HasData(
                         new
@@ -595,114 +486,76 @@ namespace Thaliak.Common.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("FirstOffered")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("first_offered");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime?>("LastOffered")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_offered");
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("PreviousRepoVersionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("previous_repo_version_id");
+                    b.Property<int>("PatchId")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("RepoVersionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("repo_version_id");
+                    b.Property<int?>("PreviousPatchId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("RepositoryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("repository_id");
+                        .HasColumnType("integer");
 
-                    b.HasKey("Id")
-                        .HasName("pk_upgrade_paths");
+                    b.HasKey("Id");
 
-                    b.HasIndex("PreviousRepoVersionId")
-                        .HasDatabaseName("ix_upgrade_paths_previous_repo_version_id");
-
-                    b.HasIndex("RepoVersionId")
+                    b.HasIndex("PatchId")
                         .IsUnique()
-                        .HasDatabaseName("ix_upgrade_paths_repo_version_id")
-                        .HasFilter("\"previous_repo_version_id\" IS NULL");
+                        .HasFilter("\"PreviousPatchId\" IS NULL");
 
-                    b.HasIndex("RepositoryId")
-                        .HasDatabaseName("ix_upgrade_paths_repository_id");
+                    b.HasIndex("PreviousPatchId");
 
-                    b.HasIndex("RepoVersionId", "PreviousRepoVersionId")
+                    b.HasIndex("RepositoryId");
+
+                    b.HasIndex("PatchId", "PreviousPatchId")
                         .IsUnique()
-                        .HasDatabaseName("ix_upgrade_paths_repo_version_id_previous_repo_version_id")
-                        .HasFilter("\"previous_repo_version_id\" IS NOT NULL");
+                        .HasFilter("\"PreviousPatchId\" IS NOT NULL");
 
-                    b.ToTable("upgrade_paths", (string)null);
+                    b.ToTable("UpgradePaths");
                 });
 
             modelBuilder.Entity("XivAccountXivRepository", b =>
                 {
                     b.Property<int>("ApplicableAccountsId")
-                        .HasColumnType("integer")
-                        .HasColumnName("applicable_accounts_id");
+                        .HasColumnType("integer");
 
                     b.Property<int>("ApplicableRepositoriesId")
-                        .HasColumnType("integer")
-                        .HasColumnName("applicable_repositories_id");
+                        .HasColumnType("integer");
 
-                    b.HasKey("ApplicableAccountsId", "ApplicableRepositoriesId")
-                        .HasName("pk_account_repositories");
+                    b.HasKey("ApplicableAccountsId", "ApplicableRepositoriesId");
 
-                    b.HasIndex("ApplicableRepositoriesId")
-                        .HasDatabaseName("ix_account_repositories_applicable_repositories_id");
+                    b.HasIndex("ApplicableRepositoriesId");
 
-                    b.ToTable("account_repositories", (string)null);
+                    b.ToTable("AccountRepositories", (string)null);
                 });
 
             modelBuilder.Entity("XivFileXivRepoVersion", b =>
                 {
                     b.Property<int>("VersionsId")
-                        .HasColumnType("integer")
-                        .HasColumnName("versions_id");
+                        .HasColumnType("integer");
 
                     b.Property<string>("FilesName")
-                        .HasColumnType("text")
-                        .HasColumnName("files_name");
+                        .HasColumnType("text");
 
                     b.Property<string>("FilesSHA1")
-                        .HasColumnType("character(40)")
-                        .HasColumnName("files_sha1");
+                        .HasColumnType("character(40)");
 
-                    b.HasKey("VersionsId", "FilesName", "FilesSHA1")
-                        .HasName("pk_version_files");
+                    b.HasKey("VersionsId", "FilesName", "FilesSHA1");
 
-                    b.HasIndex("FilesName", "FilesSHA1")
-                        .HasDatabaseName("ix_version_files_files_name_files_sha1");
+                    b.HasIndex("FilesName", "FilesSHA1");
 
-                    b.ToTable("version_files", (string)null);
-                });
-
-            modelBuilder.Entity("game_version_repo_versions", b =>
-                {
-                    b.HasOne("Thaliak.Common.Database.Models.XivGameVersion", null)
-                        .WithMany()
-                        .HasForeignKey("GameVersionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_game_version_repo_versions_game_versions_game_versions_id");
-
-                    b.HasOne("Thaliak.Common.Database.Models.XivRepoVersion", null)
-                        .WithMany()
-                        .HasForeignKey("RepoVersionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_game_version_repo_versions_repo_versions_repo_versions_id");
+                    b.ToTable("VersionFiles", (string)null);
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivExpansionRepositoryMapping", b =>
@@ -711,31 +564,17 @@ namespace Thaliak.Common.Database.Migrations
                         .WithMany()
                         .HasForeignKey("ExpansionRepositoryId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_expansion_repository_mappings_repositories_expansion_reposi");
+                        .IsRequired();
 
                     b.HasOne("Thaliak.Common.Database.Models.XivRepository", "GameRepository")
                         .WithMany()
                         .HasForeignKey("GameRepositoryId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_expansion_repository_mappings_repositories_game_repository_");
+                        .IsRequired();
 
                     b.Navigation("ExpansionRepository");
 
                     b.Navigation("GameRepository");
-                });
-
-            modelBuilder.Entity("Thaliak.Common.Database.Models.XivGameVersion", b =>
-                {
-                    b.HasOne("Thaliak.Common.Database.Models.XivService", "Service")
-                        .WithMany("GameVersions")
-                        .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_game_versions_services_service_id");
-
-                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivPatch", b =>
@@ -744,10 +583,17 @@ namespace Thaliak.Common.Database.Migrations
                         .WithMany("Patches")
                         .HasForeignKey("RepoVersionId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_patches_repo_versions_repo_version_id");
+                        .IsRequired();
+
+                    b.HasOne("Thaliak.Common.Database.Models.XivRepository", "Repository")
+                        .WithMany("Patches")
+                        .HasForeignKey("RepositoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("RepoVersion");
+
+                    b.Navigation("Repository");
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivRepository", b =>
@@ -756,8 +602,7 @@ namespace Thaliak.Common.Database.Migrations
                         .WithMany("Repositories")
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_repositories_services_service_id");
+                        .IsRequired();
 
                     b.Navigation("Service");
                 });
@@ -765,39 +610,35 @@ namespace Thaliak.Common.Database.Migrations
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivRepoVersion", b =>
                 {
                     b.HasOne("Thaliak.Common.Database.Models.XivRepository", "Repository")
-                        .WithMany("RepoVersions")
+                        .WithMany("Versions")
                         .HasForeignKey("RepositoryId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_repo_versions_repositories_repository_id");
+                        .IsRequired();
 
                     b.Navigation("Repository");
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivUpgradePath", b =>
                 {
-                    b.HasOne("Thaliak.Common.Database.Models.XivRepoVersion", "PreviousRepoVersion")
-                        .WithMany("DependentVersions")
-                        .HasForeignKey("PreviousRepoVersionId")
-                        .HasConstraintName("fk_upgrade_paths_repo_versions_previous_repo_version_id");
-
-                    b.HasOne("Thaliak.Common.Database.Models.XivRepoVersion", "RepoVersion")
-                        .WithMany("PrerequisiteVersions")
-                        .HasForeignKey("RepoVersionId")
+                    b.HasOne("Thaliak.Common.Database.Models.XivPatch", "Patch")
+                        .WithMany("PrerequisitePatches")
+                        .HasForeignKey("PatchId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_upgrade_paths_repo_versions_repo_version_id");
+                        .IsRequired();
+
+                    b.HasOne("Thaliak.Common.Database.Models.XivPatch", "PreviousPatch")
+                        .WithMany("DependentPatches")
+                        .HasForeignKey("PreviousPatchId");
 
                     b.HasOne("Thaliak.Common.Database.Models.XivRepository", "Repository")
-                        .WithMany("UpgradePaths")
+                        .WithMany()
                         .HasForeignKey("RepositoryId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_upgrade_paths_repositories_repository_id");
+                        .IsRequired();
 
-                    b.Navigation("PreviousRepoVersion");
+                    b.Navigation("Patch");
 
-                    b.Navigation("RepoVersion");
+                    b.Navigation("PreviousPatch");
 
                     b.Navigation("Repository");
                 });
@@ -808,15 +649,13 @@ namespace Thaliak.Common.Database.Migrations
                         .WithMany()
                         .HasForeignKey("ApplicableAccountsId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_account_repositories_accounts_applicable_accounts_id");
+                        .IsRequired();
 
                     b.HasOne("Thaliak.Common.Database.Models.XivRepository", null)
                         .WithMany()
                         .HasForeignKey("ApplicableRepositoriesId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_account_repositories_repositories_applicable_repositories_id");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("XivFileXivRepoVersion", b =>
@@ -825,37 +664,36 @@ namespace Thaliak.Common.Database.Migrations
                         .WithMany()
                         .HasForeignKey("VersionsId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_version_files_repo_versions_versions_id");
+                        .IsRequired();
 
                     b.HasOne("Thaliak.Common.Database.Models.XivFile", null)
                         .WithMany()
                         .HasForeignKey("FilesName", "FilesSHA1")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_version_files_files_files_temp_id");
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Thaliak.Common.Database.Models.XivPatch", b =>
+                {
+                    b.Navigation("DependentPatches");
+
+                    b.Navigation("PrerequisitePatches");
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivRepository", b =>
                 {
-                    b.Navigation("RepoVersions");
+                    b.Navigation("Patches");
 
-                    b.Navigation("UpgradePaths");
+                    b.Navigation("Versions");
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivRepoVersion", b =>
                 {
-                    b.Navigation("DependentVersions");
-
                     b.Navigation("Patches");
-
-                    b.Navigation("PrerequisiteVersions");
                 });
 
             modelBuilder.Entity("Thaliak.Common.Database.Models.XivService", b =>
                 {
-                    b.Navigation("GameVersions");
-
                     b.Navigation("Repositories");
                 });
 #pragma warning restore 612, 618

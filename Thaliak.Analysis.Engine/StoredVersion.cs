@@ -12,15 +12,15 @@ public class StoredVersion
 
     private readonly ThaliakContext _db;
     private readonly DirectoryInfo _storageDirectory;
-    public XivVersion Version { get; }
+    public XivRepoVersion RepoVersion { get; }
     public DirectoryInfo StagingDirectory { get; }
 
-    public StoredVersion(ThaliakContext db, DirectoryInfo storageDirectory, XivVersion version,
+    public StoredVersion(ThaliakContext db, DirectoryInfo storageDirectory, XivRepoVersion repoVersion,
         DirectoryInfo stagingDirectory)
     {
         _db = db;
         _storageDirectory = storageDirectory;
-        Version = version;
+        RepoVersion = repoVersion;
         StagingDirectory = stagingDirectory;
     }
 
@@ -30,15 +30,15 @@ public class StoredVersion
      */
     public bool CheckStored()
     {
-        if (Version.Files.Count == 0) {
+        if (RepoVersion.Files.Count == 0) {
             return false;
         }
 
-        if (Version.RepositoryId != 2) {
+        if (RepoVersion.RepositoryId != 2) {
             throw new InvalidOperationException("currently only ffxivneo/win32/release/game is supported");
         }
 
-        return Version.Files.TrueForAll(xf =>
+        return RepoVersion.Files.TrueForAll(xf =>
         {
             if (!xf.IsChecksumValid) {
                 throw new InvalidOperationException("XivFile.IsChecksumValid = false!");
@@ -60,7 +60,7 @@ public class StoredVersion
      */
     public bool CheckStaged()
     {
-        if (Version.RepositoryId != 2) {
+        if (RepoVersion.RepositoryId != 2) {
             throw new InvalidOperationException("currently only ffxivneo/win32/release/game is supported");
         }
 
@@ -69,7 +69,7 @@ public class StoredVersion
             dir = dir.Parent;
         }
 
-        return dir!.Exists && Repository.Ffxiv.GetVer(dir).Trim() == Version.VersionString.Trim();
+        return dir!.Exists && Repository.Ffxiv.GetVer(dir).Trim() == RepoVersion.VersionString.Trim();
     }
 
     public void StageFromStorage(bool nukeExistingStagingDir = false, bool symlink = false)
@@ -93,7 +93,7 @@ public class StoredVersion
                                 MINIMUM_GB_FREE_TO_STAGE + " GB)");
         }
 
-        foreach (var xf in Version.Files) {
+        foreach (var xf in RepoVersion.Files) {
             Console.WriteLine(xf.Name + " " + xf.SHA1);
             var storName = xf.GetStorageFileName();
             if (storName == null) {
@@ -185,11 +185,11 @@ public class StoredVersion
             }
 
             // add this version to the list of versions this file is part of
-            if (!xf.Versions.Any(v => v.VersionString == Version.VersionString)) {
-                xf.Versions.Add(Version);
+            if (!xf.Versions.Any(v => v.VersionString == RepoVersion.VersionString)) {
+                xf.Versions.Add(RepoVersion);
             }
 
-            _db.Versions.Attach(Version);
+            _db.RepoVersions.Attach(RepoVersion);
 
             // commit crimes
             _db.SaveChanges();

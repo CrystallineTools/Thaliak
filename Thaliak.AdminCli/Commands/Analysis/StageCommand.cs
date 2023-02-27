@@ -18,7 +18,7 @@ public class StageCommand : AsyncCommand<StageCommand.Settings>
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        var version = _db.Versions
+        var version = _db.RepoVersions
             .Include(v => v.Files)
             .First(v => v.RepositoryId == 2 && v.VersionString == settings.Version);
 
