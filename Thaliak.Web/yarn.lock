@@ -3213,10 +3213,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^18.14.0":
-  version: 18.14.0
-  resolution: "@types/node@npm:18.14.0"
-  checksum: d83fcf5e4ed544755dd9028f5cbb6b9d46235043159111bb2ad62223729aee581c0144a9f6df8ba73d74011db9ed4ebd7af2fd5e0996714e3beb508a5da8ac5c
+"@types/node@npm:^18.16.3":
+  version: 18.16.3
+  resolution: "@types/node@npm:18.16.3"
+  checksum: 816b39d45b05ebdc6f362b630970df3f6d82f71d418a2555353522f4eeeb078fa201de5299f02c09a09faa975e43b2745fe19c263d44069f87ddf37d6c37b717
   languageName: node
   linkType: hard
 
@@ -12741,7 +12741,7 @@ __metadata:
     "@graphiql/react": ^0.13.4
     "@graphiql/toolkit": ^0.8.0
     "@types/graphql": ^14.5.0
-    "@types/node": ^18.14.0
+    "@types/node": ^18.16.3
     "@types/react": ^18.0.27
     "@types/react-dom": ^18.0.10
     autoprefixer: ^10.4.13
