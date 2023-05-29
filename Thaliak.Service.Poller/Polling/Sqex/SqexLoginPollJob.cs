@@ -13,7 +13,11 @@ internal class SqexLoginPollJob : ScheduledPollJob<SqexPollerService>
 
     protected override DateTime GetNextExecutionTime()
     {
-        var maintNow = _lodestone.GetMaintenanceAt(DateTime.UtcNow);
+        // todo: fix maintenance scraping logic later
+        //       and by "fix", I mean "be a sane person for once, don't parse html with regex, rewrite it"
+        //       and by "later", I mean "never"
+        //       (copilot called me out on that last part, and I'm not even mad)
+        var maintNow = "yep"; // _lodestone.GetMaintenanceAt(DateTime.UtcNow);
         if (maintNow != null)
         {
             return DateTime.UtcNow.AddMinutes(1);
