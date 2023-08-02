@@ -1,0 +1,12 @@
+[package]
+name = "thaliak-common"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+serde = { version = "1.0.171", features = ["derive"] }
+toml = "0.7.6"
+log = { workspace = true }
+fern = "0.6.2"
+chrono = { workspace = true }

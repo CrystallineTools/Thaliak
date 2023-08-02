@@ -4,8 +4,9 @@ obj/
 *.iml
 /_ReSharper.Caches/
 .idea/
+.vscode/
 appsettings.*.json
 .DS_Store
 Thaliak.Service.Poller/data/
 *.DotSettings*
-
+target/

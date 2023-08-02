@@ -1,0 +1,16 @@
+[workspace]
+resolver = "2"
+members = [
+    "common",
+]
+
+[workspace.dependencies]
+# workspace
+thaliak-common = { path = "common" }
+
+# normal deps
+anyhow = "1.0.72"
+tokio = { version = "1.29.1", features = ["full"] }
+log = "0.4.19"
+chrono = "0.4.26"
+inventory = "0.3.9"
