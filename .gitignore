@@ -10,3 +10,5 @@ appsettings.*.json
 Thaliak.Service.Poller/data/
 *.DotSettings*
 target/
+node_modules/
+.dev.vars

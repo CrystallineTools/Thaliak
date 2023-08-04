@@ -1,0 +1,4 @@
+# Copy this file to .dev.vars and fill in the fields appropriately
+# for local development on the poller.
+SQEX_ACCOUNT_USERNAME=
+SQEX_ACCOUNT_PASSWORD=

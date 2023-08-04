@@ -1,0 +1,16 @@
+{
+	"name": "thaliak-poller",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"dev:server": "wrangler dev --env local --test-scheduled",
+		"dev:request": "wait-on http://127.0.0.1:8787/ && curl http://127.0.0.1:8787/__scheduled?cron=*-*-*-*-*",
+		"dev": "concurrently -k \"npm run dev:server\" \"npm run dev:request\""
+	},
+	"devDependencies": {
+		"wrangler": "^3.4.0",
+		"wait-on": "^7",
+		"concurrently": "^8"
+	}
+}

@@ -1,0 +1,15 @@
+[package]
+name = "thaliak-worker"
+version = "0.0.0"
+edition = "2021"
+
+[features]
+debug = []
+
+[dependencies]
+thaliak-data = { path = "../data" }
+async-trait = { workspace = true }
+worker = { workspace = true }
+worker_logger = { workspace = true }
+log = { workspace = true }
+serde_json = "1"
