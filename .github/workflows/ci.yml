@@ -22,7 +22,6 @@ jobs:
         uses: docker/bake-action@v3
         with:
           files: docker-bake.hcl
-          load: true
           push: true
           set: |
             *.cache-from=type=gha
