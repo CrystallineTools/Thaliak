@@ -1,0 +1,9 @@
+/packages/
+*.iml
+/_ReSharper.Caches/
+.idea/
+.vscode/
+target/
+node_modules/
+.dev.vars
+/legacy-v1/

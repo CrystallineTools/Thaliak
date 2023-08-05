@@ -39,12 +39,12 @@ impl Poller for SqexPoller {
 impl SqexPoller {
     const PATCHER_USER_AGENT: &str = "FFXIV PATCH CLIENT";
 
-    pub fn new(env: worker::Env) -> Self {
-        Self {
-            account_username: worker_env!(env, "SQEX_ACCOUNT_USERNAME"),
-            account_password: worker_env!(env, "SQEX_ACCOUNT_PASSWORD"),
-        }
-    }
+    // pub fn new() -> Self {
+    //     Self {
+    //         account_username: worker_env!(env, "SQEX_ACCOUNT_USERNAME"),
+    //         account_password: worker_env!(env, "SQEX_ACCOUNT_PASSWORD"),
+    //     }
+    // }
 
     async fn check_boot(&self, version: Option<String>) -> Result<(), SqexPollError> {
         let vcs = self.boot_version_check_service();

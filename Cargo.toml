@@ -1,16 +1,16 @@
 [workspace]
 resolver = "2"
-members = ["data", "worker", "api", "poller"]
+members = ["logging", "data", "api", "poller"]
 
 [workspace.dependencies]
 async-trait = "0.1.72"
-worker = "0.0.17"
-worker_logger = { version = "0.2.0", features = ["color"] }
 thiserror = "1.0.44"
 log = "0.4.19"
-
-[profile.release]
-lto = true
-strip = true
-codegen-units = 1
-opt-level = "z"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.11", default-features = false, features = [
+    "rustls-tls",
+    "json",
+] }
+tokio = { version = "1.29.1", features = ["full"] }
+chrono = "0.4"

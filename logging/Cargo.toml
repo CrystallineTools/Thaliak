@@ -1,0 +1,9 @@
+[package]
+name = "thaliak-logging"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+log = { workspace = true }
+chrono = { workspace = true }
+fern = { version = "0.6.2", features = ["chrono", "colored"] }

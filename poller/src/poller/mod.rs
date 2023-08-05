@@ -1,6 +1,9 @@
-// Partially adapted from https://github.com/eorzeatools/microlaunch/blob/master/microlaunch/src/auth/mod.rs
-// Partially adapted from https://github.com/avafloww/FFXIVQuickLauncher/commit/cf4aefcca65705d7db6c23c007d51034eba44b0e
+//! Partially adapted from https://github.com/eorzeatools/microlaunch/blob/master/microlaunch/src/auth/mod.rs
+//! Partially adapted from https://github.com/avafloww/FFXIVQuickLauncher/commit/cf4aefcca65705d7db6c23c007d51034eba44b0e
+//!
 use log::trace;
+use reqwest::{header::HeaderMap, Method, StatusCode};
+use std::time::Duration;
 use thiserror::Error;
 
 pub mod actoz;
@@ -9,18 +12,14 @@ pub mod sqex;
 
 pub const BASE_GAME_VERSION: &str = "2012.01.01.0000.0000";
 
-// HTTP status codes that the launcher uses
-const HTTP_OK: u16 = 200;
-const HTTP_CONFLICT: u16 = 409; // need boot version patch
-
 #[derive(Error, Debug)]
 pub enum VersionCheckError {
     #[error("failed to issue fetch request to endpoint: {0}")]
-    FetchError(#[from] worker::Error),
+    FetchError(#[from] reqwest::Error),
     #[error("a boot version patch is required before game version check can be performed")]
     NeedsBootPatch,
     #[error("version check failed with HTTP status code {0}")]
-    HttpError(u16),
+    HttpError(StatusCode),
     #[error("patch list is empty")]
     PatchListEmpty,
     #[error("failed to parse patch list: {0}")]
@@ -28,10 +27,9 @@ pub enum VersionCheckError {
 }
 
 pub struct VersionCheckService {
-    user_agent: &'static str,
     /// (base version string) -> full url of version check endpoint
     url_builder: Box<dyn Fn(&str) -> String>,
-    is_boot: bool,
+    client: reqwest::Client,
 }
 
 impl VersionCheckService {
@@ -40,10 +38,23 @@ impl VersionCheckService {
         url_builder: impl Fn(&str) -> String + 'static,
         is_boot: bool,
     ) -> Self {
+        let mut headers = HeaderMap::new();
+        // this sucks a little bit, but avoids a ton of extra abstraction for what is a single
+        // edge case (global boot version check)
+        if is_boot {
+            headers.insert("Host", "patch-bootver.ffxiv.com".parse().unwrap());
+        } else {
+            headers.insert("X-Hash-Check", "enabled".parse().unwrap());
+        }
+
         Self {
-            user_agent,
             url_builder: Box::new(url_builder),
-            is_boot,
+            client: reqwest::Client::builder()
+                .default_headers(headers)
+                .user_agent(user_agent)
+                .connect_timeout(Duration::from_secs(10))
+                .build()
+                .expect("failed to build reqwest client"),
         }
     }
 
@@ -54,46 +65,15 @@ impl VersionCheckService {
         let endpoint = (self.url_builder)(&base_version.unwrap_or(BASE_GAME_VERSION.to_string()));
         trace!("fetching patch list from {}", endpoint);
 
-        let mut headers = worker::Headers::new();
-        headers
-            .set("User-Agent", self.user_agent)
-            .map_err(|e| VersionCheckError::FetchError(e))?;
-
-        // this sucks a little bit, but avoids a ton of extra abstraction for what is a single
-        // edge case (global boot version check)
-        if self.is_boot {
-            headers
-                .set("Host", "patch-bootver.ffxiv.com")
-                .map_err(|e| VersionCheckError::FetchError(e))?;
-        } else {
-            headers
-                .set("X-Hash-Check", "enabled")
-                .map_err(|e| VersionCheckError::FetchError(e))?;
-        }
-
-        let request = worker::Request::new_with_init(
-            &endpoint,
-            &worker::RequestInit {
-                body: None, //todo!("should be VersionReport"),
-                headers,
-                cf: worker::CfProperties {
-                    // expire immediately, don't cache this result
-                    cache_ttl: Some(0),
-                    ..Default::default()
-                },
-                method: worker::Method::Post,
-                redirect: worker::RequestRedirect::Follow,
-            },
-        )
-        .map_err(|e| VersionCheckError::FetchError(e))?;
-
-        let mut response = worker::Fetch::Request(request)
+        let response = self
+            .client
+            .request(Method::POST, endpoint)
             .send()
             .await
             .map_err(|e| VersionCheckError::FetchError(e))?;
 
-        match response.status_code() {
-            HTTP_OK => {
+        match response.status() {
+            StatusCode::OK => {
                 let patch_list = response
                     .text()
                     .await
@@ -101,7 +81,7 @@ impl VersionCheckService {
 
                 parse_patch_list(patch_list)
             }
-            HTTP_CONFLICT => Err(VersionCheckError::NeedsBootPatch),
+            StatusCode::CONFLICT => Err(VersionCheckError::NeedsBootPatch),
             code => Err(VersionCheckError::HttpError(code)),
         }
     }

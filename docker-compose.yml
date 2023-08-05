@@ -1,0 +1,6 @@
+version: "3.8"
+services:
+  poller:
+    image: ghcr.io/avafloww/thaliak-poller:2
+  api:
+    image: ghcr.io/avafloww/thaliak-api:2
