@@ -5,5 +5,5 @@
 .vscode/
 target/
 node_modules/
-.dev.vars
 /legacy-v1/
+*.env

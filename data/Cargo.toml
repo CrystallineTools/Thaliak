@@ -3,12 +3,32 @@ name = "thaliak-data"
 version = "0.0.0"
 edition = "2021"
 
+[features]
+# by default, the file backend is enabled
+default = ["backend-file"]
+
+# enables the file backend, which allows loading from a Thaliak data file (zip)
+# this backend should be used by most external users, including Thaliak agents
+backend-file = ["dep:zip"]
+
+# enables creating a Thaliak data file (zip) using the file backend
+# this feature is used internally by some Thaliak components
+backend-file-create = ["backend-file"]
+
+# enables the Redis backend, which allows loading from a Redis server
+# this backend is used internally by some Thaliak components
+backend-redis = ["dep:redis"]
+
 [dependencies]
 async-trait = { workspace = true }
 thiserror = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 phf = { version = "0.11", features = ["macros"] }
+
+# backends
+redis = { workspace = true, optional = true }
+zip = { workspace = true, optional = true }
 
 [dev-dependencies]
 tokio = { workspace = true }

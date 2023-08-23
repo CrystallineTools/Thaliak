@@ -6,3 +6,8 @@ edition = "2021"
 [dependencies]
 thaliak-logging = { path = "../logging" }
 tokio = { workspace = true }
+axum = { version = "0.6", features = ["ws"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tower-http = { version = "0.4", features = ["cors"] }
+log = { workspace = true }

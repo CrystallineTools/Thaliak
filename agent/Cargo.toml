@@ -1,0 +1,12 @@
+[package]
+name = "thaliak-agent"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+thaliak-logging = { path = "../logging" }
+thaliak-data = { path = "../data", default-features = false, features = [
+    "backend-file",
+] }
+tokio = { workspace = true }
+log = { workspace = true }

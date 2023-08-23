@@ -2,5 +2,16 @@ version: "3.8"
 services:
   poller:
     image: ghcr.io/avafloww/thaliak-poller:2
+    restart: always
+    env_file: ./secrets.env
+    networks:
+      - thaliak
   api:
     image: ghcr.io/avafloww/thaliak-api:2
+    restart: always
+    networks:
+      - thaliak
+networks:
+  thaliak:
+volumes:
+  redis:

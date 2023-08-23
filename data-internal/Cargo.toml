@@ -1,0 +1,14 @@
+[package]
+name = "thaliak-data-internal"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+thaliak-data = { path = "../data", default-features = false, features = [
+    "backend-file",
+    "backend-file-create",
+    "backend-redis",
+] }
+redis = { workspace = true }
+log = { workspace = true }
+serde = { workspace = true }

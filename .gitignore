@@ -11,4 +11,5 @@ Thaliak.Service.Poller/data/
 *.DotSettings*
 target/
 node_modules/
-.dev.vars
+*.env
+state-db/*.db

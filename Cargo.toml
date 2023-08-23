@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["logging", "data", "api", "poller"]
+members = ["logging", "data", "data-internal", "agent", "api", "poller"]
 
 [workspace.dependencies]
 async-trait = "0.1.72"

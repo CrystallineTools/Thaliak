@@ -5,6 +5,9 @@ edition = "2021"
 
 [dependencies]
 thaliak-logging = { path = "../logging" }
+thaliak-data = { path = "../data", default-features = false, features = [
+    "backend-redis",
+] }
 thiserror = { workspace = true }
 async-trait = { workspace = true }
 chrono = { workspace = true }
