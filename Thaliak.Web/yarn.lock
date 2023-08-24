@@ -9405,6 +9405,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nanoid@npm:^3.3.6":
+  version: 3.3.6
+  resolution: "nanoid@npm:3.3.6"
+  bin:
+    nanoid: bin/nanoid.cjs
+  checksum: 7d0eda657002738aa5206107bd0580aead6c95c460ef1bdd0b1a87a9c7ae6277ac2e9b945306aaa5b32c6dcb7feaf462d0f552e7f8b5718abfc6ead5c94a71b3
+  languageName: node
+  linkType: hard
+
 "natural-compare@npm:^1.4.0":
   version: 1.4.0
   resolution: "natural-compare@npm:1.4.0"
@@ -10864,14 +10873,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.21":
-  version: 8.4.21
-  resolution: "postcss@npm:8.4.21"
+"postcss@npm:^8.4.28":
+  version: 8.4.28
+  resolution: "postcss@npm:8.4.28"
   dependencies:
-    nanoid: ^3.3.4
+    nanoid: ^3.3.6
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
-  checksum: e39ac60ccd1542d4f9d93d894048aac0d686b3bb38e927d8386005718e6793dbbb46930f0a523fe382f1bbd843c6d980aaea791252bf5e176180e5a4336d9679
+  checksum: f605c24a36f7e400bad379735fbfc893ccb8d293ad6d419bb824db77cdcb69f43d614ef35f9f7091f32ca588d130ec60dbcf53b366e6bf88a8a64bbeb3c05f6d
   languageName: node
   linkType: hard
 
@@ -12750,7 +12759,7 @@ __metadata:
     eslint-config-react-app: ^7.0.1
     graphiql: ^2.2.0
     graphql: ^16.6.0
-    postcss: ^8.4.21
+    postcss: ^8.4.28
     react: ^18.2.0
     react-audio-player: ^0.17.0
     react-dom: ^18.2.0
