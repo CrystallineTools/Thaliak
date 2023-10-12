@@ -4,6 +4,7 @@ on:
     branches:
       - 'main'
     paths:
+      - '.github/workflows/**'
       - 'Thaliak.Common.Database/**'
       - 'Thaliak.Analysis.Engine/**'
       - 'Thaliak.Common.Messages/**'
@@ -29,5 +30,5 @@ jobs:
           context: .
           file: ./Thaliak.AdminCli/Dockerfile
           push: true
-          tags: ghcr.io/avafloww/thaliak-admin-cli:latest
+          tags: ghcr.io/CrystallineTools/thaliak-admin-cli:latest
 

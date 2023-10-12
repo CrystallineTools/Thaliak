@@ -4,6 +4,7 @@ on:
     branches:
       - 'main'
     paths:
+      - '.github/workflows/**'
       - 'Thaliak.Web/**'
 
 jobs:
@@ -26,7 +27,7 @@ jobs:
           context: .
           file: ./Thaliak.Web/Dockerfile
           push: true
-          tags: ghcr.io/avafloww/thaliak-web:latest
+          tags: ghcr.io/CrystallineTools/thaliak-web:latest
       - name: Deploy to production server
         uses: appleboy/ssh-action@v0.1.4
         with:
@@ -34,4 +35,4 @@ jobs:
           port: ${{ secrets.REMOTE_PORT }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
-          script: sudo /home/deploy/deploy-thaliak.sh web main
+          script: ~/gha-deploy.sh web
