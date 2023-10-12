@@ -28,7 +28,7 @@ jobs:
           context: .
           file: ./Thaliak.Service.Poller/Dockerfile
           push: true
-          tags: ghcr.io/CrystallineTools/thaliak-poller:latest
+          tags: ghcr.io/crystallinetools/thaliak-poller:latest
       - name: Deploy to production server
         uses: appleboy/ssh-action@v0.1.4
         with:

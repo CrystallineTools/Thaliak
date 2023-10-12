@@ -27,7 +27,7 @@ jobs:
           context: .
           file: ./Thaliak.Web/Dockerfile
           push: true
-          tags: ghcr.io/CrystallineTools/thaliak-web:latest
+          tags: ghcr.io/crystallinetools/thaliak-web:latest
       - name: Deploy to production server
         uses: appleboy/ssh-action@v0.1.4
         with:
