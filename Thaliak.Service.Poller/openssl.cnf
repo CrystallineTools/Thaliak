@@ -1,0 +1,12 @@
+# absolutely incredible work SE, well done. "sekurity" :)
+# https://github.com/dotnet/runtime/issues/30667
+#
+[default_conf]
+ssl_conf = ssl_sect
+
+[ssl_sect]
+system_default = system_default_sect
+
+[system_default_sect]
+MinProtocol = TLSv1.2
+CipherString = DEFAULT@SECLEVEL=2

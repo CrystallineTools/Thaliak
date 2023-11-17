@@ -16,8 +16,7 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# absolutely incredible work SE, well done. "sekurity" :)
-# https://github.com/dotnet/runtime/issues/30667
-RUN sed -i "s|DEFAULT@SECLEVEL=2|DEFAULT@SECLEVEL=1|g" /etc/ssl/openssl.cnf
+# certified Square Enix moment
+COPY openssl.cnf /etc/ssl/openssl.cnf
 
 ENTRYPOINT ["dotnet", "Thaliak.Service.Poller.dll"]
