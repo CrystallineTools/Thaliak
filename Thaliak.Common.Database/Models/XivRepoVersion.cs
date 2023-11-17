@@ -10,7 +10,7 @@ namespace Thaliak.Common.Database.Models;
 /// version 2017.06.06.0000.0001). Each individual patch file is represented by a XivPatch.
 /// </summary>
 [Index(nameof(VersionString))]
-[Index(nameof(Repository))]
+[Index(nameof(RepositoryId))]
 public class XivRepoVersion
 {
     public static Regex VersionRegex = new(@".*[DH]?(\d{4}\.\d{2}\.\d{2}\.\d{4}\.\d{4})([a-z])?(?:\.patch)?",

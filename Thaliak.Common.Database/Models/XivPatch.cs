@@ -7,7 +7,7 @@ namespace Thaliak.Common.Database.Models;
 /// <summary>
 /// Represents information about a single XIV .patch file.
 /// </summary>
-[Index(nameof(RepoVersion))]
+[Index(nameof(RepoVersionId))]
 public class XivPatch
 {
     private static readonly Regex PatchUrlRegex = new(@"(?:https?:\/\/(.+?)\/)?(?:ff\/)?((?:game|boot)\/.+)\/(.*)",

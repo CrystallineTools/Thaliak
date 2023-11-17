@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Thaliak.Common.Database.Models;
 
 [Index(nameof(Slug))]
-[Index(nameof(Service))]
+[Index(nameof(ServiceId))]
 public class XivRepository
 {
     [Key]

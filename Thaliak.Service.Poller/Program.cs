@@ -1,5 +1,6 @@
 ﻿using Downloader;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Quartz;
 using Serilog;
 using Serilog.Events;
@@ -29,9 +30,9 @@ var host = Host.CreateDefaultBuilder(args)
             BufferBlockSize = 8000,
             ChunkCount = 8,
             MaxTryAgainOnFailover = 10,
-            OnTheFlyDownload = false,
+            MaximumMemoryBufferBytes = 1024 * 1024 * 128, // flush buffers every 128MB
             Timeout = 10000,
-            TempDirectory = Path.GetTempPath(),
+            ClearPackageOnCompletionWithFailure = true,
             RequestConfiguration = new RequestConfiguration
             {
                 UserAgent = "FFXIV PATCH CLIENT",
@@ -54,7 +55,8 @@ var host = Host.CreateDefaultBuilder(args)
         {
             o.UseNpgsql(ctx.Configuration.GetConnectionString("pg"),
                 co => co.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery))
-                .UseSnakeCaseNamingConvention(ignoreMigrationTable: true);
+                .ReplaceService<IHistoryRepository, CamelCaseHistoryContext>()
+                .UseSnakeCaseNamingConvention();
             o.LogTo(Log.Verbose);
         });
 
