@@ -17,6 +17,6 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 
 # certified Square Enix moment
-COPY openssl.cnf /etc/ssl/openssl.cnf
+COPY ./openssl.cnf /etc/ssl/openssl.cnf
 
 ENTRYPOINT ["dotnet", "Thaliak.Service.Poller.dll"]
