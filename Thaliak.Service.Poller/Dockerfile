@@ -2,7 +2,7 @@
 WORKDIR /app
 
 # certified Square Enix moment
-COPY ./openssl.cnf /etc/ssl/openssl.cnf
+COPY ["Thaliak.Service.Poller/openssl.cnf", "/etc/ssl/openssl.cnf"]
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
