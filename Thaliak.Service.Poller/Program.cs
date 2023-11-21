@@ -30,9 +30,9 @@ var host = Host.CreateDefaultBuilder(args)
             BufferBlockSize = 8000,
             ChunkCount = 8,
             MaxTryAgainOnFailover = 10,
-            MaximumMemoryBufferBytes = 1024 * 1024 * 128, // flush buffers every 128MB
+            OnTheFlyDownload = false,
             Timeout = 10000,
-            ClearPackageOnCompletionWithFailure = true,
+            TempDirectory = Path.GetTempPath(),
             RequestConfiguration = new RequestConfiguration
             {
                 UserAgent = "FFXIV PATCH CLIENT",
