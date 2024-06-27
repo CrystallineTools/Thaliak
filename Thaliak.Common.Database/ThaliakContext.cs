@@ -240,6 +240,13 @@ public class ThaliakContext : DbContext
                         Description = "FFXIV Global/JP - Retail - ex4 (Endwalker) - Win32",
                         ServiceId = 1
                     },
+                    new()
+                    {
+                        Id = 17,
+                        Name = "ffxivneo/win32/release/ex5",
+                        Description = "FFXIV Global/JP - Retail - ex5 (Dawntrail) - Win32",
+                        ServiceId = 1
+                    },
                     // Korea
                     new()
                     {
@@ -324,6 +331,7 @@ public class ThaliakContext : DbContext
                 new XivExpansionRepositoryMapping {GameRepositoryId = 2, ExpansionId = 2, ExpansionRepositoryId = 4},
                 new XivExpansionRepositoryMapping {GameRepositoryId = 2, ExpansionId = 3, ExpansionRepositoryId = 5},
                 new XivExpansionRepositoryMapping {GameRepositoryId = 2, ExpansionId = 4, ExpansionRepositoryId = 6},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 2, ExpansionId = 5, ExpansionRepositoryId = 17},
                 // Korea
                 new XivExpansionRepositoryMapping {GameRepositoryId = 7, ExpansionId = 0, ExpansionRepositoryId = 7},
                 new XivExpansionRepositoryMapping {GameRepositoryId = 7, ExpansionId = 1, ExpansionRepositoryId = 8},
