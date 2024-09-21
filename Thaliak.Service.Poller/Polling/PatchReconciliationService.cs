@@ -6,19 +6,12 @@ using Thaliak.Common.Database;
 using Thaliak.Common.Database.Models;
 using Thaliak.Common.Messages.Polling;
 using Thaliak.Service.Poller.Download;
-using XIVLauncher.Common.Game.Patch.PatchList;
+using Thaliak.Service.Poller.Patch;
 
 namespace Thaliak.Service.Poller.Polling;
 
-public class PatchReconciliationService
+public class PatchReconciliationService(ThaliakContext db)
 {
-    private readonly ThaliakContext _db;
-
-    public PatchReconciliationService(ThaliakContext db)
-    {
-        _db = db;
-    }
-
     public void Reconcile(XivRepository repo, PatchListEntry[] remotePatches,
         PatchDiscoveryType discoveryType = PatchDiscoveryType.Offered)
     {
@@ -26,19 +19,19 @@ public class PatchReconciliationService
         var now = DateTime.UtcNow;
 
         // get the list of expansions and their repository mappings
-        var expansions = _db.ExpansionRepositoryMappings
+        var expansions = db.ExpansionRepositoryMappings
             .Include(erp => erp.ExpansionRepository)
             .Include(erp => erp.GameRepository)
             .Where(erp => erp.GameRepositoryId == repo.Id)
             .ToList();
 
         // attach the repositories so EF knows we're not inserting new repo records
-        _db.Repositories.Attach(repo);
-        _db.Repositories.AttachRange(expansions.Select(erp => erp.ExpansionRepository));
+        db.Repositories.Attach(repo);
+        db.Repositories.AttachRange(expansions.Select(erp => erp.ExpansionRepository));
 
         // ensure we iterate through all of the expansion repositories as well
         var repoIds = new[] {repo.Id}.Union(expansions.Select(erp => erp.ExpansionRepositoryId)).ToArray();
-        var localPatches = _db.Patches
+        var localPatches = db.Patches
             .Include(p => p.RepoVersion)
             .Where(p => repoIds.Contains(p.RepoVersion.RepositoryId));
 
@@ -67,7 +60,7 @@ public class PatchReconciliationService
             }
 
             // save to DB after each patch so we have a permanent ID to rely on for versions
-            _db.SaveChanges();
+            db.SaveChanges();
         }
 
         // update the chains
@@ -117,7 +110,7 @@ public class PatchReconciliationService
         PatchListEntry? previousPatch = null;
         foreach (var remotePatch in remotePatches) {
             // get the patch IDs
-            var dbVersions = _db.RepoVersions
+            var dbVersions = db.RepoVersions
                 .Where(rv => rv.RepositoryId == effectiveRepoId)
                 .Where(rv => rv.VersionString == remotePatch.VersionId ||
                             (previousPatch != null && rv.VersionString == previousPatch.VersionId))
@@ -150,13 +143,13 @@ public class PatchReconciliationService
 
                 // when the ON CONFLICT index is a partial index, we must specify predicates in the ON CONFLICT clause
                 // kinda sucks to drop down to raw SQL here, but the upsert lib didn't support this so ¯\_(ツ)_/¯
-                _db.Database.ExecuteSqlInterpolated(
+                db.Database.ExecuteSqlInterpolated(
                     $@"INSERT INTO ""upgrade_paths"" (""repository_id"", ""repo_version_id"", ""previous_repo_version_id"", ""first_offered"", ""last_offered"")
                         VALUES ({path.RepositoryId}, {path.RepoVersionId}, {path.PreviousRepoVersionId}, {path.FirstOffered}, {path.LastOffered})
                         ON CONFLICT (""repo_version_id"", ""previous_repo_version_id"") WHERE ""previous_repo_version_id"" IS NOT NULL DO UPDATE SET ""last_offered"" = {path.LastOffered}"
                 );
             } else {
-                _db.Database.ExecuteSqlInterpolated(
+                db.Database.ExecuteSqlInterpolated(
                     $@"INSERT INTO ""upgrade_paths"" (""repository_id"", ""repo_version_id"", ""previous_repo_version_id"", ""first_offered"", ""last_offered"")
                         VALUES ({path.RepositoryId}, {path.RepoVersionId}, NULL, {path.FirstOffered}, {path.LastOffered})
                         ON CONFLICT (""repo_version_id"") WHERE ""previous_repo_version_id"" IS NULL DO UPDATE SET ""last_offered"" = {path.LastOffered}"
@@ -167,7 +160,7 @@ public class PatchReconciliationService
         }
 
         // now that we're pretty sure all of them exist, commit the changes
-        _db.SaveChanges();
+        db.SaveChanges();
 
         Log.Information("Successfully logged upgrade path data for repo {repoId}", effectiveRepoId);
     }
@@ -175,7 +168,7 @@ public class PatchReconciliationService
     // called after the poll and recording of results is complete
     private void RecordActiveStatus(DateTime now, int effectiveRepoId)
     {
-        var patches = _db.Patches
+        var patches = db.Patches
             .Include(p => p.RepoVersion)
             .Where(p => p.RepoVersion.RepositoryId == effectiveRepoId)
             .Where(p => p.LastOffered < now)
@@ -185,7 +178,7 @@ public class PatchReconciliationService
             item.IsActive = false;
         }
 
-        var upgradePaths = _db.UpgradePaths.Where(p => p.RepositoryId == effectiveRepoId)
+        var upgradePaths = db.UpgradePaths.Where(p => p.RepositoryId == effectiveRepoId)
             .Where(p => p.LastOffered < now)
             .Where(p => p.IsActive)
             .ToList();
@@ -193,7 +186,7 @@ public class PatchReconciliationService
             item.IsActive = false;
         }
 
-        _db.SaveChanges();
+        db.SaveChanges();
     }
 
     private XivPatch RecordNewPatchData(DateTime now, int effectiveRepoId, PatchListEntry remotePatch,
@@ -202,7 +195,7 @@ public class PatchReconciliationService
         Log.Information("Discovered new patch: {@0}", remotePatch);
 
         // existing version?
-        var version = _db.RepoVersions.FirstOrDefault(v =>
+        var version = db.RepoVersions.FirstOrDefault(v =>
             v.VersionString == remotePatch.VersionId && v.RepositoryId == effectiveRepoId);
         if (version == null) {
             version = new XivRepoVersion
@@ -211,7 +204,7 @@ public class PatchReconciliationService
                 RepositoryId = effectiveRepoId
             };
         } else {
-            _db.RepoVersions.Attach(version);
+            db.RepoVersions.Attach(version);
         }
 
         // collect patch data
@@ -237,7 +230,7 @@ public class PatchReconciliationService
         newPatch.LastSeen = now;
 
         // commit the patch
-        _db.Patches.Add(newPatch);
+        db.Patches.Add(newPatch);
 
         // add it to the download queue
         DownloaderService.AddToQueue(new DownloadJob(newPatch));
@@ -263,7 +256,7 @@ public class PatchReconciliationService
             }
         }
 
-        _db.Patches.Update(localPatch);
+        db.Patches.Update(localPatch);
     }
 
     private void SetLauncherPatchMetadata(XivPatch localPatch, PatchListEntry remotePatch)
@@ -293,7 +286,7 @@ public class PatchReconciliationService
 
     private void SendDiscordAlerts(List<XivPatch> newPatchList, PatchDiscoveryType discoveryType)
     {
-        var discordHooks = _db.DiscordHooks.ToList();
+        var discordHooks = db.DiscordHooks.ToList();
 
         foreach (var hookEntry in discordHooks) {
             Log.Information("Sending Discord alerts to webhook: {@hookEntry}", hookEntry);

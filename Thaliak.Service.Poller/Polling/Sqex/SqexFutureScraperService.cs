@@ -4,10 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Thaliak.Common.Database;
 using Thaliak.Common.Database.Models;
-using Thaliak.Common.Messages;
 using Thaliak.Common.Messages.Polling;
+using Thaliak.Service.Poller.Patch;
 using Thaliak.Service.Poller.Polling.Sqex.Lodestone.Maintenance;
-using XIVLauncher.Common.Game.Patch.PatchList;
 
 namespace Thaliak.Service.Poller.Polling.Sqex;
 

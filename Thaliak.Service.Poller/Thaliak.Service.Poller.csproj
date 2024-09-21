@@ -8,8 +8,11 @@
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">
+        <DefineConstants>WIN32</DefineConstants>
+    </PropertyGroup>
+
     <ItemGroup>
-        <ProjectReference Include="..\lib\FFXIVQuickLauncher\src\XIVLauncher.Common\XIVLauncher.Common.csproj"/>
         <ProjectReference Include="..\Thaliak.Common.Database\Thaliak.Common.Database.csproj"/>
         <ProjectReference Include="..\Thaliak.Common.Messages\Thaliak.Common.Messages.csproj"/>
     </ItemGroup>
@@ -23,5 +26,7 @@
         <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="5.0.0" />
     </ItemGroup>
+
+    
 
 </Project>
