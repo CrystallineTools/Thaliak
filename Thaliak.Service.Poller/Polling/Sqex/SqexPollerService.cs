@@ -25,6 +25,11 @@ public class SqexPollerService : IPoller
     private TempDirectory? _tempBootDir;
     private DirectoryInfo _gameDir;
     
+    private const String OAUTH_TOP_URL = "https://ffxiv-login.square-enix.com/oauth/ffxivarr/login/top?lng=en&rgn=3&isft=0&cssmode=1&isnew=1&launchver=3";
+    // The user agent for frontier pages. {0} has to be replaced by a unique computer id and its checksum
+    private const string USER_AGENT_TEMPLATE = "SQEXAuthor/2.0.0(Windows 6.2; ja-jp; {0})";
+    private readonly string _userAgent = GenerateUserAgent();
+    
     public SqexPollerService(ThaliakContext db, HttpClient client, PatchReconciliationService reconciliationService, IConfiguration config)
     {
         _db = db;
@@ -190,7 +195,7 @@ public class SqexPollerService : IPoller
     }
     
     // copypasta from XL below
-    public async Task<LoginResult> Login(string userName, string password, DirectoryInfo gamePath, bool forceBaseVersion)
+    private async Task<LoginResult> Login(string userName, string password, DirectoryInfo gamePath, bool forceBaseVersion)
     {
         PatchListEntry[] pendingPatches = Array.Empty<PatchListEntry>();
         string? uniqueId = null;
@@ -239,10 +244,6 @@ public class SqexPollerService : IPoller
         };
     }
     
-    // The user agent for frontier pages. {0} has to be replaced by a unique computer id and its checksum
-    private const string USER_AGENT_TEMPLATE = "SQEXAuthor/2.0.0(Windows 6.2; ja-jp; {0})";
-    private readonly string _userAgent = GenerateUserAgent();
-    
     private static string GenerateUserAgent()
     {
         return string.Format(USER_AGENT_TEMPLATE, MakeComputerId());
@@ -265,7 +266,6 @@ public class SqexPollerService : IPoller
         return BitConverter.ToString(bytes).Replace("-", "").ToLower();
     }
     
-    const String OAUTH_TOP_URL = "https://ffxiv-login.square-enix.com/oauth/ffxivarr/login/top?lng=en&rgn=3&isft=0&cssmode=1&isnew=1&launchver=3";
     
     private static string GenerateFrontierReferer()
     {
@@ -355,7 +355,7 @@ public class SqexPollerService : IPoller
         };
     }
         
-    public async Task<PatchListEntry[]> CheckBootVersion(DirectoryInfo gamePath, bool forceBaseVersion = false)
+    private async Task<PatchListEntry[]> CheckBootVersion(DirectoryInfo gamePath, bool forceBaseVersion = false)
     {
         var request = new HttpRequestMessage(HttpMethod.Get,
             $"http://patch-bootver.ffxiv.com/http/win32/ffxivneo_release_boot/{(forceBaseVersion ? Constants.BASE_GAME_VERSION : Repository.Boot.GetVer(gamePath))}/?time=" +
@@ -375,7 +375,7 @@ public class SqexPollerService : IPoller
         return PatchListParser.Parse(text);
     }
 
-    public async Task<(PatchListEntry[] patches, string uniqueId)> CheckGameVersion(OauthLoginResult oauthLoginResult, DirectoryInfo gamePath, bool forceBaseVersion = false)
+    private async Task<(PatchListEntry[] patches, string uniqueId)> CheckGameVersion(OauthLoginResult oauthLoginResult, DirectoryInfo gamePath, bool forceBaseVersion = false)
     {
         var request = new HttpRequestMessage(HttpMethod.Post,
             $"https://patch-gamever.ffxiv.com/http/win32/ffxivneo_release_game/{(forceBaseVersion ? Constants.BASE_GAME_VERSION : Repository.Ffxiv.GetVer(gamePath))}/{oauthLoginResult.SessionId}");
