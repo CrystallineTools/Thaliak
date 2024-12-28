@@ -352,12 +352,14 @@ public class ThaliakContext : DbContext
                 new XivExpansionRepositoryMapping {GameRepositoryId = 7, ExpansionId = 2, ExpansionRepositoryId = 9},
                 new XivExpansionRepositoryMapping {GameRepositoryId = 7, ExpansionId = 3, ExpansionRepositoryId = 10},
                 new XivExpansionRepositoryMapping {GameRepositoryId = 7, ExpansionId = 4, ExpansionRepositoryId = 11},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 7, ExpansionId = 5, ExpansionRepositoryId = 18},
                 // China
                 new XivExpansionRepositoryMapping {GameRepositoryId = 12, ExpansionId = 0, ExpansionRepositoryId = 12},
                 new XivExpansionRepositoryMapping {GameRepositoryId = 12, ExpansionId = 1, ExpansionRepositoryId = 13},
                 new XivExpansionRepositoryMapping {GameRepositoryId = 12, ExpansionId = 2, ExpansionRepositoryId = 14},
                 new XivExpansionRepositoryMapping {GameRepositoryId = 12, ExpansionId = 3, ExpansionRepositoryId = 15},
-                new XivExpansionRepositoryMapping {GameRepositoryId = 12, ExpansionId = 4, ExpansionRepositoryId = 16}
+                new XivExpansionRepositoryMapping {GameRepositoryId = 12, ExpansionId = 4, ExpansionRepositoryId = 16},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 12, ExpansionId = 5, ExpansionRepositoryId = 19}
             );
     }
 }
