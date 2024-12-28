@@ -283,6 +283,13 @@ public class ThaliakContext : DbContext
                         Description = "FFXIV Korea - Retail - ex4 (Endwalker) - Win32",
                         ServiceId = 2
                     },
+                    new()
+                    {
+                        Id = 18,
+                        Name = "actoz/win32/release_ko/ex5",
+                        Description = "FFXIV Korea - Retail - ex5 (Dawntrail) - Win32",
+                        ServiceId = 2
+                    },
                     // China
                     new()
                     {
@@ -317,6 +324,13 @@ public class ThaliakContext : DbContext
                         Id = 16,
                         Name = "shanda/win32/release_chs/ex4",
                         Description = "FFXIV China - Retail - ex4 (Endwalker) - Win32",
+                        ServiceId = 3
+                    },
+                    new()
+                    {
+                        Id = 19,
+                        Name = "shanda/win32/release_chs/ex5",
+                        Description = "FFXIV China - Retail - ex5 (Dawntrail) - Win32",
                         ServiceId = 3
                     }
                 }
