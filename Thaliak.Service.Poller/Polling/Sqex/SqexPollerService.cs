@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -18,6 +18,7 @@ public class SqexPollerService : IPoller
     private readonly ThaliakContext _db;
     private readonly HttpClient _client;
     private readonly PatchReconciliationService _reconciliationService;
+    private readonly string _patchDownloadPath;
 
     public const int BootRepoId = 1;
     public const int GameRepoId = 2;
@@ -35,6 +36,7 @@ public class SqexPollerService : IPoller
         _db = db;
         _client = client;
         _reconciliationService = reconciliationService;
+        _patchDownloadPath = Path.GetFullPath(config.GetValue<string>("Directories:Patches"));
 
         var bootDirName = config.GetValue<string>("Directories:Boot");
         if (string.IsNullOrWhiteSpace(bootDirName))
@@ -125,7 +127,22 @@ public class SqexPollerService : IPoller
 
             if (patch)
             {
-                await PatchBoot(gameDir, bootPatches);
+                var latest = bootPatches.Last().VersionId;
+                var currentBoot = Repository.Boot.GetVer(gameDir);
+
+                if (currentBoot != latest)
+                {
+                    Log.Information("Boot needs patching (current: {0}, latest: {1})", currentBoot, latest);
+
+                    // Filter to only patches we need (current -> latest)
+                    var neededPatches = FilterPatchesFromVersion(bootPatches, currentBoot);
+
+                    await PatchBoot(gameDir, neededPatches);
+                }
+                else
+                {
+                    Log.Information("Boot already up to date at version {0}", currentBoot);
+                }
             }
         }
         else if (!patch)
@@ -136,35 +153,116 @@ public class SqexPollerService : IPoller
 
     private async Task PatchBoot(DirectoryInfo gameDir, PatchListEntry[] patches)
     {
-        // the last patch is probably the latest, yolo though
-        var latest = patches.Last().VersionId;
-        var currentBoot = Repository.Boot.GetVer(gameDir);
-        if (currentBoot == latest)
+        Log.Information("Starting boot patch process for {0} patches", patches.Length);
+
+        // Wait for patches to be downloaded by the background downloader service
+        await WaitForPatchDownloadsAsync(patches);
+
+        // Install patches sequentially
+        var installer = new PatchInstaller(gameDir);
+        foreach (var patch in patches)
         {
-            return;
+            var patchFile = GetPatchFileInfo(patch);
+            installer.QueueInstall(new PatchInstallData
+            {
+                PatchFile = patchFile,
+                Repo = Repository.Boot,
+                VersionId = patch.VersionId
+            });
         }
 
-        Log.Information("Patching boot (current version {current}, latest version {required})",
-            currentBoot, latest);
-
-        // todo
-        // using var patchStore = new TempDirectory();
-        // using var installer = new PatchInstaller(false);
-        // var patcher = new PatchManager(
-        //     AcquisitionMethod.NetDownloader,
-        //     0,
-        //     Repository.Boot,
-        //     patches,
-        //     gameDir,
-        //     patchStore,
-        //     installer,
-        //     launcher,
-        //     null
-        // );
-        //
-        // await patcher.PatchAsync(null, false).ConfigureAwait(false);
+        await installer.InstallAllQueuedPatchesAsync();
 
         Log.Information("Boot patch complete");
+    }
+
+    /// <summary>
+    /// Filters patch list to only include patches from the specified version onwards.
+    /// Used to skip patches that have already been applied.
+    /// </summary>
+    private static PatchListEntry[] FilterPatchesFromVersion(PatchListEntry[] patches, string fromVersion)
+    {
+        var found = false;
+        var result = new List<PatchListEntry>();
+
+        foreach (var patch in patches)
+        {
+            if (!found && patch.VersionId == fromVersion)
+            {
+                found = true;
+                continue; // Skip the current version, we want patches AFTER it
+            }
+
+            if (found)
+            {
+                result.Add(patch);
+            }
+        }
+
+        // If we never found the current version, SE is giving us all the patches we need
+        if (!found)
+        {
+            return patches;
+        }
+
+        return result.ToArray();
+    }
+
+    /// <summary>
+    /// Waits for patches to be downloaded by polling the filesystem.
+    /// Required for SE since we need boot patches installed before we can authenticate for game patches.
+    /// </summary>
+    private async Task WaitForPatchDownloadsAsync(PatchListEntry[] patches, CancellationToken cancellationToken = default)
+    {
+        const int pollIntervalMs = 1000;
+        const int timeoutSeconds = 60 * 10; // 10 minutes
+        var maxAttempts = timeoutSeconds * 1000 / pollIntervalMs;
+
+        Log.Information("Waiting for {0} patches to be downloaded", patches.Length);
+
+        for (var attempt = 0; attempt < maxAttempts; attempt++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var allDownloaded = true;
+            foreach (var patch in patches)
+            {
+                var patchFile = GetPatchFileInfo(patch);
+                if (!patchFile.Exists)
+                {
+                    allDownloaded = false;
+                    break;
+                }
+            }
+
+            if (allDownloaded)
+            {
+                Log.Information("All patches downloaded successfully");
+                return;
+            }
+
+            await Task.Delay(pollIntervalMs, cancellationToken);
+        }
+
+        throw new TimeoutException($"Timeout waiting for patches to download after {timeoutSeconds} seconds");
+    }
+
+    /// <summary>
+    /// Gets the FileInfo for a downloaded patch based on its LocalStoragePath.
+    /// </summary>
+    private FileInfo GetPatchFileInfo(PatchListEntry patch)
+    {
+        // We need to get the patch from the database to access LocalStoragePath
+        var dbPatch = _db.Patches
+            .Include(p => p.RepoVersion)
+            .FirstOrDefault(p => p.RemoteOriginPath == patch.Url);
+
+        if (dbPatch == null)
+        {
+            throw new InvalidOperationException($"Could not find patch in database: {patch.Url}");
+        }
+
+        return new FileInfo(Path.Combine(_patchDownloadPath, dbPatch.LocalStoragePath));
     }
 
     private async Task CheckGame(XivRepository repo, DirectoryInfo gameDir, XivAccount account)
