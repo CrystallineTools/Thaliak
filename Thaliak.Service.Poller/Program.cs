@@ -1,4 +1,4 @@
-﻿using Downloader;
+using Downloader;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Quartz;

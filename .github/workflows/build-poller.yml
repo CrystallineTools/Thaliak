@@ -1,19 +1,19 @@
-name: 'build & deploy: poller'
+name: "build & deploy: poller"
 on:
   workflow_dispatch:
   push:
     branches:
-      - 'main'
+      - "main"
     paths:
-      - 'Thaliak.Common.Database/**'
-      - 'Thaliak.Service.Poller/**'
+      - "Thaliak.Common.Database/**"
+      - "Thaliak.Service.Poller/**"
 
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Log in to GitHub Container Registry
@@ -29,20 +29,11 @@ jobs:
           file: ./Thaliak.Service.Poller/Dockerfile
           push: true
           tags: ghcr.io/crystallinetools/thaliak-poller:latest
-      - name: Set up WireGuard
-        uses: egor-tensin/setup-wireguard@v1.2.0
-        with:
-          endpoint: '${{ secrets.WG_ENDPOINT }}'
-          endpoint_public_key: '${{ secrets.WG_ENDPOINT_PUBKEY }}'
-          ips: '${{ secrets.WG_ADDRESS }}'
-          allowed_ips: '${{ secrets.WG_ALLOWED_IPS }}'
-          private_key: '${{ secrets.WG_PRIVKEY }}'
-          preshared_key: '${{ secrets.WG_SHAREDKEY }}'
       - name: Deploy to production server
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.2
         with:
-          host: '${{ secrets.REMOTE_HOST }}'
+          host: "${{ secrets.REMOTE_HOST }}"
           port: 22
-          username: '${{ secrets.REMOTE_USER }}'
-          key: '${{ secrets.REMOTE_SSH_KEY }}'
+          username: "${{ secrets.REMOTE_USER }}"
+          key: "${{ secrets.REMOTE_SSH_KEY }}"
           script: deploy poller
