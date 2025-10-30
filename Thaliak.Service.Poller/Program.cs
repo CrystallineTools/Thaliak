@@ -1,3 +1,4 @@
+using System.Net.Security;
 using Downloader;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -49,6 +50,29 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddScoped<SqexPollerService>();
         services.AddScoped<ActozPollerService>();
         services.AddScoped<ShandaPollerService>();
+
+        services.AddScoped<HttpClient>(_ =>
+        {
+#if !WIN32
+            var sslOptions = new SslClientAuthenticationOptions()
+            {
+                CipherSuitesPolicy = new CipherSuitesPolicy(new[] { TlsCipherSuite.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384 })
+            };
+
+            var handler = new SocketsHttpHandler
+            {
+                UseCookies = false,
+                SslOptions = sslOptions,
+            };
+#else
+        var handler = new HttpClientHandler
+        {
+            UseCookies = false,
+        };
+#endif
+
+            return new HttpClient(handler);
+        });
 
         // set up the db context
         services.AddDbContext<ThaliakContext>(o =>
