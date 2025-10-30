@@ -24,7 +24,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./v1
           file: ./web/Dockerfile
           push: true
           tags: ghcr.io/crystallinetools/thaliak-web:latest
