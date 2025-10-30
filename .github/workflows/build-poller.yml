@@ -25,7 +25,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: ./v1
+          context: .
           file: ./Thaliak.Service.Poller/Dockerfile
           push: true
           tags: ghcr.io/crystallinetools/thaliak-poller:latest

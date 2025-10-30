@@ -1,13 +1,13 @@
 ﻿FROM mcr.microsoft.com/dotnet/runtime:8.0 AS base
 WORKDIR /app
 
-# certified Square Enix moment (2024 btw)
-COPY ["Thaliak.Service.Poller/openssl.cnf", "/etc/ssl/openssl.cnf"]
+# certified Square Enix moment (2025 btw)
+COPY ["v1/Thaliak.Service.Poller/openssl.cnf", "/etc/ssl/openssl.cnf"]
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["Thaliak.Service.Poller/Thaliak.Service.Poller.csproj", "Thaliak.Service.Poller/"]
-RUN dotnet restore "Thaliak.Service.Poller/Thaliak.Service.Poller.csproj"
+COPY ["v1/Thaliak.Service.Poller/Thaliak.Service.Poller.csproj", "Thaliak.Service.Poller/"]
+RUN dotnet restore "v1/Thaliak.Service.Poller/Thaliak.Service.Poller.csproj"
 COPY . .
 WORKDIR "/src/Thaliak.Service.Poller"
 RUN dotnet build "Thaliak.Service.Poller.csproj" -c Release -o /app/build
