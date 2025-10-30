@@ -26,7 +26,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Thaliak.Service.Poller/Dockerfile
+          file: ./v1/Thaliak.Service.Poller/Dockerfile
           push: true
           tags: ghcr.io/crystallinetools/thaliak-poller:latest
       - name: Deploy to production server
