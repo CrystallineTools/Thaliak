@@ -8,7 +8,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["v1/Thaliak.Service.Poller/Thaliak.Service.Poller.csproj", "Thaliak.Service.Poller/"]
 RUN dotnet restore "Thaliak.Service.Poller/Thaliak.Service.Poller.csproj"
-COPY . .
+COPY v1/ .
 WORKDIR "/src/Thaliak.Service.Poller"
 RUN dotnet build "Thaliak.Service.Poller.csproj" -c Release -o /app/build
 
