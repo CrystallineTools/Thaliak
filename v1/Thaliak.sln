@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Service.Poller", "T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Common.Messages", "Thaliak.Common.Messages\Thaliak.Common.Messages.csproj", "{E2351FCE-C7AC-4413-9C69-30979D535062}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Thaliak.Web", "Thaliak.Web\Thaliak.Web.shproj", "{194898E2-6FA4-4EAE-AE13-C846D8926488}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Thaliak.Web", "..\web\Thaliak.Web.shproj", "{194898E2-6FA4-4EAE-AE13-C846D8926488}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

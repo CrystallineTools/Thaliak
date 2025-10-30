@@ -5,7 +5,7 @@ on:
     branches:
       - "main"
     paths:
-      - "Thaliak.Web/**"
+      - "web/**"
 
 jobs:
   docker:
@@ -25,7 +25,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Thaliak.Web/Dockerfile
+          file: ./web/Dockerfile
           push: true
           tags: ghcr.io/crystallinetools/thaliak-web:latest
       - name: Deploy to production server

@@ -6,6 +6,6 @@ obj/
 .idea/
 appsettings.*.json
 .DS_Store
-Thaliak.Service.Poller/data/
+v1/Thaliak.Service.Poller/data/
 *.DotSettings*
 
