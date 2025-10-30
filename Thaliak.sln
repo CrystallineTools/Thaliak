@@ -2,10 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Common.Database", "Thaliak.Common.Database\Thaliak.Common.Database.csproj", "{8DF9315A-A28F-43FD-A5F7-990D4A282C91}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{65620F58-8B20-4FA2-8CE4-3FB158AD3FAD}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XIVLauncher.Common", "lib\FFXIVQuickLauncher\src\XIVLauncher.Common\XIVLauncher.Common.csproj", "{9565E611-AC6D-4C2C-BDC6-CD8649209E0A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Service.Poller", "Thaliak.Service.Poller\Thaliak.Service.Poller.csproj", "{4084A34E-3942-4704-88A3-33056419000A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thaliak.Common.Messages", "Thaliak.Common.Messages\Thaliak.Common.Messages.csproj", "{E2351FCE-C7AC-4413-9C69-30979D535062}"
@@ -22,10 +18,6 @@ Global
 		{8DF9315A-A28F-43FD-A5F7-990D4A282C91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8DF9315A-A28F-43FD-A5F7-990D4A282C91}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8DF9315A-A28F-43FD-A5F7-990D4A282C91}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9565E611-AC6D-4C2C-BDC6-CD8649209E0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9565E611-AC6D-4C2C-BDC6-CD8649209E0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9565E611-AC6D-4C2C-BDC6-CD8649209E0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9565E611-AC6D-4C2C-BDC6-CD8649209E0A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4084A34E-3942-4704-88A3-33056419000A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4084A34E-3942-4704-88A3-33056419000A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4084A34E-3942-4704-88A3-33056419000A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -36,6 +28,5 @@ Global
 		{E2351FCE-C7AC-4413-9C69-30979D535062}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{9565E611-AC6D-4C2C-BDC6-CD8649209E0A} = {65620F58-8B20-4FA2-8CE4-3FB158AD3FAD}
 	EndGlobalSection
 EndGlobal
