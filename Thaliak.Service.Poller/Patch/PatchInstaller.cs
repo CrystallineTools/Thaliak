@@ -68,45 +68,6 @@ public class PatchInstaller
             throw;
         }
     }
-    
-    // private void RemoteCallHandler(PatcherIpcEnvelope envelope)
-    // {
-    //     switch (envelope.OpCode)
-    //     {
-    //         case PatcherIpcOpCode.Bye:
-    //             Task.Run(() =>
-    //             {
-    //                 Thread.Sleep(3000);
-    //                 IsDone = true;
-    //             });
-    //             break;
-    //
-    //         case PatcherIpcOpCode.StartInstall:
-    //
-    //             var installData = (PatcherIpcStartInstall)envelope.Data;
-    //             
-    //             break;
-    //
-    //         case PatcherIpcOpCode.Finish:
-    //             var path = (DirectoryInfo)envelope.Data;
-    //
-    //             try
-    //             {
-    //                 VerToBck(path);
-    //                 Log.Information("VerToBck done");
-    //             }
-    //             catch (Exception ex)
-    //             {
-    //                 Log.Error(ex, "VerToBck failed");
-    //                 this.rpc.SendMessage(new PatcherIpcEnvelope
-    //                 {
-    //                     OpCode = PatcherIpcOpCode.InstallFailed
-    //                 });
-    //             }
-    //
-    //             break;
-    //     }
-    // }
 
     private static void InstallPatch(string patchPath, string gamePath)
     {
@@ -123,28 +84,5 @@ public class PatchInstaller
         }
 
         Log.Information("[PATCHER] Patch {0} installed", patchPath);
-    }
-
-    private static void VerToBck(DirectoryInfo gamePath)
-    {
-        Thread.Sleep(500);
-
-        foreach (var repository in Enum.GetValues(typeof(Repository)).Cast<Repository>())
-        {
-            // Overwrite the old BCK with the new game version
-            var ver = repository.GetVer(gamePath);
-
-            try
-            {
-                repository.SetVer(gamePath, ver, true);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "[PATCHER] Could not copy to BCK");
-
-                if (ver != Constants.BASE_GAME_VERSION)
-                    throw;
-            }
-        }
     }
 }

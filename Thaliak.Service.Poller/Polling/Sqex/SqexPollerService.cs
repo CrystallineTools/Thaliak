@@ -82,31 +82,17 @@ public class SqexPollerService : IPoller
             throw new InvalidDataException("Could not find boot/game repo in the Repository table!");
         }
 
-        // create tempdirs for XLCommon to use
-        // todo: refactor XLCommon later to not have to do this stuff
         try
         {
-            // we're not downloading patches, so we can use another temp directory
-            using var emptyDir = new TempDirectory();
-
-            // create a XLCommon launcher for checking boot
-            // this intentionally has no installed boot, so we can poll the available boot versions
-            // var bootLauncher = new SqexLauncher((ISteam?) null, new NullUniqueIdCache(),
-                // new ThaliakLauncherSettings(emptyDir, emptyDir));
-
-            // check available boot version without patching
-            await CheckBoot(bootRepo, emptyDir, false);
-
-            // create a second XLCommon launcher for game
-            // this will have our updated/patched boot present
-            // var gameLauncher = new SqexLauncher((ISteam?) null, new NullUniqueIdCache(),
-                // new ThaliakLauncherSettings(emptyDir, _gameDir));
+            // check available boot version without patching (this records all boot patches)
+            await CheckBoot(bootRepo, null);
 
             // check again and potentially patch boot
-            await CheckBoot(bootRepo, _gameDir, true);
+            // this uses our installed version (if any) so we can patch boot if needed
+            await CheckBoot(bootRepo, _gameDir);
 
             // now log in and check game
-            // we need an actual gameDir w/ boot here so we can auth for the game patch list
+            // our gameDir should have an updated boot here, so we should be able to get the patch list
             await CheckGame(gameRepo, _gameDir, account);
         }
         finally
@@ -117,7 +103,7 @@ public class SqexPollerService : IPoller
         }
     }
 
-    private async Task CheckBoot(XivRepository repo, DirectoryInfo gameDir, bool patch)
+    private async Task CheckBoot(XivRepository repo, DirectoryInfo? gameDir)
     {
         var bootPatches = await CheckBootVersion(gameDir);
         if (bootPatches.Length > 0)
@@ -125,7 +111,7 @@ public class SqexPollerService : IPoller
             Log.Information("Discovered JP boot patches: {0}", bootPatches);
             _reconciliationService.Reconcile(repo, bootPatches);
 
-            if (patch)
+            if (gameDir != null)
             {
                 var latest = bootPatches.Last().VersionId;
                 var currentBoot = Repository.Boot.GetVer(gameDir);
@@ -145,7 +131,7 @@ public class SqexPollerService : IPoller
                 }
             }
         }
-        else if (!patch)
+        else if (gameDir == null)
         {
             Log.Warning("No JP boot patches found on the remote server, not reconciling");
         }
@@ -295,7 +281,7 @@ public class SqexPollerService : IPoller
     // copypasta from XL below
     private async Task<LoginResult> Login(string userName, string password, DirectoryInfo gamePath, bool forceBaseVersion)
     {
-        PatchListEntry[] pendingPatches = Array.Empty<PatchListEntry>();
+        PatchListEntry[] pendingPatches = [];
         string? uniqueId = null;
 
         LoginState loginState;
@@ -453,10 +439,10 @@ public class SqexPollerService : IPoller
         };
     }
         
-    private async Task<PatchListEntry[]> CheckBootVersion(DirectoryInfo gamePath, bool forceBaseVersion = false)
+    private async Task<PatchListEntry[]> CheckBootVersion(DirectoryInfo? gamePath)
     {
         var request = new HttpRequestMessage(HttpMethod.Get,
-            $"http://patch-bootver.ffxiv.com/http/win32/ffxivneo_release_boot/{(forceBaseVersion ? Constants.BASE_GAME_VERSION : Repository.Boot.GetVer(gamePath))}/?time=" +
+            $"http://patch-bootver.ffxiv.com/http/win32/ffxivneo_release_boot/{(gamePath == null ? Constants.BASE_GAME_VERSION : Repository.Boot.GetVer(gamePath))}/?time=" +
             GetLauncherFormattedTimeLongRounded());
 
         request.Headers.AddWithoutValidation("User-Agent", Constants.PATCHER_USER_AGENT);
@@ -465,8 +451,7 @@ public class SqexPollerService : IPoller
         var resp = await _client.SendAsync(request);
         var text = await resp.Content.ReadAsStringAsync();
 
-        if (text == string.Empty)
-            return Array.Empty<PatchListEntry>();
+        if (text == string.Empty) return [];
 
         Log.Verbose("Boot patching is needed... List:\n{PatchList}", resp);
 
@@ -494,7 +479,7 @@ public class SqexPollerService : IPoller
         if (!resp.Headers.TryGetValues("X-Patch-Unique-Id", out var uidVals))
             throw new InvalidResponseException("Could not get X-Patch-Unique-Id.", text);
 
-        if (string.IsNullOrEmpty(text)) return (Array.Empty<PatchListEntry>(), uidVals.First());
+        if (string.IsNullOrEmpty(text)) return ([], uidVals.First());
 
         Log.Verbose("Game Patching is needed... List:\n{PatchList}", text);
 
