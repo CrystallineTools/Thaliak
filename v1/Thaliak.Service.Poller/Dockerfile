@@ -1,7 +1,7 @@
 ﻿FROM mcr.microsoft.com/dotnet/runtime:8.0 AS base
 WORKDIR /app
 
-# certified Square Enix moment (2025 btw)
+# certified Square Enix moment (the year is 2025 btw)
 COPY ["v1/Thaliak.Service.Poller/openssl.cnf", "/etc/ssl/openssl.cnf"]
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
