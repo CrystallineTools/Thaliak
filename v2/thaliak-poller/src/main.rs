@@ -1,7 +1,7 @@
 use crate::poller::{Poller, actoz::ActozPoller, shanda::ShandaPoller, sqex::SqexPoller};
 use eyre::Result;
 use log::{info, warn};
-use sqlx::SqlitePool;
+use sqlx::{Sqlite, SqlitePool, migrate::MigrateDatabase};
 use std::env;
 
 mod poller;
@@ -9,7 +9,15 @@ mod poller;
 #[tokio::main]
 async fn main() -> Result<()> {
     let _ = dotenvy::dotenv();
-    let db = SqlitePool::connect(&env::var("DATABASE_URL")?).await?;
+
+    let db_url = env::var("DATABASE_URL")?;
+    if !Sqlite::database_exists(&db_url).await? {
+        info!("creating sqlite database at {}", db_url);
+        Sqlite::create_database(&db_url).await?;
+    }
+
+    info!("initializing database connection");
+    let db = SqlitePool::connect(&db_url).await?;
     sqlx::migrate!("../migrations").run(&db).await?;
 
     thaliak_common::logging::setup(None);
