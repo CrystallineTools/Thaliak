@@ -1,4 +1,5 @@
 use chrono::Utc;
+use eyre::Result;
 use log::info;
 use regex::Regex;
 use reqwest::{StatusCode, header::HeaderMap};
@@ -208,25 +209,23 @@ pub struct SqexPoller {
 }
 
 impl SqexPoller {
-    pub fn new() -> Self {
+    pub fn new() -> Result<Self> {
         let user_agent = generate_user_agent();
         let client = reqwest::Client::builder()
             .build()
             .expect("failed to build HTTP client");
 
-        let username = env::var("SQEX_USERNAME").expect("SQEX_USERNAME not set");
-        let password = env::var("SQEX_PASSWORD").expect("SQEX_PASSWORD not set");
-        let game_directory = PathBuf::from(
-            env::var("SQEX_INSTALL_DIRECTORY").expect("SQEX_INSTALL_DIRECTORY not set"),
-        );
+        let username = env::var("SQEX_USERNAME")?;
+        let password = env::var("SQEX_PASSWORD")?;
+        let game_directory = PathBuf::from(env::var("SQEX_INSTALL_DIRECTORY")?);
 
-        Self {
+        Ok(Self {
             client,
             user_agent,
             username,
             password,
             game_directory,
-        }
+        })
     }
 
     async fn get_oauth_top(&self) -> Result<String, SqexPollerError> {
@@ -506,11 +505,7 @@ impl Poller for SqexPoller {
 
         // Perform login and check game version
         let login_result = self
-            .login(
-                &self.username,
-                &self.password,
-                &self.game_directory,
-            )
+            .login(&self.username, &self.password, &self.game_directory)
             .await?;
 
         match login_result.state {

@@ -10,4 +10,4 @@ v1/Thaliak.Service.Poller/data/
 target/
 *.DotSettings*
 *.env
-
+*.db*
