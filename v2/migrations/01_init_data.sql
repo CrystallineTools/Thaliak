@@ -35,12 +35,12 @@ INSERT INTO expansion (id,
                        name_ko,
                        name_cn,
                        name_tw)
-VALUES (0, 'A Realm Reborn', '新生エオルゼア', '', '', '', '', ''),
-       (1, 'Heavensward', '蒼天のイシュガルド', '', '', '', '', ''),
-       (2, 'Stormblood', '紅蓮の解放者', '', '', '', '', ''),
-       (3, 'Shadowbringers', '漆黒の反逆者', '', '', '', '', ''),
-       (4, 'Endwalker', '暁月の終焉', '', '', '', '', ''),
-       (5, 'Dawntrail', '黄金の遺産', '', '', '', '', '');
+VALUES (0, 'A Realm Reborn', '新生エオルゼア', 'A Realm Reborn', 'A Realm Reborn', '신생 에오르제아', '重生之境', ''),
+       (1, 'Heavensward', '蒼天のイシュガルド', 'Heavensward', 'Heavensward', '창천의 이슈가르드', '苍穹之禁城', ''),
+       (2, 'Stormblood', '紅蓮のリベレーター', 'Stormblood', 'Stormblood', '홍련의 해방자', '红莲之狂潮', ''),
+       (3, 'Shadowbringers', '漆黒のヴィランズ', 'Shadowbringers', 'Shadowbringers', '칠흑의 반역자', '暗影之逆焰', ''),
+       (4, 'Endwalker', '暁月のフィナーレ', 'Endwalker', 'Endwalker', '효월의 종언', '晓月之终途', ''),
+       (5, 'Dawntrail', '黄金のレガシー', 'Dawntrail', 'Dawntrail', '황금의 유산', '金曦之遗辉', '');
 
 -- expansion_repository_mapping
 INSERT INTO expansion_repository_mapping (game_repository_id, expansion_id, expansion_repository_id)

@@ -1,10 +1,9 @@
 use log::trace;
-use reqwest::{header::HeaderMap, Method, StatusCode};
+use reqwest::{Method, StatusCode, header::HeaderMap};
 use std::time::Duration;
 use thiserror::Error;
 
 pub mod actoz;
-pub mod repository;
 pub mod shanda;
 pub mod sqex;
 

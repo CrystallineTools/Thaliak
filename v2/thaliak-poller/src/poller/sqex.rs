@@ -1,3 +1,5 @@
+use super::{BASE_GAME_VERSION, PatchListEntry, Poller, VersionCheckError, parse_patch_list};
+use crate::patch::Repository;
 use chrono::Utc;
 use eyre::Result;
 use log::info;
@@ -10,11 +12,6 @@ use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use thiserror::Error;
-
-use super::{
-    BASE_GAME_VERSION, PatchListEntry, Poller, VersionCheckError, parse_patch_list,
-    repository::Repository,
-};
 
 // Constants
 const OAUTH_TOP_URL: &str = "https://ffxiv-login.square-enix.com/oauth/ffxivarr/login/top?lng=en&rgn=3&isft=0&cssmode=1&isnew=1&launchver=3";

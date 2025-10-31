@@ -1,6 +1,5 @@
+use crate::poller::BASE_GAME_VERSION;
 use std::path::{Path, PathBuf};
-
-use super::BASE_GAME_VERSION;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Repository {

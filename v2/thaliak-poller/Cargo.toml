@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 thaliak-common = { path = "../thaliak-common" }
+zipatch = { path = "../../../zipatch" }
 log.workspace = true
 eyre.workspace = true
 thiserror.workspace = true

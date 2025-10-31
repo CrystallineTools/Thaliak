@@ -4,12 +4,10 @@ use log::{info, warn};
 use sqlx::{Sqlite, SqlitePool, migrate::MigrateDatabase};
 use std::env;
 
+mod patch;
 mod poller;
 
-#[tokio::main]
-async fn main() -> Result<()> {
-    let _ = dotenvy::dotenv();
-
+async fn init_db() -> Result<SqlitePool> {
     let db_url = env::var("DATABASE_URL")?;
     if !Sqlite::database_exists(&db_url).await? {
         info!("creating sqlite database at {}", db_url);
@@ -20,6 +18,13 @@ async fn main() -> Result<()> {
     let db = SqlitePool::connect(&db_url).await?;
     sqlx::migrate!("../migrations").run(&db).await?;
 
+    Ok(db)
+}
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let _ = dotenvy::dotenv();
+    let db = init_db().await?;
     thaliak_common::logging::setup(None);
 
     info!("poller started");
