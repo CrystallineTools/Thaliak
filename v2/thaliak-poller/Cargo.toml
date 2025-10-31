@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 thaliak-common = { path = "../thaliak-common" }
-zipatch = { path = "../../../zipatch" }
+zipatch = "1"
 log.workspace = true
 eyre.workspace = true
 thiserror.workspace = true
@@ -20,3 +20,4 @@ sqlx.workspace = true
 sha1 = "0.10"
 hex = "0.4"
 num_cpus = "1"
+tempfile = "3"

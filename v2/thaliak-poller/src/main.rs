@@ -36,19 +36,19 @@ async fn main() -> Result<()> {
         _ => {}
     }
 
-    match ActozPoller::new().poll().await {
-        Err(e) => {
-            warn!("Polling KR failed: {:?}", e);
-        }
-        _ => {}
-    }
-
-    match ShandaPoller::new().poll().await {
-        Err(e) => {
-            warn!("Polling CN failed: {:?}", e);
-        }
-        _ => {}
-    }
+    // match ActozPoller::new().poll().await {
+    //     Err(e) => {
+    //         warn!("Polling KR failed: {:?}", e);
+    //     }
+    //     _ => {}
+    // }
+    //
+    // match ShandaPoller::new().poll().await {
+    //     Err(e) => {
+    //         warn!("Polling CN failed: {:?}", e);
+    //     }
+    //     _ => {}
+    // }
 
     Ok(())
 }

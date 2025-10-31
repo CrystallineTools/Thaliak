@@ -2052,6 +2052,7 @@ dependencies = [
  "serde_json",
  "sha1",
  "sqlx",
+ "tempfile",
  "thaliak-common",
  "thiserror",
  "tokio",
@@ -2905,7 +2906,9 @@ dependencies = [
 
 [[package]]
 name = "zipatch"
-version = "0.1.0"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7fdcf2b984a18a3bb7868360015fa5d01d9f71de7179b739b1e79ad26f1b555f"
 dependencies = [
  "byteorder",
  "crc32fast",

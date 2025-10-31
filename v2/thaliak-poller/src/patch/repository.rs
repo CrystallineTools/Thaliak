@@ -55,4 +55,16 @@ impl Repository {
     pub fn is_base_ver<P: AsRef<Path>>(&self, game_path: P) -> bool {
         self.get_ver(game_path) == BASE_GAME_VERSION
     }
+
+    pub fn set_ver<P: AsRef<Path>>(&self, game_path: P, new_ver: &str) -> std::io::Result<()> {
+        let ver_file = self.get_ver_file(game_path.as_ref());
+
+        // Create parent directory if it doesn't exist
+        if let Some(parent) = ver_file.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+
+        std::fs::write(ver_file, new_ver)?;
+        Ok(())
+    }
 }

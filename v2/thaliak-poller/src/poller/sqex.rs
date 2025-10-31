@@ -9,9 +9,10 @@ use sha1::{Digest, Sha1};
 use std::collections::HashMap;
 use std::env;
 use std::fs::File;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use thiserror::Error;
+use zipatch::{ZiPatchConfig, ZiPatchFile};
 
 // Constants
 const OAUTH_TOP_URL: &str = "https://ffxiv-login.square-enix.com/oauth/ffxivarr/login/top?lng=en&rgn=3&isft=0&cssmode=1&isnew=1&launchver=3";
@@ -29,14 +30,14 @@ pub enum SqexPollerError {
     OauthError(String),
     #[error("invalid response from server: {0}")]
     InvalidResponse(String),
-    #[error("boot patching not yet implemented - boot version {0} needs updating")]
-    BootPatchingNotImplemented(String),
     #[error("no service subscription on account")]
     NoService,
     #[error("terms of service not accepted")]
     NoTerms,
     #[error("IO error: {0}")]
     IoError(#[from] std::io::Error),
+    #[error("patch installation failed: {0}")]
+    PatchInstallError(#[from] zipatch::ZiPatchError),
 }
 
 // Data structures
@@ -194,6 +195,34 @@ fn get_version_report<P: AsRef<Path>>(
     }
 
     Ok(ver_report)
+}
+
+/// Filters patch list to only include patches from the specified version onwards.
+/// Used to skip patches that have already been applied.
+fn filter_patches_from_version(
+    patches: &[PatchListEntry],
+    from_version: &str,
+) -> Vec<PatchListEntry> {
+    let mut found = false;
+    let mut result = Vec::new();
+
+    for patch in patches {
+        if !found && patch.version_id == from_version {
+            found = true;
+            continue; // Skip the current version, we want patches AFTER it
+        }
+
+        if found {
+            result.push(patch.clone());
+        }
+    }
+
+    // If we never found the current version, SE is giving us all the patches we need
+    if !found {
+        return patches.to_vec();
+    }
+
+    result
 }
 
 // Main poller struct
@@ -466,6 +495,106 @@ impl SqexPoller {
             Err(e) => Err(e),
         }
     }
+
+    async fn download_patch(
+        &self,
+        patch: &PatchListEntry,
+        dest_path: &Path,
+    ) -> Result<(), SqexPollerError> {
+        info!("Downloading patch: {} -> {:?}", patch.url, dest_path);
+
+        let mut headers = HeaderMap::new();
+        headers.insert("User-Agent", PATCHER_USER_AGENT.parse().unwrap());
+        headers.insert("Accept", "*/*".parse().unwrap());
+
+        let response = self.client.get(&patch.url).headers(headers).send().await?;
+
+        if !response.status().is_success() {
+            return Err(SqexPollerError::InvalidResponse(format!(
+                "Failed to download patch: HTTP {}",
+                response.status()
+            )));
+        }
+
+        let bytes = response.bytes().await?;
+
+        // Create parent directory if needed
+        if let Some(parent) = dest_path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+
+        let mut file = File::create(dest_path)?;
+        file.write_all(&bytes)?;
+
+        info!("Downloaded {} bytes to {:?}", bytes.len(), dest_path);
+        Ok(())
+    }
+
+    fn install_patch(
+        &self,
+        patch_path: &Path,
+        game_path: &Path,
+        version_id: &str,
+    ) -> Result<(), SqexPollerError> {
+        info!(
+            "Installing patch {:?} to {:?}/boot, target version: {}",
+            patch_path, game_path, version_id
+        );
+
+        // Create game/boot subdirectories if needed
+        let boot_dir = game_path.join("boot");
+        std::fs::create_dir_all(&boot_dir)?;
+
+        // Open and apply the patch file
+        let mut patch_file = ZiPatchFile::from_path(patch_path)?;
+        let mut config = ZiPatchConfig::builder(&boot_dir).build();
+
+        for chunk_result in patch_file.chunks() {
+            let mut chunk = chunk_result?;
+            chunk.apply(&mut config)?;
+        }
+
+        // Update version file after successful installation
+        Repository::Boot.set_ver(game_path, version_id)?;
+
+        info!(
+            "Patch installation complete, updated to version {}",
+            version_id
+        );
+        Ok(())
+    }
+
+    async fn patch_boot(
+        &self,
+        game_path: &Path,
+        patches: &[PatchListEntry],
+    ) -> Result<(), SqexPollerError> {
+        info!("Starting boot patch process for {} patches", patches.len());
+
+        // Create temp directory for patch downloads
+        let temp_dir = tempfile::tempdir().map_err(|e| SqexPollerError::IoError(e))?;
+
+        for (i, patch) in patches.iter().enumerate() {
+            info!(
+                "Processing patch {}/{}: {}",
+                i + 1,
+                patches.len(),
+                patch.version_id
+            );
+
+            // Download patch to temp directory
+            let patch_filename = patch.url.split('/').last().unwrap();
+            let patch_path = temp_dir.path().join(patch_filename);
+
+            self.download_patch(patch, &patch_path).await?;
+
+            // Install patch
+            self.install_patch(&patch_path, game_path, &patch.version_id)?;
+        }
+
+        info!("Boot patch complete");
+        Ok(())
+    }
 }
 
 impl Poller for SqexPoller {
@@ -489,13 +618,25 @@ impl Poller for SqexPoller {
             info!("Remote boot version: {}", latest_remote_boot);
 
             if &local_boot_version != latest_remote_boot {
-                return Err(SqexPollerError::BootPatchingNotImplemented(format!(
-                    "Local boot version ({}) does not match remote ({}). Boot patching not yet implemented.",
+                info!(
+                    "Boot needs patching (current: {}, latest: {})",
                     local_boot_version, latest_remote_boot
-                )));
-            }
+                );
 
-            info!("Local boot is up to date!");
+                // Filter to only patches we need (current -> latest)
+                let needed_patches =
+                    filter_patches_from_version(&remote_boot_patches, &local_boot_version);
+
+                info!("Need to apply {} patches", needed_patches.len());
+
+                // Download and install patches
+                self.patch_boot(&self.game_directory, &needed_patches)
+                    .await?;
+
+                info!("Boot patching complete!");
+            } else {
+                info!("Local boot is up to date!");
+            }
         } else {
             info!("No boot patches available - boot is at base version or up to date");
         }
@@ -522,8 +663,8 @@ impl Poller for SqexPoller {
                 }
             }
             LoginState::NeedsPatchBoot => {
-                return Err(SqexPollerError::BootPatchingNotImplemented(
-                    "Boot patch required".to_string(),
+                return Err(SqexPollerError::InvalidResponse(
+                    "Game server still reports boot needs patching after we patched it. This should not happen.".to_string(),
                 ));
             }
             LoginState::NoService => {
