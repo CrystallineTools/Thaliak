@@ -3,10 +3,12 @@ use eyre::Result;
 use log::{info, warn};
 use sqlx::{Sqlite, SqlitePool, migrate::MigrateDatabase};
 use std::env;
+use sqlx::pool::PoolConnection;
 
 mod patch;
 mod poller;
 
+pub type DbConnection = PoolConnection<Sqlite>;
 async fn init_db() -> Result<SqlitePool> {
     let db_url = env::var("DATABASE_URL")?;
     if !Sqlite::database_exists(&db_url).await? {

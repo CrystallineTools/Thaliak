@@ -536,13 +536,12 @@ impl SqexPoller {
         game_path: &Path,
         version_id: &str,
     ) -> Result<(), SqexPollerError> {
-        info!(
-            "Installing patch {:?} to {:?}/boot, target version: {}",
-            patch_path, game_path, version_id
-        );
-
         // Create game/boot subdirectories if needed
         let boot_dir = game_path.join("boot");
+        info!(
+            "Installing patch {:?} to {:?}, target version: {}",
+            patch_path, boot_dir, version_id
+        );
         std::fs::create_dir_all(&boot_dir)?;
 
         // Open and apply the patch file

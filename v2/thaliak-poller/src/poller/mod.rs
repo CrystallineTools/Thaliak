@@ -101,6 +101,12 @@ pub struct PatchListEntry {
     pub length: u64,
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum PatchDiscoveryType {
+    Scraped,
+    Offered
+}
+
 pub fn parse_patch_list(patch_list: String) -> Result<Vec<PatchListEntry>, VersionCheckError> {
     // split into newlines
     let lines: Vec<String> = patch_list.split("\r\n").map(String::from).collect();
