@@ -1,3 +1,0 @@
-[env]
-DATABASE_URL = "sqlite:thaliak.db"
-SQLX_OFFLINE = "true"

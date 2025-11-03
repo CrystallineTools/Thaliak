@@ -1,7 +1,10 @@
-use super::{BASE_GAME_VERSION, PatchListEntry, Poller, VersionCheckError, parse_patch_list};
-use crate::patch::GameRepository;
+use super::{
+    BASE_GAME_VERSION, GenericPollError, PatchDiscoveryType, PatchListEntry, Poller,
+    VersionCheckError, parse_patch_list,
+};
+use crate::patch::{GameRepository, PatchReconciliationService};
 use chrono::Utc;
-use eyre::Result;
+use eyre::{Report, Result};
 use log::info;
 use regex::Regex;
 use reqwest::{StatusCode, header::HeaderMap};
@@ -18,6 +21,8 @@ use zipatch::{ZiPatchConfig, ZiPatchFile};
 const OAUTH_TOP_URL: &str = "https://ffxiv-login.square-enix.com/oauth/ffxivarr/login/top?lng=en&rgn=3&isft=0&cssmode=1&isnew=1&launchver=3";
 const USER_AGENT_TEMPLATE: &str = "SQEXAuthor/2.0.0(Windows 6.2; ja-jp; {0})";
 const PATCHER_USER_AGENT: &str = "FFXIV PATCH CLIENT";
+const BOOT_REPO_ID: i64 = 1;
+const GAME_REPO_ID: i64 = 2;
 
 // Error types
 #[derive(Error, Debug)]
@@ -38,6 +43,8 @@ pub enum SqexPollerError {
     IoError(#[from] std::io::Error),
     #[error("patch installation failed: {0}")]
     PatchInstallError(#[from] zipatch::ZiPatchError),
+    #[error("reconciliation failed: {0}")]
+    ReconciliationError(#[from] Report),
 }
 
 // Data structures
@@ -599,7 +606,7 @@ impl SqexPoller {
 impl Poller for SqexPoller {
     type Error = SqexPollerError;
 
-    async fn poll(&self) -> Result<(), Self::Error> {
+    async fn poll(&self, reconciliation: &PatchReconciliationService) -> Result<(), Self::Error> {
         info!("Polling for JP patches...");
 
         // Check remote boot version
@@ -636,6 +643,15 @@ impl Poller for SqexPoller {
             } else {
                 info!("Local boot is up to date!");
             }
+
+            reconciliation
+                .reconcile(
+                    BOOT_REPO_ID,
+                    &remote_boot_patches,
+                    PatchDiscoveryType::Offered,
+                )
+                .await
+                .map_err(|e| SqexPollerError::ReconciliationError(e))?;
         } else {
             info!("No boot patches available - boot is at base version or up to date");
         }
@@ -651,15 +667,17 @@ impl Poller for SqexPoller {
             }
             LoginState::NeedsPatchGame => {
                 info!(
-                    "Discovered JP game patches ({} patches):",
-                    login_result.pending_patches.len()
+                    "Discovered JP game patches: {:?}",
+                    login_result.pending_patches
                 );
-                for patch in &login_result.pending_patches {
-                    info!(
-                        "  - {} (v{}, {} bytes)",
-                        patch.url, patch.version_id, patch.length
-                    );
-                }
+                reconciliation
+                    .reconcile(
+                        GAME_REPO_ID,
+                        &login_result.pending_patches,
+                        PatchDiscoveryType::Offered,
+                    )
+                    .await
+                    .map_err(|e| SqexPollerError::ReconciliationError(e))?;
             }
             LoginState::NeedsPatchBoot => {
                 return Err(SqexPollerError::InvalidResponse(

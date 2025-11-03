@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE patch SET last_seen = ? WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "988fb16cc3fabd7b7072640018efe3e10fb924b99db59c26e410cd2f3d86c101"
+}

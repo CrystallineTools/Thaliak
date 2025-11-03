@@ -1,7 +1,9 @@
 use log::trace;
 use reqwest::{Method, StatusCode, header::HeaderMap};
 use std::time::Duration;
+use eyre::Report;
 use thiserror::Error;
+use crate::patch::{HashType, PatchReconciliationService};
 
 pub mod actoz;
 pub mod shanda;
@@ -85,18 +87,9 @@ impl VersionCheckService {
 }
 
 #[derive(Clone, Debug)]
-pub enum PatchHashType {
-    None,
-    SHA1 {
-        block_size: u64,
-        hashes: Vec<String>,
-    },
-}
-
-#[derive(Clone, Debug)]
 pub struct PatchListEntry {
     pub version_id: String,
-    pub hash_type: PatchHashType,
+    pub hash_type: HashType,
     pub url: String,
     pub length: u64,
 }
@@ -125,16 +118,16 @@ pub fn parse_patch_list(patch_list: String) -> Result<Vec<PatchListEntry>, Versi
             match fields[5] {
                 ref s if s.to_ascii_lowercase() == "sha1" => {
                     let block_size = fields[6]
-                        .parse::<u64>()
+                        .parse::<i64>()
                         .map_err(|e| VersionCheckError::PatchListParseError(e.to_string()))?;
                     let hashes: Vec<String> = fields[7].split(',').map(String::from).collect();
 
-                    PatchHashType::SHA1 { block_size, hashes }
+                    HashType::Sha1 { block_size, hashes }
                 }
-                _ => PatchHashType::None,
+                _ => HashType::None,
             }
         } else {
-            PatchHashType::None
+            HashType::None
         };
 
         let url = if fields.len() == 9 {
@@ -161,11 +154,13 @@ pub fn parse_patch_list(patch_list: String) -> Result<Vec<PatchListEntry>, Versi
 pub trait Poller {
     type Error;
 
-    async fn poll(&self) -> Result<(), Self::Error>;
+    async fn poll(&self, reconciliation: &PatchReconciliationService) -> Result<(), Self::Error>;
 }
 
 #[derive(Error, Debug)]
 pub enum GenericPollError {
     #[error("version check failed: {0}")]
     VersionCheckError(#[from] VersionCheckError),
+    #[error("reconciliation failed: {0}")]
+    ReconciliationError(#[from] Report),
 }

@@ -1,10 +1,12 @@
-﻿use crate::patch::{DateTime, Patch};
+﻿use crate::DbConnection;
+use crate::patch::{DateTime, Patch};
 use crate::poller::{PatchDiscoveryType, PatchListEntry};
 use eyre::Result;
+use log::{info, trace};
 use regex::Regex;
 use sqlx::SqlitePool;
 use std::sync::LazyLock;
-use crate::DbConnection;
+use thaliak_types::ExpansionRepositoryMapping;
 
 fn get_expansion_from_patch_url(url: &str) -> Option<i64> {
     static RE: LazyLock<Regex> = LazyLock::new(|| {
@@ -21,6 +23,7 @@ fn get_expansion_from_patch_url(url: &str) -> Option<i64> {
     None
 }
 
+#[derive(Clone, Debug)]
 pub struct PatchReconciliationService {
     db: SqlitePool,
 }
@@ -41,7 +44,8 @@ impl PatchReconciliationService {
         let mut conn = self.db.acquire().await?;
 
         // get the list of expansions and their repository mappings
-        let expansions = sqlx::query!(
+        let expansions = sqlx::query_as!(
+            ExpansionRepositoryMapping,
             r#"SELECT game_repository_id, expansion_id, expansion_repository_id FROM expansion_repository_mapping WHERE game_repository_id = ?"#,
             game_repo_id
         )
@@ -49,8 +53,20 @@ impl PatchReconciliationService {
             .await?;
 
         let get_effective_repo_id = |patch_url: &str| -> i64 {
-            if let Some(expansion_repo_id) = get_expansion_from_patch_url(patch_url) {
-                expansion_repo_id
+            if let Some(expansion_id) = get_expansion_from_patch_url(patch_url) {
+                expansions
+                    .iter()
+                    .find(|erp| {
+                        erp.game_repository_id == game_repo_id && erp.expansion_id == expansion_id
+                    })
+                    .expect(
+                        format!(
+                            "no ExpansionRepositoryMapping for game repo {}, expansion id {}",
+                            game_repo_id, expansion_id
+                        )
+                        .as_str(),
+                    )
+                    .expansion_repository_id
             } else {
                 game_repo_id
             }
@@ -64,7 +80,10 @@ impl PatchReconciliationService {
 
         let local_patches = {
             let placeholders = repo_ids.iter().map(|_| "?").collect::<Vec<_>>().join(", ");
-            let query_str = format!("SELECT * FROM patch WHERE repository_id IN ({})", placeholders);
+            let query_str = format!(
+                "SELECT * FROM patch WHERE repository_id IN ({})",
+                placeholders
+            );
 
             let mut query = sqlx::query_as::<_, Patch>(&query_str);
             for id in &repo_ids {
@@ -79,10 +98,23 @@ impl PatchReconciliationService {
             if let Some(local_patch) = local_patches.iter().find(|p| {
                 p.version_string == remote_patch.version_id && p.repository_id == effective_repo_id
             }) {
-                // UpdateExistingPatchData
-                self.update_existing_patch_data(&mut conn, now, local_patch, remote_patch, discovery_type).await;
+                self.update_existing_patch_data(
+                    &mut *conn,
+                    now,
+                    local_patch,
+                    remote_patch,
+                    discovery_type,
+                )
+                .await?;
             } else {
-                // RecordNewPatchData
+                self.record_new_patch_data(
+                    &mut *conn,
+                    now,
+                    effective_repo_id,
+                    remote_patch,
+                    discovery_type,
+                )
+                .await?;
             }
         }
 
@@ -96,6 +128,83 @@ impl PatchReconciliationService {
         local_patch: &Patch,
         remote_patch: &PatchListEntry,
         discovery_type: PatchDiscoveryType,
-    ) {
+    ) -> Result<()> {
+        trace!("Patch already present: {:?}", remote_patch);
+
+        // for all types of discoveries, we update last_seen
+        sqlx::query!(
+            "UPDATE patch SET last_seen = ? WHERE id = ?",
+            now,
+            local_patch.id
+        )
+        .execute(&mut *conn)
+        .await?;
+
+        // if the launcher offered it in the patch list, we have a few more things to update
+        if discovery_type == PatchDiscoveryType::Offered {
+            if local_patch.first_offered.is_none() {
+                let (hash_type, hash_block_size, hashes) = local_patch.hash.to_columns();
+
+                sqlx::query!("UPDATE patch SET is_active = ?, last_offered = ?, first_offered = ?, size = ?, hash_type = ?, hash_block_size = ?, hashes = ? WHERE id = ?",
+                    true, now, now, local_patch.size, hash_type, hash_block_size, hashes, local_patch.id)
+                    .execute(&mut *conn)
+                    .await?;
+            } else {
+                sqlx::query!(
+                    "UPDATE patch SET is_active = ?, last_offered = ? WHERE id = ?",
+                    true,
+                    now,
+                    local_patch.id
+                )
+                .execute(&mut *conn)
+                .await?;
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn record_new_patch_data(
+        &self,
+        conn: &mut DbConnection,
+        now: DateTime,
+        effective_repo_id: i64,
+        remote_patch: &PatchListEntry,
+        discovery_type: PatchDiscoveryType,
+    ) -> Result<()> {
+        info!("Discovered new patch: {:?}", remote_patch);
+
+        let version_string = &remote_patch.version_id;
+        let remote_url = &remote_patch.url;
+        let (offered, is_active) = if discovery_type == PatchDiscoveryType::Offered {
+            (Some(now), true)
+        } else {
+            (None, false)
+        };
+        let size = remote_patch.length as i64;
+        let (hash_type, hash_block_size, hashes) = remote_patch.hash_type.to_columns();
+
+        sqlx::query!(
+            "INSERT INTO patch (version_string, repository_id, remote_url, first_seen, last_seen, first_offered, last_offered, is_active, size, hash_type, hash_block_size, hashes)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            version_string,
+            effective_repo_id,
+            remote_url,
+            now,
+            now,
+            offered,
+            offered,
+            is_active,
+            size,
+            hash_type,
+            hash_block_size,
+            hashes
+        )
+            .execute(&mut *conn)
+            .await?;
+
+        // TODO: port DownloaderService.AddToQueue
+
+        Ok(())
     }
 }

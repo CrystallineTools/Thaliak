@@ -1,12 +1,17 @@
+use super::{GenericPollError, PatchDiscoveryType, Poller, VersionCheckService};
+use crate::patch::PatchReconciliationService;
 use log::info;
 
-use super::{GenericPollError, Poller, VersionCheckService};
+const GAME_REPO_ID: i64 = 12;
 
 pub struct ShandaPoller;
 impl Poller for ShandaPoller {
     type Error = GenericPollError;
 
-    async fn poll(&self) -> Result<(), GenericPollError> {
+    async fn poll(
+        &self,
+        reconciliation: &PatchReconciliationService,
+    ) -> Result<(), GenericPollError> {
         info!("Polling for CN patches...");
 
         let vcs = self.version_check_service();
@@ -15,6 +20,11 @@ impl Poller for ShandaPoller {
             .await
             .map_err(|e| GenericPollError::VersionCheckError(e))?;
         info!("CN patch list: {:#?}", patch_list);
+
+        reconciliation
+            .reconcile(GAME_REPO_ID, &patch_list, PatchDiscoveryType::Offered)
+            .await
+            .map_err(|e| GenericPollError::ReconciliationError(e))?;
 
         Ok(())
     }

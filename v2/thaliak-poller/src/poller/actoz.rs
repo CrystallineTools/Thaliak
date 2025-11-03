@@ -1,12 +1,18 @@
+use super::{GenericPollError, PatchDiscoveryType, Poller, VersionCheckService};
+use crate::patch::PatchReconciliationService;
 use log::info;
 
-use super::{GenericPollError, Poller, VersionCheckService};
+const GAME_REPO_ID: i64 = 7;
 
 pub struct ActozPoller;
+
 impl Poller for ActozPoller {
     type Error = GenericPollError;
 
-    async fn poll(&self) -> Result<(), GenericPollError> {
+    async fn poll(
+        &self,
+        reconciliation: &PatchReconciliationService,
+    ) -> Result<(), GenericPollError> {
         info!("Polling for KR patches...");
 
         let vcs = self.version_check_service();
@@ -15,6 +21,11 @@ impl Poller for ActozPoller {
             .await
             .map_err(|e| GenericPollError::VersionCheckError(e))?;
         info!("KR patch list: {:#?}", patch_list);
+
+        reconciliation
+            .reconcile(GAME_REPO_ID, &patch_list, PatchDiscoveryType::Offered)
+            .await
+            .map_err(|e| GenericPollError::ReconciliationError(e))?;
 
         Ok(())
     }

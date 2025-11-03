@@ -20,18 +20,16 @@ these issues include:
     - v1 currently handles this with the patch chain system by having the previous patch be NULL for the first HIST
       patch; however, this is fragile and obviously does not work when there's multiple HIST bases tracked
 
-We plan to address these issues in Thaliak v2 through the inclusion of a new **patch base** primitive, stored in the
-database and exposed externally through the API.
+We address these issues in Thaliak v2 by modeling patches as a **directed acyclic graph (DAG)**, stored in the
+`patch_parent` table and exposed externally through the API.
 
-Each patch base entry will contain:
+## DAG Structure
 
-- **ID**: referenced in each patch that uses this base
-- **Repository ID**: the repository that this patch base belongs to
-    - It's theoretically possible that SE could rollup patches into a new HIST base in one repo without doing so in
-      another, so specifying patch bases on a per-repository basis will account for this possibility
-- **Base Version**: the name of the first HIST patch in the series, without the appended alphanumeric part (i.e.
-  H2024.05.31.0000.0000)
-- **First Patch ID**: ID of the first patch in the series (i.e. H2024.05.31.0000.0000a)
-- **Previous Base ID**: ID of the previous base, if there is a known delta (i.e. H2017.06.06.0000.0001a)
-- **Delta Patch ID**: ID of the delta patch to migrate from the previous base to this base (i.e. D2024.05.31.0000.0000)
-- **Is Active**: Convenience boolean that indicates if this is the currently active patch base.
+The `patch_parent` table represents edges in the patch graph:
+
+- **current_patch_id** (nullable): The patch you're updating from (NULL = base/root patch)
+- **next_patch_id**: The patch to apply next
+- **repository_id**: The repository this relationship belongs to
+
+This makes patch chains a fully emergent property in the Thaliak v2 architecture, as opposed to being bolted on as an
+afterthought.

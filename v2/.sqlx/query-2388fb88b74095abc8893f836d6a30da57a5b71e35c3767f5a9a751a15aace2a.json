@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE patch SET is_active = ?, last_offered = ?, first_offered = ?, size = ?, hash_type = ?, hash_block_size = ?, hashes = ? WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 8
+    },
+    "nullable": []
+  },
+  "hash": "2388fb88b74095abc8893f836d6a30da57a5b71e35c3767f5a9a751a15aace2a"
+}

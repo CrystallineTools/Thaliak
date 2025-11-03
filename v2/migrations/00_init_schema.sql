@@ -27,7 +27,6 @@ CREATE TABLE patch
 (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     repository_id   INTEGER NOT NULL,
-    patch_base_id   INTEGER NOT NULL,
     version_string  TEXT    NOT NULL,
     remote_url      TEXT    NOT NULL,
     local_path      TEXT    NOT NULL DEFAULT '',
@@ -40,50 +39,25 @@ CREATE TABLE patch
     first_offered   TEXT,
     last_offered    TEXT,
     is_active       BOOLEAN NOT NULL DEFAULT false,
-    FOREIGN KEY (repository_id) REFERENCES repository (id) ON DELETE CASCADE,
-    FOREIGN KEY (patch_base_id) REFERENCES patch_base (id) ON DELETE CASCADE
+    FOREIGN KEY (repository_id) REFERENCES repository (id) ON DELETE CASCADE
 );
 CREATE INDEX ix_patch_repository_id ON patch (repository_id);
 CREATE INDEX ix_patch_version_string ON patch (version_string);
 
--- patch_chain table
-CREATE TABLE patch_chain
+-- patch_parent table
+CREATE TABLE patch_parent
 (
-    id                INTEGER PRIMARY KEY AUTOINCREMENT,
-    repository_id     INTEGER NOT NULL,
-    patch_id          INTEGER NOT NULL,
-    previous_patch_id INTEGER,
-    first_offered     TEXT,
-    last_offered      TEXT,
-    is_active         BOOLEAN NOT NULL DEFAULT false,
-    FOREIGN KEY (repository_id) REFERENCES repository (id) ON DELETE CASCADE,
-    FOREIGN KEY (patch_id) REFERENCES patch (id) ON DELETE CASCADE,
-    FOREIGN KEY (previous_patch_id) REFERENCES patch (id)
-);
-CREATE INDEX ix_patch_chain_previous_patch_id ON patch_chain (previous_patch_id);
-CREATE INDEX ix_patch_chain_repository_id ON patch_chain (repository_id);
-CREATE UNIQUE INDEX ix_patch_chain_patch_id
-    ON patch_chain (patch_id)
-    WHERE previous_patch_id IS NULL;
-CREATE UNIQUE INDEX ix_patch_chain_patch_id_previous_patch_id
-    ON patch_chain (patch_id, previous_patch_id)
-    WHERE previous_patch_id IS NOT NULL;
-
--- patch_base table
-CREATE TABLE patch_base
-(
-    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    current_patch_id INTEGER,
+    next_patch_id    INTEGER NOT NULL,
     repository_id    INTEGER NOT NULL,
-    base_version     TEXT    NOT NULL,
-    first_patch_id   INTEGER NOT NULL,
-    previous_base_id INTEGER,
-    delta_patch_id   INTEGER,
-    is_active        BOOLEAN NOT NULL DEFAULT false,
+    PRIMARY KEY (current_patch_id, next_patch_id),
     FOREIGN KEY (repository_id) REFERENCES repository (id) ON DELETE CASCADE,
-    FOREIGN KEY (first_patch_id) REFERENCES patch (id) ON DELETE CASCADE,
-    FOREIGN KEY (previous_base_id) REFERENCES patch_base (id) ON DELETE CASCADE,
-    FOREIGN KEY (delta_patch_id) REFERENCES patch (id) ON DELETE CASCADE
+    FOREIGN KEY (current_patch_id) REFERENCES patch (id) ON DELETE CASCADE,
+    FOREIGN KEY (next_patch_id) REFERENCES patch (id) ON DELETE CASCADE
 );
+CREATE INDEX ix_patch_parent_current_patch_id ON patch_parent (current_patch_id);
+CREATE INDEX ix_patch_parent_next_patch_id ON patch_parent (next_patch_id);
+CREATE INDEX ix_patch_parent_repository_id ON patch_parent (repository_id);
 
 -- game_version table
 CREATE TABLE game_version

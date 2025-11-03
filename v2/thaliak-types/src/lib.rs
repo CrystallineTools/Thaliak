@@ -34,11 +34,11 @@ impl HashType {
     }
 
     /// Convert HashType back to database columns for inserts/updates
-    pub fn to_columns(&self) -> (Option<String>, Option<i64>, Option<String>) {
+    pub fn to_columns(&self) -> (String, Option<i64>, Option<String>) {
         match self {
-            HashType::None => (None, None, None),
+            HashType::None => ("none".to_string(), None, None),
             HashType::Sha1 { block_size, hashes } => (
-                Some("sha1".to_string()),
+                "sha1".to_string(),
                 Some(*block_size),
                 Some(hashes.join(",")),
             ),
@@ -68,7 +68,6 @@ pub struct Repository {
 pub struct Patch {
     pub id: i64,
     pub repository_id: i64,
-    pub patch_base_id: i64,
     pub version_string: String,
     pub remote_url: String,
     pub local_path: String,
@@ -89,7 +88,6 @@ impl sqlx::FromRow<'_, sqlx::sqlite::SqliteRow> for Patch {
 
         let id: i64 = row.try_get("id")?;
         let repository_id: i64 = row.try_get("repository_id")?;
-        let patch_base_id: i64 = row.try_get("patch_base_id")?;
         let size: i64 = row.try_get("size")?;
 
         let hash_type: Option<String> = row.try_get("hash_type").ok();
@@ -99,7 +97,6 @@ impl sqlx::FromRow<'_, sqlx::sqlite::SqliteRow> for Patch {
         Ok(Patch {
             id,
             repository_id,
-            patch_base_id,
             version_string: row.try_get("version_string")?,
             remote_url: row.try_get("remote_url")?,
             local_path: row.try_get("local_path")?,
@@ -116,26 +113,10 @@ impl sqlx::FromRow<'_, sqlx::sqlite::SqliteRow> for Patch {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "db", derive(sqlx::FromRow))]
-pub struct PatchChain {
-    pub id: i64,
+pub struct PatchParent {
+    pub current_patch_id: Option<i64>,
+    pub next_patch_id: i64,
     pub repository_id: i64,
-    pub patch_id: i64,
-    pub previous_patch_id: Option<i64>,
-    pub first_offered: Option<DateTime>,
-    pub last_offered: Option<DateTime>,
-    pub is_active: bool,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "db", derive(sqlx::FromRow))]
-pub struct PatchBase {
-    pub id: i64,
-    pub repository_id: i64,
-    pub base_version: String,
-    pub first_patch_id: i64,
-    pub previous_base_id: Option<i64>,
-    pub delta_patch_id: Option<i64>,
-    pub is_active: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

@@ -1,14 +1,14 @@
+use crate::patch::PatchReconciliationService;
 use crate::poller::{Poller, actoz::ActozPoller, shanda::ShandaPoller, sqex::SqexPoller};
 use eyre::Result;
 use log::{info, warn};
-use sqlx::{Sqlite, SqlitePool, migrate::MigrateDatabase};
+use sqlx::{Sqlite, SqliteConnection, SqlitePool, migrate::MigrateDatabase};
 use std::env;
-use sqlx::pool::PoolConnection;
 
 mod patch;
 mod poller;
 
-pub type DbConnection = PoolConnection<Sqlite>;
+pub type DbConnection = SqliteConnection;
 async fn init_db() -> Result<SqlitePool> {
     let db_url = env::var("DATABASE_URL")?;
     if !Sqlite::database_exists(&db_url).await? {
@@ -31,26 +31,28 @@ async fn main() -> Result<()> {
 
     info!("poller started");
 
-    match SqexPoller::new()?.poll().await {
+    let reconciliation = PatchReconciliationService::new(&db);
+
+    // match SqexPoller::new()?.poll(&reconciliation).await {
+    //     Err(e) => {
+    //         warn!("Polling JP failed: {:?}", e);
+    //     }
+    //     _ => {}
+    // }
+
+    match ActozPoller::new().poll(&reconciliation).await {
         Err(e) => {
-            warn!("Polling JP failed: {:?}", e);
+            warn!("Polling KR failed: {:?}", e);
         }
         _ => {}
     }
 
-    // match ActozPoller::new().poll().await {
-    //     Err(e) => {
-    //         warn!("Polling KR failed: {:?}", e);
-    //     }
-    //     _ => {}
-    // }
-    //
-    // match ShandaPoller::new().poll().await {
-    //     Err(e) => {
-    //         warn!("Polling CN failed: {:?}", e);
-    //     }
-    //     _ => {}
-    // }
+    match ShandaPoller::new().poll(&reconciliation).await {
+        Err(e) => {
+            warn!("Polling CN failed: {:?}", e);
+        }
+        _ => {}
+    }
 
     Ok(())
 }
