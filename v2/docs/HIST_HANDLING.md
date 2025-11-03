@@ -21,15 +21,18 @@ these issues include:
       patch; however, this is fragile and obviously does not work when there's multiple HIST bases tracked
 
 We address these issues in Thaliak v2 by modeling patches as a **directed acyclic graph (DAG)**, stored in the
-`patch_parent` table and exposed externally through the API.
+`patch_edge` table and exposed externally through the API.
 
 ## DAG Structure
 
-The `patch_parent` table represents edges in the patch graph:
+The `patch_edge` table represents edges in the patch graph:
 
+- **repository_id**: The repository this relationship belongs to
 - **current_patch_id** (nullable): The patch you're updating from (NULL = base/root patch)
 - **next_patch_id**: The patch to apply next
-- **repository_id**: The repository this relationship belongs to
+- **first_offered**: time that the edge first appeared in the patch list
+- **last_offered**: time that the edge last appeared in the patch list
+- **is_active**: boolean indicating if the edge is still being offered by the game servers
 
 This makes patch chains a fully emergent property in the Thaliak v2 architecture, as opposed to being bolted on as an
 afterthought.

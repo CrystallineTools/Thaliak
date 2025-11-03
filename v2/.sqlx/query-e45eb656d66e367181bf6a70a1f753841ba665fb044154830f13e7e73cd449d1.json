@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO patch_edge (repository_id, next_patch_id, first_offered, last_offered, is_active)\n                        VALUES (?, ?, ?, ?, 1) ON CONFLICT DO UPDATE SET last_offered = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 5
+    },
+    "nullable": []
+  },
+  "hash": "e45eb656d66e367181bf6a70a1f753841ba665fb044154830f13e7e73cd449d1"
+}

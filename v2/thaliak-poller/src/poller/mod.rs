@@ -1,9 +1,9 @@
+use crate::patch::{HashType, PatchReconciliationService};
+use eyre::Report;
 use log::trace;
 use reqwest::{Method, StatusCode, header::HeaderMap};
 use std::time::Duration;
-use eyre::Report;
 use thiserror::Error;
-use crate::patch::{HashType, PatchReconciliationService};
 
 pub mod actoz;
 pub mod shanda;
@@ -97,7 +97,7 @@ pub struct PatchListEntry {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PatchDiscoveryType {
     Scraped,
-    Offered
+    Offered,
 }
 
 pub fn parse_patch_list(patch_list: String) -> Result<Vec<PatchListEntry>, VersionCheckError> {

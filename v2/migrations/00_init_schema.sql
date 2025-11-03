@@ -44,20 +44,24 @@ CREATE TABLE patch
 CREATE INDEX ix_patch_repository_id ON patch (repository_id);
 CREATE INDEX ix_patch_version_string ON patch (version_string);
 
--- patch_parent table
-CREATE TABLE patch_parent
+-- patch_edge table
+CREATE TABLE patch_edge
 (
+    repository_id    INTEGER NOT NULL,
     current_patch_id INTEGER,
     next_patch_id    INTEGER NOT NULL,
-    repository_id    INTEGER NOT NULL,
+    first_offered    TEXT    NOT NULL,
+    last_offered     TEXT    NOT NULL,
+    is_active        BOOLEAN NOT NULL DEFAULT false,
     PRIMARY KEY (current_patch_id, next_patch_id),
     FOREIGN KEY (repository_id) REFERENCES repository (id) ON DELETE CASCADE,
     FOREIGN KEY (current_patch_id) REFERENCES patch (id) ON DELETE CASCADE,
     FOREIGN KEY (next_patch_id) REFERENCES patch (id) ON DELETE CASCADE
 );
-CREATE INDEX ix_patch_parent_current_patch_id ON patch_parent (current_patch_id);
-CREATE INDEX ix_patch_parent_next_patch_id ON patch_parent (next_patch_id);
-CREATE INDEX ix_patch_parent_repository_id ON patch_parent (repository_id);
+CREATE INDEX ix_patch_edge_current_patch_id ON patch_edge (current_patch_id);
+CREATE INDEX ix_patch_edge_next_patch_id ON patch_edge (next_patch_id);
+CREATE INDEX ix_patch_edge_repository_id ON patch_edge (repository_id);
+CREATE UNIQUE INDEX ix_patch_edge_without_current ON patch_edge (next_patch_id) WHERE current_patch_id IS NULL;
 
 -- game_version table
 CREATE TABLE game_version

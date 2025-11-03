@@ -118,6 +118,21 @@ impl PatchReconciliationService {
             }
         }
 
+        // record edges
+        for repo_id in &repo_ids {
+            let repo_patches = remote_patches
+                .iter()
+                .filter(|rp| get_effective_repo_id(&rp.url) == *repo_id)
+                .collect::<Vec<_>>();
+            self.record_patch_edge_data(&mut *conn, now, *repo_id, &repo_patches)
+                .await?;
+        }
+
+        // record active status
+        for repo_id in &repo_ids {
+            self.record_active_status(&mut *conn, now, *repo_id).await?;
+        }
+
         Ok(())
     }
 
@@ -204,6 +219,96 @@ impl PatchReconciliationService {
             .await?;
 
         // TODO: port DownloaderService.AddToQueue
+
+        Ok(())
+    }
+
+    async fn record_patch_edge_data(
+        &self,
+        conn: &mut DbConnection,
+        now: DateTime,
+        effective_repo_id: i64,
+        remote_patches: &[&PatchListEntry],
+    ) -> Result<()> {
+        let mut previous_patch: Option<&PatchListEntry> = None;
+
+        for remote_patch in remote_patches {
+            // find the corresponding local patch
+            let remote_patch_id = sqlx::query_as::<_, Patch>(
+                "SELECT * FROM patch WHERE version_string = $1 AND repository_id = $2",
+            )
+            .bind(remote_patch.version_id.clone())
+            .bind(effective_repo_id)
+            .fetch_one(&mut *conn)
+            .await?
+            .id;
+
+            if previous_patch.is_some() {
+                let prev = previous_patch.clone().unwrap();
+                let prev_version_string = prev.version_id.clone();
+                let previous_patch_id = sqlx::query_as::<_, Patch>(
+                    "SELECT * FROM patch WHERE version_string = $1 AND repository_id = $2",
+                )
+                .bind(prev_version_string)
+                .bind(effective_repo_id)
+                .fetch_one(&mut *conn)
+                .await?
+                .id;
+
+                sqlx::query!(
+                    "INSERT INTO patch_edge (repository_id, current_patch_id, next_patch_id, first_offered, last_offered, is_active)
+                        VALUES (?, ?, ?, ?, ?, 1) ON CONFLICT DO UPDATE SET last_offered = ?",
+                    effective_repo_id,
+                    previous_patch_id,
+                    remote_patch_id,
+                    now,
+                    now,
+                    now,
+                )
+                .execute(&mut *conn)
+                .await?;
+            } else {
+                // first patch of a chain
+                sqlx::query!(
+                    "INSERT INTO patch_edge (repository_id, next_patch_id, first_offered, last_offered, is_active)
+                        VALUES (?, ?, ?, ?, 1) ON CONFLICT DO UPDATE SET last_offered = ?",
+                    effective_repo_id,
+                    remote_patch_id,
+                    now,
+                    now,
+                    now,
+                )
+                    .execute(&mut *conn)
+                    .await?;
+            }
+
+            previous_patch = Some(remote_patch);
+        }
+
+        Ok(())
+    }
+
+    async fn record_active_status(
+        &self,
+        conn: &mut DbConnection,
+        now: DateTime,
+        effective_repo_id: i64,
+    ) -> Result<()> {
+        sqlx::query!(
+            "UPDATE patch SET is_active = 0 WHERE last_offered < ? AND repository_id = ? AND is_active = 1",
+            now,
+            effective_repo_id
+        )
+        .execute(&mut *conn)
+        .await?;
+
+        sqlx::query!(
+            "UPDATE patch_edge SET is_active = 0 WHERE last_offered < ? AND repository_id = ? AND is_active = 1",
+            now,
+            effective_repo_id
+        )
+            .execute(&mut *conn)
+            .await?;
 
         Ok(())
     }

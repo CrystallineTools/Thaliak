@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE patch SET is_active = 0 WHERE last_offered < ? AND repository_id = ? AND is_active = 1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "b2306b6f936c4318917d37804859d3f9d6f372f9c3ed771faf4d151fada871b8"
+}

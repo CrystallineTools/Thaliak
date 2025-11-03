@@ -113,10 +113,12 @@ impl sqlx::FromRow<'_, sqlx::sqlite::SqliteRow> for Patch {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "db", derive(sqlx::FromRow))]
-pub struct PatchParent {
+pub struct PatchEdge {
+    pub repository_id: i64,
     pub current_patch_id: Option<i64>,
     pub next_patch_id: i64,
-    pub repository_id: i64,
+    pub first_offered: DateTime,
+    pub last_offered: DateTime,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
