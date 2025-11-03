@@ -1,5 +1,5 @@
 use super::{BASE_GAME_VERSION, PatchListEntry, Poller, VersionCheckError, parse_patch_list};
-use crate::patch::Repository;
+use crate::patch::GameRepository;
 use chrono::Utc;
 use eyre::Result;
 use log::info;
@@ -132,12 +132,12 @@ fn get_file_hash<P: AsRef<Path>>(path: P) -> Result<String, std::io::Error> {
 }
 
 fn get_boot_version<P: AsRef<Path>>(game_path: P) -> String {
-    Repository::Boot.get_ver(game_path)
+    GameRepository::Boot.get_ver(game_path)
 }
 
 fn get_boot_version_hash<P: AsRef<Path>>(game_path: P) -> Result<String, std::io::Error> {
     let game_path = game_path.as_ref();
-    let version = Repository::Boot.get_ver(game_path);
+    let version = GameRepository::Boot.get_ver(game_path);
     let mut result = format!("{}=", version);
     let boot_path = game_path.join("boot");
 
@@ -170,7 +170,7 @@ fn get_version_report<P: AsRef<Path>>(
     let game_path = game_path.as_ref();
     let mut ver_report = get_boot_version_hash(game_path)?;
 
-    let read_ver = |repo: Repository| -> String {
+    let read_ver = |repo: GameRepository| -> String {
         if force_base_version {
             BASE_GAME_VERSION.to_string()
         } else {
@@ -179,19 +179,19 @@ fn get_version_report<P: AsRef<Path>>(
     };
 
     if ex_level >= 1 {
-        ver_report.push_str(&format!("\nex1\t{}", read_ver(Repository::Ex1)));
+        ver_report.push_str(&format!("\nex1\t{}", read_ver(GameRepository::Ex1)));
     }
     if ex_level >= 2 {
-        ver_report.push_str(&format!("\nex2\t{}", read_ver(Repository::Ex2)));
+        ver_report.push_str(&format!("\nex2\t{}", read_ver(GameRepository::Ex2)));
     }
     if ex_level >= 3 {
-        ver_report.push_str(&format!("\nex3\t{}", read_ver(Repository::Ex3)));
+        ver_report.push_str(&format!("\nex3\t{}", read_ver(GameRepository::Ex3)));
     }
     if ex_level >= 4 {
-        ver_report.push_str(&format!("\nex4\t{}", read_ver(Repository::Ex4)));
+        ver_report.push_str(&format!("\nex4\t{}", read_ver(GameRepository::Ex4)));
     }
     if ex_level >= 5 {
-        ver_report.push_str(&format!("\nex5\t{}", read_ver(Repository::Ex5)));
+        ver_report.push_str(&format!("\nex5\t{}", read_ver(GameRepository::Ex5)));
     }
 
     Ok(ver_report)
@@ -377,7 +377,7 @@ impl SqexPoller {
         let version = if force_base_version {
             BASE_GAME_VERSION.to_string()
         } else {
-            Repository::Ffxiv.get_ver(game_path)
+            GameRepository::Ffxiv.get_ver(game_path)
         };
 
         let version_report =
@@ -554,7 +554,7 @@ impl SqexPoller {
         }
 
         // Update version file after successful installation
-        Repository::Boot.set_ver(game_path, version_id)?;
+        GameRepository::Boot.set_ver(game_path, version_id)?;
 
         info!(
             "Patch installation complete, updated to version {}",

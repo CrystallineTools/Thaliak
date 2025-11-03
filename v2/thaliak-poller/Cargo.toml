@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 thaliak-common = { path = "../thaliak-common" }
+thaliak-types = { path = "../thaliak-types", features = ["db"] }
 zipatch = "1"
 log.workspace = true
 eyre.workspace = true

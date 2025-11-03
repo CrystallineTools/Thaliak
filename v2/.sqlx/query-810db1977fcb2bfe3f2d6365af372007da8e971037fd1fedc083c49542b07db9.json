@@ -1,0 +1,32 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT game_repository_id, expansion_id, expansion_repository_id FROM expansion_repository_mapping WHERE game_repository_id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "game_repository_id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "expansion_id",
+        "ordinal": 1,
+        "type_info": "Integer"
+      },
+      {
+        "name": "expansion_repository_id",
+        "ordinal": 2,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "810db1977fcb2bfe3f2d6365af372007da8e971037fd1fedc083c49542b07db9"
+}

@@ -1,0 +1,15 @@
+[package]
+name = "thaliak-types"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
+
+# Optional database support
+sqlx = { workspace = true, optional = true }
+
+[features]
+default = []
+db = ["dep:sqlx"]

@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["thaliak-api", "thaliak-poller", "thaliak-common"]
+members = ["thaliak-api", "thaliak-poller", "thaliak-common", "thaliak-types"]
 
 [workspace.dependencies]
 log = "0.4"
@@ -14,3 +14,8 @@ reqwest = { version = "0.12", features = ["json"] }
 regex = "1"
 dotenvy = "0.15"
 sqlx = { version = "0.8", features = [ "sqlite", "migrate", "runtime-tokio", "chrono" ] }
+
+[workspace.metadata.sqlx]
+# Enable offline mode - this allows compile-time query checking without a live database
+# Run `cargo sqlx prepare` to generate the cached query metadata
+offline = true

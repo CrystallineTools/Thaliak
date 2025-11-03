@@ -2,18 +2,17 @@
 use crate::poller::{PatchDiscoveryType, PatchListEntry};
 use eyre::Result;
 use regex::Regex;
-use sqlx::{Row, Sqlite, SqlitePool};
-use std::sync::{LazyLock, OnceLock};
-use sqlx::pool::PoolConnection;
+use sqlx::SqlitePool;
+use std::sync::LazyLock;
 use crate::DbConnection;
 
-fn get_expansion_from_patch_url(url: &str) -> Option<u32> {
+fn get_expansion_from_patch_url(url: &str) -> Option<i64> {
     static RE: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r#"(?:https?://.*/)?(game|boot)/(?:ex(\d)|\w+)/(.*)"#).unwrap()
     });
     if let Some(caps) = RE.captures(url) {
         if let Some(id_string) = caps.get(2) {
-            if let Ok(id) = id_string.as_str().parse::<u32>() {
+            if let Ok(id) = id_string.as_str().parse::<i64>() {
                 return Some(id);
             }
         }
@@ -33,7 +32,7 @@ impl PatchReconciliationService {
 
     pub async fn reconcile(
         &self,
-        game_repo_id: u32,
+        game_repo_id: i64,
         remote_patches: &[PatchListEntry],
         discovery_type: PatchDiscoveryType,
     ) -> Result<()> {
@@ -42,14 +41,14 @@ impl PatchReconciliationService {
         let mut conn = self.db.acquire().await?;
 
         // get the list of expansions and their repository mappings
-        let expansions = sqlx::query(
-            r#"SELECT game_repository_id, expansion_id, expansion_repository_id FROM expansion_repository_mapping WHERE game_repository_id = $1"#,
+        let expansions = sqlx::query!(
+            r#"SELECT game_repository_id, expansion_id, expansion_repository_id FROM expansion_repository_mapping WHERE game_repository_id = ?"#,
+            game_repo_id
         )
-            .bind(game_repo_id)
             .fetch_all(&mut *conn)
             .await?;
 
-        let get_effective_repo_id = |patch_url: &str| -> u32 {
+        let get_effective_repo_id = |patch_url: &str| -> i64 {
             if let Some(expansion_repo_id) = get_expansion_from_patch_url(patch_url) {
                 expansion_repo_id
             } else {
@@ -58,21 +57,21 @@ impl PatchReconciliationService {
         };
 
         // retrieve list of patches we know about for this game repo and all expansion repos
-        let repo_ids = {
-            let mut ids = vec![game_repo_id.to_string()];
-            expansions.iter().for_each(|exp| {
-                ids.push(exp.get::<String, _>("expansion_repository_id"));
-            });
-            ids.join(", ")
+        let mut repo_ids = vec![game_repo_id];
+        for exp in &expansions {
+            repo_ids.push(exp.expansion_repository_id);
+        }
+
+        let local_patches = {
+            let placeholders = repo_ids.iter().map(|_| "?").collect::<Vec<_>>().join(", ");
+            let query_str = format!("SELECT * FROM patch WHERE repository_id IN ({})", placeholders);
+
+            let mut query = sqlx::query_as::<_, Patch>(&query_str);
+            for id in &repo_ids {
+                query = query.bind(id);
+            }
+            query.fetch_all(&mut *conn).await?
         };
-        let local_patches: Vec<Patch> =
-            sqlx::query(r#"SELECT * FROM patch WHERE repository_id IN ($1)"#)
-                .bind(repo_ids)
-                .fetch_all(&mut *conn)
-                .await?
-                .into_iter()
-                .map(Patch::from_db)
-                .collect();
 
         // let's go
         for remote_patch in remote_patches {
