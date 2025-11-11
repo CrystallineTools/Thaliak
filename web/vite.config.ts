@@ -10,6 +10,7 @@ const gitSha = execSync('git rev-parse --short HEAD').toString().trim();
 export default defineConfig({
   plugins: [
     react(),
+    // needed for GraphiQL
     monacoEditorPlugin({
       languageWorkers: ['editorWorkerService', 'json'],
       customWorkers: [

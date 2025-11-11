@@ -7,7 +7,7 @@ export interface VersionListItemArgs {
   latest: boolean;
 }
 
-export default function VersionListItem({ repoName, version, latest }: VersionListItemArgs) {
+export default function VersionListItem({ version, latest }: VersionListItemArgs) {
   return (
     <div>
       <VersionDetail version={version} latest={latest} />
