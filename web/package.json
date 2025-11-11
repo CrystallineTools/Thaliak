@@ -29,12 +29,13 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "latest",
+    "@tailwindcss/postcss": "^4.1.17",
     "@types/graphql": "^14.5.0",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.17.0",
     "postcss": "^8.4.49",
-    "tailwindcss": "latest",
-    "vite": "^6.0.3"
+    "tailwindcss": "^4.1.17",
+    "vite": "^6.0.3",
+    "vite-plugin-svgr": "^4.5.0"
   }
 }
