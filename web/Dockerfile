@@ -1,4 +1,4 @@
-FROM node:22-alpine AS build
+FROM node:24-alpine AS build
 RUN apk add git
 
 ENV NODE_ENV production
@@ -8,7 +8,7 @@ WORKDIR /app
 COPY .git .
 COPY web/ .
 
-RUN npm ci --legacy-peer-deps && npm run build
+RUN npm ci && npm run build
 
 FROM nginx:alpine AS web
 COPY --from=build /app/build /var/www/html
