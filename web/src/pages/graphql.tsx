@@ -1,12 +1,12 @@
 import { GraphiQL } from 'graphiql';
-import 'graphiql/graphiql.min.css';
+import 'graphiql/graphiql.css';
 import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@graphiql/react';
 import cn from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { createGraphiQLFetcher } from '@graphiql/toolkit';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 
 const apiVersions = ['2022-08-14', 'beta'];
 const defaultQuery = `query {
@@ -59,7 +59,7 @@ export default function GraphQLPage() {
                 API Version
               </strong>
               <select
-                className='w-5/6 bg-white rounded p-2 rounded-md my-auto'
+                className='w-5/6 bg-white rounded-sm p-2 rounded-md my-auto'
                 value={version}
                 onChange={(e) => setVersion(e.target.value)}>
                 {apiVersions.map((v) => (

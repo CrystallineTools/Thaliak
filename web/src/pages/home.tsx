@@ -69,43 +69,48 @@ export default function HomePage() {
   }
 
   return (
-    <div>
-      <div className='flex flex-wrap flex-col sm:flex-row mb-2'>
-        <div className='relative flex-grow max-w-full flex-1'>
-          <span className='text-3xl font-bold'>Game Version Repositories</span>
+    <div className='animate-fade-in'>
+      <div className='flex flex-wrap flex-col sm:flex-row mb-8 items-start sm:items-center gap-4'>
+        <div className='grow'>
+          <h1 className='text-4xl font-bold text-gray-900 mb-2'>Game Version Repositories</h1>
         </div>
-        <div className='sm:w-1/2 sm:text-end text-gray-700 text-sm my-auto'>
+        <div className='flex flex-col items-end gap-2'>
           <AudioAlert repositories={data?.repositories} />
-          Automatically updates every 15 seconds.
+          <div className='flex items-center gap-2 text-sm text-gray-600 bg-gray-100 px-3 py-2 rounded-lg'>
+            <svg className='w-4 h-4 text-primary-500 animate-pulse' fill='currentColor' viewBox='0 0 20 20'>
+              <path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z' clipRule='evenodd' />
+            </svg>
+            <span>Auto-updates every 15s</span>
+          </div>
         </div>
       </div>
 
-      {groups.map((group: RepositoryGroup) => (
-        <div key={group.name}>
-          <div className='flex flex-wrap mb-1'>
-            <div className='relative flex-grow max-w-full flex-1'>
-              <span className='text-2xl'>
-                {GroupIcons.hasOwnProperty(group.name) &&
-                  <span className='text-5xl align-middle mr-2'>{GroupIcons[group.name]}</span>
-                }
-                <span className='font-semibold'>
-                  {group.name}
-                </span>
+      <div className='space-y-8'>
+        {groups.map((group: RepositoryGroup) => (
+          <div key={group.name} className='animate-slide-up'>
+            <div className='flex items-center gap-3 mb-4'>
+              {GroupIcons.hasOwnProperty(group.name) && (
+                <span className='text-5xl leading-none'>{GroupIcons[group.name]}</span>
+              )}
+              <h2 className='text-2xl font-semibold text-gray-800'>{group.name}</h2>
+              <span className='ml-2 px-2.5 py-0.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-full'>
+                {group.repositories.length} {group.repositories.length === 1 ? 'repository' : 'repositories'}
               </span>
             </div>
+            <ListGroup>
+              {group.repositories.map((repo: Repository) => (
+                <RepositoryDetail
+                  repo={repo}
+                  latestVersion={repo.latestVersion}
+                  key={repo.slug}
+                  linkName
+                  showLatestVersionInfo
+                />
+              ))}
+            </ListGroup>
           </div>
-          <ListGroup>
-            {group.repositories.map((repo: Repository) =>
-              <RepositoryDetail repo={repo}
-                                latestVersion={repo.latestVersion}
-                                key={repo.slug}
-                                linkName
-                                showLatestVersionInfo
-              />)}
-          </ListGroup>
-        </div>
-      ))}
-
+        ))}
+      </div>
     </div>
   );
 }

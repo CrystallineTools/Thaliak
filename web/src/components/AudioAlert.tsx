@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faVolumeHigh, faVolumeXmark } from '@fortawesome/free-solid-svg-icons';
+import { faVolumeHigh, faVolumeXmark, faPlay } from '@fortawesome/free-solid-svg-icons';
 import { Repository } from '../api/types/repository';
-import ReactAudioPlayer from 'react-audio-player';
 
 interface AudioAlertProps {
   repositories: Repository[] | undefined;
@@ -12,49 +11,153 @@ export function AudioAlert({ repositories }: AudioAlertProps) {
   const [prevVersions, setPrevVersions] = useState<{ [key: string]: string }>({});
   const [enabled, setEnabled] = useState(false);
   const [alarmActive, setAlarmActive] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Initialize audio element on mount
+  useEffect(() => {
+    const audio = new Audio('/alert.mp3');
+    audio.loop = true;
+    audio.volume = 1.0;
+    audioRef.current = audio;
+
+    return () => {
+      // Cleanup: stop and remove audio on unmount
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  // Handle alarm activation - play/stop audio
+  useEffect(() => {
+    if (!audioRef.current) return;
+
+    if (alarmActive && enabled) {
+      // Play audio
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log('Audio alert playing successfully');
+          })
+          .catch((error) => {
+            console.error('Failed to play audio alert:', error);
+            // Browser blocked autoplay - user needs to interact first
+          });
+      }
+    } else {
+      // Stop audio
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  }, [alarmActive, enabled]);
+
+  // Check for version changes
   useEffect(() => {
     if (!repositories) {
       return;
     }
 
     let trigger = false;
+    const newVersions: { [key: string]: string } = {};
+
     for (const repo of repositories) {
       if (repo.latestVersion) {
+        // Check if version changed (and we have a previous version to compare)
         if (repo.slug in prevVersions && prevVersions[repo.slug] !== repo.latestVersion.versionString) {
           trigger = true;
+          console.log(`Version changed for ${repo.slug}: ${prevVersions[repo.slug]} -> ${repo.latestVersion.versionString}`);
         }
 
-        prevVersions[repo.slug] = repo.latestVersion.versionString;
+        newVersions[repo.slug] = repo.latestVersion.versionString;
       }
     }
 
-    setPrevVersions(prevVersions);
-    if (trigger) {
-      console.log('TRIGGERED');
+    // Only update state if there are changes
+    if (JSON.stringify(prevVersions) !== JSON.stringify(newVersions)) {
+      setPrevVersions(newVersions);
+    }
+
+    if (trigger && enabled) {
+      console.log('TRIGGERED - Activating audio alert');
       setAlarmActive(true);
     }
-  }, [repositories]);
+  }, [repositories, prevVersions, enabled]);
 
+  // Disable alarm when alerts are disabled
   useEffect(() => {
     if (!enabled) {
       setAlarmActive(false);
     }
   }, [enabled]);
 
+  const handleEnableToggle = async () => {
+    if (!enabled && audioRef.current) {
+      // When enabling, play a short test sound to "unlock" audio in browser
+      try {
+        audioRef.current.currentTime = 0;
+        await audioRef.current.play();
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        console.log('Audio unlocked successfully');
+      } catch (error) {
+        console.warn('Could not unlock audio:', error);
+      }
+    }
+    setEnabled(!enabled);
+  };
+
+  const handleTestSound = async () => {
+    if (!audioRef.current) return;
+
+    try {
+      audioRef.current.currentTime = 0;
+      await audioRef.current.play();
+      // Play for 2 seconds then stop
+      setTimeout(() => {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+        }
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to play test sound:', error);
+      alert('Failed to play sound. Please check your browser permissions and volume.');
+    }
+  };
+
   return (
-    <div className={`mb-1 underline ${enabled ? 'text-green-600' : 'text-black'}`}>
+    <div className='flex items-center gap-2'>
       {alarmActive && (
-        <button onClick={() => setAlarmActive(false)} type='button'
-                className='py-1 px-2 mr-1 text-white text-center font-semibold text-xs rounded rounded-full bg-yellow-600'>Silence</button>
+        <button
+          onClick={() => setAlarmActive(false)}
+          type='button'
+          className='px-3 py-1.5 text-xs font-medium text-white bg-amber-500 hover:bg-amber-600 rounded-lg transition-colors shadow-xs animate-pulse'>
+          Silence Alert
+        </button>
       )}
+      <button
+        onClick={handleEnableToggle}
+        className={`inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+          enabled
+            ? 'bg-green-100 text-green-700 hover:bg-green-200'
+            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+        }`}
+        type='button'>
+        <FontAwesomeIcon icon={enabled ? faVolumeHigh : faVolumeXmark} />
+        <span>Audio alerts {enabled ? 'enabled' : 'disabled'}</span>
+      </button>
       {enabled && (
-        <ReactAudioPlayer src='/alert.mp3' muted={!alarmActive} volume={1.0} autoPlay loop />
+        <button
+          onClick={handleTestSound}
+          className='inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors'
+          type='button'
+          title='Test audio alert'>
+          <FontAwesomeIcon icon={faPlay} className='text-xs' />
+          <span>Test</span>
+        </button>
       )}
-      <a onClick={() => setEnabled(!enabled)}>
-        <FontAwesomeIcon icon={enabled ? faVolumeHigh : faVolumeXmark} size='lg' className='mr-2' />
-        Audio alerts {enabled ? 'enabled' : 'disabled'}. Click to {enabled ? 'disable' : 'enable'}.
-      </a>
     </div>
   );
 }

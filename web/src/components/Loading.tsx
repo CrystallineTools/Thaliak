@@ -3,6 +3,8 @@ import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 
 export default function Loading() {
   return (
-    <FontAwesomeIcon icon={faCircleNotch} className='animate-spin text-[5rem] text-gray-600 m-8 w-full' />
+    <div className='flex items-center justify-center min-h-[400px] w-full'>
+      <FontAwesomeIcon icon={faCircleNotch} className='animate-spin text-[4rem] text-primary-500' />
+    </div>
   )
 }

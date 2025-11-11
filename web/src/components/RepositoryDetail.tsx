@@ -1,29 +1,6 @@
 import RepositoryDetailVersion from './RepositoryDetailVersion';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { LatestVersion, Repository } from '../api/types/repository';
-
-function GraphQLButtons({ repo, latestVersion }: { repo: Repository, latestVersion: LatestVersion }) {
-  return (
-    <div className='btn-group btn-group-sm ms-2'>
-      <div className='btn btn-outline-secondary disabled d-inline-block'>
-        <img src='/icon-graphql.svg' alt='GraphQL icon' className='me-1' style={{ height: '1.2rem' }} />
-        <span>
-                GraphQL
-              </span>
-      </div>
-      <a className='btn btn-warning'
-         href={`https://thaliak.xiv.dev/api/versions/${repo.slug}/${latestVersion?.versionString}`}>
-        This Version
-      </a>
-      <a className='btn btn-success' href={`https://thaliak.xiv.dev/api/versions/${repo.slug}/latest`}>
-        Latest Version
-      </a>
-      <a className='btn btn-primary' href={`https://thaliak.xiv.dev/api/versions/${repo.slug}`}>
-        All Versions
-      </a>
-    </div>
-  );
-}
 
 export interface RepositoryDetailProps {
   repo: Repository;
@@ -39,24 +16,25 @@ export default function RepositoryDetail({
                                              showLatestVersionInfo
                                            }: RepositoryDetailProps) {
   return (
-    <div className='relative block py-3 px-0 border-spacing-x-0 border-gray-300 no-underline'>
-      <div className='flex flex-wrap flex-col sm:flex-row'>
-        <div className='relative flex-grow max-w-full flex-1'>
+    <div className='relative block py-4 px-5 border-b border-gray-200 last:border-b-0 transition-colors hover:bg-gray-50'>
+      <div className='flex flex-wrap flex-col sm:flex-row gap-3'>
+        <div className='relative grow max-w-full flex-1'>
           {linkName ? (
-            <Link className='font-mono font-bold underline decoration-2 underline-offset-2'
-                  to={`/repository/${repo.slug}`}>{repo.slug}</Link>
+            <Link className='font-mono font-semibold text-primary-700 hover:text-primary-800 transition-colors inline-flex items-center gap-2 group'
+                  to={`/repository/${repo.slug}`}>
+              {repo.slug}
+              <svg className='w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
+              </svg>
+            </Link>
           ) : (
-            <span className='font-mono font-bold'>{repo.slug}</span>
+            <span className='font-mono font-semibold text-gray-900'>{repo.slug}</span>
           )}
-          {/* temporarily disabled while I figure out how to make this work with playground */}
-          {/*<GraphQLButtons repo={repo} latestVersion={latestVersion} />*/}
-          <br />
-          {repo.description}
-          <br />
-          <span className='text-sm text-gray-600'>{repo.name}</span>
+          <p className='mt-1 text-sm text-gray-700'>{repo.description}</p>
+          <p className='mt-0.5 text-xs text-gray-500'>{repo.name}</p>
         </div>
         {showLatestVersionInfo && latestVersion && (
-          <div className='mt-2 sm:w-2/5 sm:mt-0 sm:text-end text-nowrap'>
+          <div className='mt-2 sm:w-2/5 sm:mt-0 sm:text-end text-nowrap shrink-0'>
             <RepositoryDetailVersion latestVersion={latestVersion} />
           </div>
         )}
