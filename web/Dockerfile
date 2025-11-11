@@ -8,7 +8,7 @@ WORKDIR /app
 COPY .git .
 COPY web/ .
 
-RUN npm ci && npm run build
+RUN npm ci --include=dev && npm run build
 
 FROM nginx:alpine AS web
 COPY --from=build /app/build /var/www/html
