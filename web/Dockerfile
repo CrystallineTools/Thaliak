@@ -1,4 +1,4 @@
-FROM node:24-alpine AS build
+FROM node:22-alpine AS build
 RUN apk add git
 
 ENV NODE_ENV production
