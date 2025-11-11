@@ -1,12 +1,11 @@
-import { GraphiQL } from 'graphiql';
-import 'graphiql/graphiql.css';
-import { useEffect, useMemo, useState } from 'react';
-import { useTheme } from '@graphiql/react';
+import {GraphiQL} from 'graphiql';
+import 'graphiql/style.css';
+import {useEffect, useMemo, useState} from 'react';
 import cn from 'classnames';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCopy } from '@fortawesome/free-solid-svg-icons';
-import { createGraphiQLFetcher } from '@graphiql/toolkit';
-import { useParams } from 'react-router';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faCopy} from '@fortawesome/free-solid-svg-icons';
+import {createGraphiQLFetcher} from '@graphiql/toolkit';
+import {useParams} from 'react-router';
 
 const apiVersions = ['2022-08-14', 'beta'];
 const defaultQuery = `query {
@@ -25,14 +24,13 @@ const defaultQuery = `query {
 `;
 
 export default function GraphQLPage() {
-  const { selectedVersion } = useParams();
-  const { setTheme } = useTheme();
+  const {selectedVersion} = useParams();
 
   const [loading, setLoading] = useState(true);
   const [version, setVersion] = useState(apiVersions[0]);
 
   const endpoint = useMemo(() => `https://thaliak.xiv.dev/graphql/${version}`, [version]);
-  const fetcher = useMemo(() => createGraphiQLFetcher({ url: endpoint }), [endpoint]);
+  const fetcher = useMemo(() => createGraphiQLFetcher({url: endpoint}), [endpoint]);
 
   useEffect(() => {
     if (selectedVersion !== undefined) {
@@ -43,15 +41,15 @@ export default function GraphQLPage() {
       }
     }
 
-    setTheme('light');
     setLoading(false);
   }, []);
 
   return (
-    <div className={cn('flex flex-col h-screen', { 'hidden': loading })}>
+    <div className={cn('flex flex-col h-screen', {'hidden': loading})}>
       <GraphiQL
         defaultQuery={defaultQuery}
-        fetcher={fetcher}>
+        fetcher={fetcher}
+        forcedTheme='light'>
         <GraphiQL.Footer>
           <div className='flex flex-col px-1 py-2 space-y-2'>
             <div className='flex flex-row'>
@@ -80,7 +78,7 @@ export default function GraphQLPage() {
                   onClick={() => {
                     navigator.clipboard.writeText(endpoint);
                   }}>
-                  <FontAwesomeIcon icon={faCopy} />
+                  <FontAwesomeIcon icon={faCopy}/>
                 </button>
               </span>
             </div>
