@@ -1,0 +1,14 @@
+[package]
+name = "thaliak-migrate"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+thaliak-common = { path = "../thaliak-common" }
+log.workspace = true
+chrono.workspace = true
+tokio.workspace = true
+eyre.workspace = true
+# need both postgres and sqlite here
+sqlx = { workspace = true, features = [ "postgres", "sqlite", "runtime-tokio", "chrono" ] }
+clap = { version = "4", features = ["derive", "env"] }
