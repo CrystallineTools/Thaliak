@@ -8,13 +8,15 @@ use log::info;
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
-use utoipa::OpenApi;
+use utoipa::openapi::Server;
+use utoipa::{Modify, OpenApi};
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::db::AppState;
 
 #[derive(OpenApi)]
 #[openapi(
+    modifiers(&PathPrefixAddon),
     info(
         title = "Thaliak API",
         version = "2.0",
@@ -53,6 +55,16 @@ use crate::db::AppState;
     )
 )]
 struct ApiDoc;
+
+struct PathPrefixAddon;
+impl Modify for PathPrefixAddon {
+    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
+        match std::env::var("API_BASE_PATH") {
+            Ok(prefix) => openapi.servers = Some(vec![Server::new(prefix)]),
+            Err(_) => (),
+        }
+    }
+}
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
