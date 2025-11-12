@@ -2361,6 +2361,7 @@ dependencies = [
  "hex",
  "log",
  "num_cpus",
+ "rand",
  "regex",
  "reqwest",
  "serde",
