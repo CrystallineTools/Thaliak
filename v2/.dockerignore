@@ -1,0 +1,5 @@
+target/
+gameroot/
+*.db
+*.db-shm
+*.db-wal
