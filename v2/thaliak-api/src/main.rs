@@ -62,6 +62,12 @@ async fn main() -> eyre::Result<()> {
 
     // needed so Swagger UI works with reverse proxies
     let base_path = std::env::var("API_BASE_PATH").unwrap_or_default();
+    let swagger = {
+        let config = utoipa_swagger_ui::Config::from(format!("{}/openapi.json", base_path));
+        SwaggerUi::new("/")
+            .url("/openapi.json", ApiDoc::openapi())
+            .config(config)
+    };
 
     let state = AppState::new(pool);
     let cors = CorsLayer::new()
@@ -90,7 +96,7 @@ async fn main() -> eyre::Result<()> {
             get(routes::database::download_database),
         )
         .route("/database/info", get(routes::database::get_database_info))
-        .merge(SwaggerUi::new("/").url(format!("{}/openapi.json", base_path), ApiDoc::openapi()))
+        .merge(swagger)
         .with_state(state)
         .layer(cors);
 
