@@ -35,7 +35,7 @@ async fn execute_poll<P: Poller>(
             if let Err(e) = thaliak_common::checkpoint_wal(db).await {
                 warn!("{}: failed to checkpoint WAL: {:?}", name, e);
             }
-        },
+        }
         Err(e) => warn!("{}: polling failed: {:?}", name, e),
     }
 }

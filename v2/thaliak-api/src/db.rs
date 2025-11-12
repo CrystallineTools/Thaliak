@@ -1,6 +1,6 @@
 use crate::error::{ApiError, ApiResult};
-use sqlx::sqlite::SqlitePool;
 use sqlx::Row;
+use sqlx::sqlite::SqlitePool;
 use thaliak_types::{LatestPatchInfo, Patch, Repository, Service};
 
 #[derive(Clone)]
@@ -34,8 +34,13 @@ pub async fn get_repositories(pool: &SqlitePool) -> ApiResult<Vec<Repository>> {
                WHERE p.is_active = true
                ORDER BY p.first_offered DESC
            ) p ON p.repository_id = r.id
-           GROUP BY r.id
-           ORDER BY r.service_id, r.id"#
+           GROUP BY r.service_id, r.id
+           ORDER BY CASE r.service_id
+                WHEN 'jp' THEN 1
+                WHEN 'kr' THEN 2
+                WHEN 'cn' THEN 3
+                ELSE 4
+            END, r.id"#,
     )
     .fetch_all(pool)
     .await?;
@@ -81,7 +86,7 @@ pub async fn get_repository_by_slug(pool: &SqlitePool, slug: &str) -> ApiResult<
                ORDER BY p.first_offered DESC
                LIMIT 1
            ) p ON p.repository_id = r.id
-           WHERE r.slug = ?"#
+           WHERE r.slug = ?"#,
     )
     .bind(slug)
     .fetch_one(pool)
@@ -92,7 +97,7 @@ pub async fn get_repository_by_slug(pool: &SqlitePool, slug: &str) -> ApiResult<
             return Err(ApiError::NotFound(format!(
                 "Repository '{}' not found",
                 slug
-            )))
+            )));
         }
         Err(e) => return Err(ApiError::from(e)),
     };
