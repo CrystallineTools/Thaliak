@@ -155,7 +155,6 @@ pub struct Patch {
     pub id: i64,
     #[serde(skip)]
     pub repository_id: i64,
-    pub repository_slug: String,
     pub version_string: String,
     pub remote_url: String,
     pub local_path: String,
@@ -185,7 +184,6 @@ impl sqlx::FromRow<'_, sqlx::sqlite::SqliteRow> for Patch {
         Ok(Patch {
             id,
             repository_id,
-            repository_slug: row.try_get("repository_slug")?,
             version_string: row.try_get("version_string")?,
             remote_url: row.try_get("remote_url")?,
             local_path: row.try_get("local_path")?,
