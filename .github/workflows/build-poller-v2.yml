@@ -28,8 +28,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: v2
-          file: ./thaliak-poller/Dockerfile
+          context: ./v2/
+          file: thaliak-poller/Dockerfile
           push: true
           tags: ghcr.io/crystallinetools/thaliak-poller:v2
       - name: Deploy to production server
