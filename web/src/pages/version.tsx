@@ -1,56 +1,47 @@
 import { useParams } from 'react-router';
 import VersionDetail from '../components/VersionDetail';
-import { gql, useQuery } from '@apollo/client';
 import Loading from '../components/Loading';
-
-const QUERY = gql`
-  query GetVersionInfo($repositorySlug: String!, $versionString: String!) {
-    version(repositorySlug: $repositorySlug, versionString: $versionString) {
-      id
-      versionString
-      isActive
-      firstOffered
-      lastOffered
-      
-      repository {
-        latestVersion {
-          id
-          versionString
-        }
-      }
-
-      prerequisiteVersions {
-        id
-        versionString
-      }
-
-      dependentVersions {
-        id
-        versionString
-      }
-
-      patches {
-        id
-      }
-    }
-  }
-`;
+import { useEffect, useState } from 'react';
+import { getPatch, getRepository, Patch } from '../api/v2client';
 
 export default function VersionPage() {
   const { repoName, versionId } = useParams();
 
-  const { loading, data } = useQuery(QUERY, {
-    variables: {
-      repositorySlug: repoName,
-      versionString: versionId,
-    }
-  });
+  const [loading, setLoading] = useState(true);
+  const [patch, setPatch] = useState<Patch | null>(null);
+  const [isLatest, setIsLatest] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!repoName || !versionId) return;
+
+      try {
+        setLoading(true);
+
+        // Fetch the specific patch and repository info
+        const [patchData, repoData] = await Promise.all([
+          getPatch(repoName, versionId),
+          getRepository(repoName)
+        ]);
+
+        setPatch(patchData);
+        setIsLatest(patchData.version_string === repoData.latest_patch?.version_string);
+      } catch (error) {
+        console.error('Error fetching patch:', error);
+        setPatch(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [repoName, versionId]);
 
   if (loading) {
     return <Loading />;
   }
 
-  if (!data.version) {
+  if (!patch) {
     return (
       <div className='bg-white rounded-lg shadow-soft p-8 text-center'>
         <svg className='w-16 h-16 text-gray-400 mx-auto mb-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -61,11 +52,10 @@ export default function VersionPage() {
     );
   }
 
-  const latest = data.version.repository.latestVersion.versionString === data.version.versionString;
   return (
     <div className='animate-fade-in'>
       <div className='bg-white rounded-lg shadow-soft overflow-hidden'>
-        <VersionDetail version={data.version} latest={latest} />
+        <VersionDetail patch={patch} latest={isLatest} />
       </div>
     </div>
   );

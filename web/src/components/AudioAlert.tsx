@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faVolumeHigh, faVolumeXmark, faPlay } from '@fortawesome/free-solid-svg-icons';
-import { Repository } from '../api/types/repository';
+import { Repository } from '../api/v2client';
 
 interface AudioAlertProps {
   repositories: Repository[] | undefined;
@@ -63,14 +63,14 @@ export function AudioAlert({ repositories }: AudioAlertProps) {
     const newVersions: { [key: string]: string } = {};
 
     for (const repo of repositories) {
-      if (repo.latestVersion) {
+      if (repo.latest_patch) {
         // Check if version changed (and we have a previous version to compare)
-        if (repo.slug in prevVersions && prevVersions[repo.slug] !== repo.latestVersion.versionString) {
+        if (repo.slug in prevVersions && prevVersions[repo.slug] !== repo.latest_patch.version_string) {
           trigger = true;
-          console.log(`Version changed for ${repo.slug}: ${prevVersions[repo.slug]} -> ${repo.latestVersion.versionString}`);
+          console.log(`Version changed for ${repo.slug}: ${prevVersions[repo.slug]} -> ${repo.latest_patch.version_string}`);
         }
 
-        newVersions[repo.slug] = repo.latestVersion.versionString;
+        newVersions[repo.slug] = repo.latest_patch.version_string;
       }
     }
 

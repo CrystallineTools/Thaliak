@@ -1,6 +1,7 @@
 use crate::error::{ApiError, ApiResult};
 use sqlx::sqlite::SqlitePool;
-use thaliak_types::{Patch, Repository, Service};
+use sqlx::Row;
+use thaliak_types::{LatestPatchInfo, Patch, Repository, Service};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -21,35 +22,99 @@ pub async fn get_services(pool: &SqlitePool) -> ApiResult<Vec<Service>> {
 }
 
 pub async fn get_repositories(pool: &SqlitePool) -> ApiResult<Vec<Repository>> {
-    let repositories = sqlx::query_as!(
-        Repository,
-        r#"SELECT id as "id!", service_id as "service_id!", slug, name, description
-           FROM repository
-           ORDER BY service_id, id"#
+    let rows = sqlx::query(
+        r#"SELECT r.id, r.service_id, r.slug, r.name, r.description,
+                  p.version_string as latest_version_string,
+                  p.first_offered as latest_first_offered,
+                  p.last_offered as latest_last_offered
+           FROM repository r
+           LEFT JOIN (
+               SELECT p.repository_id, p.version_string, p.first_offered, p.last_offered
+               FROM patch p
+               WHERE p.is_active = true
+               ORDER BY p.first_offered DESC
+           ) p ON p.repository_id = r.id
+           GROUP BY r.id
+           ORDER BY r.service_id, r.id"#
     )
     .fetch_all(pool)
     .await?;
+
+    let repositories = rows
+        .into_iter()
+        .map(|row| {
+            let latest_patch = row
+                .try_get::<Option<String>, _>("latest_version_string")
+                .ok()
+                .flatten()
+                .map(|version_string| LatestPatchInfo {
+                    version_string,
+                    first_offered: row.try_get("latest_first_offered").ok().flatten(),
+                    last_offered: row.try_get("latest_last_offered").ok().flatten(),
+                });
+
+            Repository {
+                id: row.get("id"),
+                service_id: row.get("service_id"),
+                slug: row.get("slug"),
+                name: row.get("name"),
+                description: row.try_get("description").ok(),
+                latest_patch,
+            }
+        })
+        .collect();
+
     Ok(repositories)
 }
 
 pub async fn get_repository_by_slug(pool: &SqlitePool, slug: &str) -> ApiResult<Repository> {
-    match sqlx::query_as!(
-        Repository,
-        r#"SELECT id as "id!", service_id as "service_id!", slug, name, description
-           FROM repository
-           WHERE slug = ?"#,
-        slug
+    let row = match sqlx::query(
+        r#"SELECT r.id, r.service_id, r.slug, r.name, r.description,
+                  p.version_string as latest_version_string,
+                  p.first_offered as latest_first_offered,
+                  p.last_offered as latest_last_offered
+           FROM repository r
+           LEFT JOIN (
+               SELECT p.repository_id, p.version_string, p.first_offered, p.last_offered
+               FROM patch p
+               WHERE p.is_active = true
+               ORDER BY p.first_offered DESC
+               LIMIT 1
+           ) p ON p.repository_id = r.id
+           WHERE r.slug = ?"#
     )
+    .bind(slug)
     .fetch_one(pool)
     .await
     {
-        Ok(repo) => Ok(repo),
-        Err(sqlx::Error::RowNotFound) => Err(ApiError::NotFound(format!(
-            "Repository '{}' not found",
-            slug
-        ))),
-        Err(e) => Err(ApiError::from(e)),
-    }
+        Ok(row) => row,
+        Err(sqlx::Error::RowNotFound) => {
+            return Err(ApiError::NotFound(format!(
+                "Repository '{}' not found",
+                slug
+            )))
+        }
+        Err(e) => return Err(ApiError::from(e)),
+    };
+
+    let latest_patch = row
+        .try_get::<Option<String>, _>("latest_version_string")
+        .ok()
+        .flatten()
+        .map(|version_string| LatestPatchInfo {
+            version_string,
+            first_offered: row.try_get("latest_first_offered").ok().flatten(),
+            last_offered: row.try_get("latest_last_offered").ok().flatten(),
+        });
+
+    Ok(Repository {
+        id: row.get("id"),
+        service_id: row.get("service_id"),
+        slug: row.get("slug"),
+        name: row.get("name"),
+        description: row.try_get("description").ok(),
+        latest_patch,
+    })
 }
 
 pub async fn get_patch_by_version(

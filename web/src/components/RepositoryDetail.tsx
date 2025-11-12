@@ -1,17 +1,15 @@
 import RepositoryDetailVersion from './RepositoryDetailVersion';
 import { Link } from 'react-router';
-import { LatestVersion, Repository } from '../api/types/repository';
+import { Repository } from '../api/v2client';
 
 export interface RepositoryDetailProps {
   repo: Repository;
-  latestVersion?: LatestVersion;
   linkName?: boolean;
   showLatestVersionInfo?: boolean;
 }
 
 export default function RepositoryDetail({
                                              repo,
-                                             latestVersion,
                                              linkName,
                                              showLatestVersionInfo
                                            }: RepositoryDetailProps) {
@@ -33,9 +31,9 @@ export default function RepositoryDetail({
           <p className='mt-1 text-sm text-gray-700'>{repo.description}</p>
           <p className='mt-0.5 text-xs text-gray-500'>{repo.name}</p>
         </div>
-        {showLatestVersionInfo && latestVersion && (
+        {showLatestVersionInfo && repo.latest_patch && (
           <div className='mt-2 sm:w-2/5 sm:mt-0 sm:text-end text-nowrap shrink-0'>
-            <RepositoryDetailVersion latestVersion={latestVersion} />
+            <RepositoryDetailVersion latestPatch={repo.latest_patch} />
           </div>
         )}
       </div>

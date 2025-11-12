@@ -137,6 +137,14 @@ pub struct Service {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct LatestPatchInfo {
+    pub version_string: String,
+    pub first_offered: Option<DateTime>,
+    pub last_offered: Option<DateTime>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "db", derive(sqlx::FromRow))]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct Repository {
@@ -146,6 +154,9 @@ pub struct Repository {
     pub slug: String,
     pub name: String,
     pub description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "db", sqlx(default))]
+    pub latest_patch: Option<LatestPatchInfo>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

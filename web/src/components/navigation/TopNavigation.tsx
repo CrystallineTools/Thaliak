@@ -6,6 +6,7 @@ import { discordLink, githubMainRepoLink, githubSponsorsLink } from '../../const
 import cn from 'classnames';
 import { useState } from 'react';
 import logo from './logo.svg';
+import { API_BASE_URL } from '../../api/config';
 
 export default function TopNavigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -49,8 +50,21 @@ export default function TopNavigation() {
                 className='block px-4 py-2 text-white/90 hover:text-white hover:bg-primary-500 rounded-lg transition-all sm:rounded-md'
                 to='/graphql/'
                 onClick={() => setIsOpen(false)}>
-                GraphQL API
+                GraphQL API (v1)
               </Link>
+            </li>
+            <li>
+              <a
+                className='block px-4 py-2 text-white/90 hover:text-white hover:bg-primary-500 rounded-lg transition-all sm:rounded-md inline-flex items-center gap-2'
+                href={API_BASE_URL}
+                target='_blank'
+                rel='noopener noreferrer'
+                onClick={() => setIsOpen(false)}>
+                REST API (v2)
+                <span className='inline-flex items-center px-1.5 py-0.5 text-[10px] font-bold uppercase bg-amber-400 text-amber-900 rounded'>
+                  Beta
+                </span>
+              </a>
             </li>
           </ul>
 
