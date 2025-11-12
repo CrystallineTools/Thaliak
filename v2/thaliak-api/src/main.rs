@@ -60,6 +60,9 @@ async fn main() -> eyre::Result<()> {
     let pool = thaliak_common::init_db().await?;
     thaliak_common::logging::setup(None);
 
+    // needed so Swagger UI works with reverse proxies
+    let base_path = std::env::var("API_BASE_PATH").unwrap_or_default();
+
     let state = AppState::new(pool);
     let cors = CorsLayer::new()
         .allow_origin(Any)
@@ -87,7 +90,7 @@ async fn main() -> eyre::Result<()> {
             get(routes::database::download_database),
         )
         .route("/database/info", get(routes::database::get_database_info))
-        .merge(SwaggerUi::new("/").url("/openapi.json", ApiDoc::openapi()))
+        .merge(SwaggerUi::new("/").url(format!("{}/openapi.json", base_path), ApiDoc::openapi()))
         .with_state(state)
         .layer(cors);
 
