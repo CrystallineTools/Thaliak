@@ -32,7 +32,7 @@ pub async fn get_repositories(pool: &SqlitePool) -> ApiResult<Vec<Repository>> {
                SELECT repository_id, version_string, first_offered, last_offered,
                       ROW_NUMBER() OVER (
                           PARTITION BY repository_id
-                          ORDER BY first_offered DESC, LTRIM(version_string, 'HD') DESC
+                          ORDER BY LTRIM(version_string, 'HD') DESC
                       ) as rn
                FROM patch
                WHERE is_active = true
@@ -85,7 +85,7 @@ pub async fn get_repository_by_slug(pool: &SqlitePool, slug: &str) -> ApiResult<
                SELECT repository_id, version_string, first_offered, last_offered,
                       ROW_NUMBER() OVER (
                           PARTITION BY repository_id
-                          ORDER BY first_offered DESC, LTRIM(version_string, 'HD') DESC
+                          ORDER BY LTRIM(version_string, 'HD') DESC
                       ) as rn
                FROM patch
                WHERE is_active = true
@@ -202,7 +202,7 @@ pub async fn get_all_patches(
                FROM patch p
                INNER JOIN repository r ON p.repository_id = r.id
                WHERE p.repository_id = ?
-               ORDER BY p.id"#,
+               ORDER BY LTRIM(p.version_string, 'HD')"#,
         )
         .bind(repository_id)
         .fetch_all(pool)
