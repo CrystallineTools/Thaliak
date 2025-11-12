@@ -1,17 +1,17 @@
-use crate::{db::AppState, error::ApiResult, models::HealthResponse};
+use crate::{db::AppState, error::ApiResult, models::StatusResponse};
 use axum::{Json, extract::State};
 
-/// GET /health - Health check
+/// GET /status - Thaliak API status
 #[utoipa::path(
     get,
-    path = "/health",
+    path = "/status",
     responses(
-        (status = 200, description = "Service health status", body = HealthResponse),
+        (status = 200, description = "Service status", body = StatusResponse),
         (status = 500, description = "Service unhealthy")
     ),
     tag = "metadata"
 )]
-pub async fn health_check(State(state): State<AppState>) -> ApiResult<Json<HealthResponse>> {
+pub async fn status(State(state): State<AppState>) -> ApiResult<Json<StatusResponse>> {
     // Check database connectivity
     sqlx::query!("SELECT 1 as health_check")
         .fetch_one(&state.pool)
@@ -21,7 +21,7 @@ pub async fn health_check(State(state): State<AppState>) -> ApiResult<Json<Healt
             e
         })?;
 
-    Ok(Json(HealthResponse {
+    Ok(Json(StatusResponse {
         status: "ok".to_string(),
         database: "connected".to_string(),
     }))

@@ -19,26 +19,26 @@ use crate::db::AppState;
     modifiers(&PathPrefixAddon),
     info(
         title = "Thaliak API",
-        version = "2.0",
-        description = "Final Fantasy XIV patch tracking API",
+        version = "2.0 (BETA)",
+        description = "Final Fantasy XIV patch tracking API.\n\
+        \n\
+        If you would like to perform data analysis beyond what the API provides,\
+        the SQLite database used by Thaliak is downloadable at https://thaliak.xiv.dev/data/thaliak.db",
     ),
     paths(
-        routes::health::health_check,
+        routes::status::status,
         routes::services::get_services,
         routes::repositories::get_repositories,
         routes::repositories::get_repository,
         routes::patches::get_repository_patches,
         routes::patches::get_repository_patch,
-        routes::database::download_database,
-        routes::database::get_database_info,
     ),
     components(
         schemas(
-            models::HealthResponse,
+            models::StatusResponse,
             models::ServicesResponse,
             models::RepositoriesResponse,
             models::PatchesResponse,
-            models::DatabaseInfo,
             models::PatchQueryParams,
             thaliak_types::Service,
             thaliak_types::Repository,
@@ -51,7 +51,6 @@ use crate::db::AppState;
         (name = "services", description = "Game service information"),
         (name = "repositories", description = "Patch repository information"),
         (name = "patches", description = "Patch file information and chain resolution"),
-        (name = "database", description = "Database download and information"),
     )
 )]
 struct ApiDoc;
@@ -88,7 +87,7 @@ async fn main() -> eyre::Result<()> {
         .allow_headers(Any);
 
     let app = Router::new()
-        .route("/health", get(routes::health::health_check))
+        .route("/status", get(routes::status::status))
         .route("/services", get(routes::services::get_services))
         .route("/repositories", get(routes::repositories::get_repositories))
         .route(
@@ -103,11 +102,6 @@ async fn main() -> eyre::Result<()> {
             "/repositories/{slug}/patches/{version}",
             get(routes::patches::get_repository_patch),
         )
-        .route(
-            "/database/download",
-            get(routes::database::download_database),
-        )
-        .route("/database/info", get(routes::database::get_database_info))
         .merge(swagger)
         .with_state(state)
         .layer(cors);

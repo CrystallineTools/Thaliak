@@ -2321,7 +2321,6 @@ dependencies = [
  "thaliak-types",
  "thiserror",
  "tokio",
- "tokio-util",
  "tower-http",
  "utoipa",
  "utoipa-swagger-ui",

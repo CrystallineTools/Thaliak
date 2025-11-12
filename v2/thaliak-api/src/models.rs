@@ -2,9 +2,9 @@ use serde::{Deserialize, Serialize};
 use thaliak_types::{Patch, Repository, Service};
 use utoipa::{IntoParams, ToSchema};
 
-/// Health check response
+/// API status response
 #[derive(Debug, Serialize, ToSchema)]
-pub struct HealthResponse {
+pub struct StatusResponse {
     pub status: String,
     pub database: String,
 }
@@ -29,14 +29,6 @@ pub struct PatchesResponse {
     pub patches: Vec<Patch>,
     pub total: usize,
     pub total_size: i64,
-}
-
-/// Database file information
-#[derive(Debug, Serialize, ToSchema)]
-pub struct DatabaseInfo {
-    pub filename: String,
-    pub size: u64,
-    pub modified: String,
 }
 
 /// Query parameters for patch listing
