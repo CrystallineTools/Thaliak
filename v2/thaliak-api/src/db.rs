@@ -29,12 +29,14 @@ pub async fn get_repositories(pool: &SqlitePool) -> ApiResult<Vec<Repository>> {
                   p.last_offered as latest_last_offered
            FROM repository r
            LEFT JOIN (
-               SELECT p.repository_id, p.version_string, p.first_offered, p.last_offered
-               FROM patch p
-               WHERE p.is_active = true
-               ORDER BY p.first_offered DESC
-           ) p ON p.repository_id = r.id
-           GROUP BY r.service_id, r.id
+               SELECT repository_id, version_string, first_offered, last_offered,
+                      ROW_NUMBER() OVER (
+                          PARTITION BY repository_id
+                          ORDER BY first_offered DESC, LTRIM(version_string, 'HD') DESC
+                      ) as rn
+               FROM patch
+               WHERE is_active = true
+           ) p ON p.repository_id = r.id AND p.rn = 1
            ORDER BY CASE r.service_id
                 WHEN 'jp' THEN 1
                 WHEN 'kr' THEN 2
