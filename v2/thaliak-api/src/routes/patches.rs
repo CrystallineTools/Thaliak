@@ -32,7 +32,7 @@ pub async fn get_repository_patches(
     let repository = crate::db::get_repository_by_slug(&state.pool, &slug).await?;
 
     let patches = if params.all.unwrap_or(false) {
-        let active_only = params.active.unwrap_or(false);
+        let active_only = params.active.unwrap_or(true);
         crate::db::get_all_patches(&state.pool, repository.id, active_only).await?
     } else {
         crate::db::get_patch_chain(

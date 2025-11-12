@@ -188,7 +188,7 @@ pub async fn get_all_patches(
                FROM patch p
                INNER JOIN repository r ON p.repository_id = r.id
                WHERE p.repository_id = ? AND p.is_active = true
-               ORDER BY p.id"#,
+               ORDER BY LTRIM(p.version_string, 'HD')"#,
         )
         .bind(repository_id)
         .fetch_all(pool)
