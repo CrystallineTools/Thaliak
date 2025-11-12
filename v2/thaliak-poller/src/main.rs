@@ -4,8 +4,7 @@ use chrono::{Timelike, Utc};
 use eyre::Result;
 use log::{info, warn};
 use rand::Rng;
-use sqlx::{Sqlite, SqliteConnection, SqlitePool, migrate::MigrateDatabase};
-use std::env;
+use sqlx::{SqliteConnection, SqlitePool};
 use std::fmt::Debug;
 use std::time::Duration;
 use tokio::time::{Instant, sleep_until};
@@ -23,17 +22,25 @@ fn minutes_until_next_odd_minute() -> u64 {
 async fn execute_poll<P: Poller>(
     poller: &P,
     reconciliation: &PatchReconciliationService,
+    db: &SqlitePool,
     name: &str,
 ) where
     P::Error: Debug,
 {
     match poller.poll(reconciliation).await {
-        Ok(_) => info!("{}: poll completed successfully", name),
+        Ok(_) => {
+            info!("{}: poll completed successfully", name);
+
+            // Checkpoint the WAL to ensure the .db file is up to date
+            if let Err(e) = thaliak_common::checkpoint_wal(db).await {
+                warn!("{}: failed to checkpoint WAL: {:?}", name, e);
+            }
+        },
         Err(e) => warn!("{}: polling failed: {:?}", name, e),
     }
 }
 
-async fn poll_sqex_loop(reconciliation: PatchReconciliationService) {
+async fn poll_sqex_loop(reconciliation: PatchReconciliationService, db: SqlitePool) {
     let poller = match SqexPoller::new() {
         Ok(p) => p,
         Err(e) => {
@@ -43,7 +50,7 @@ async fn poll_sqex_loop(reconciliation: PatchReconciliationService) {
     };
 
     info!("SqexPoller: starting initial poll");
-    execute_poll(&poller, &reconciliation, "SqexPoller").await;
+    execute_poll(&poller, &reconciliation, &db, "SqexPoller").await;
 
     loop {
         let wait_minutes = minutes_until_next_odd_minute();
@@ -51,16 +58,16 @@ async fn poll_sqex_loop(reconciliation: PatchReconciliationService) {
         sleep_until(Instant::now() + Duration::from_secs(wait_minutes * 60)).await;
 
         info!("SqexPoller: starting poll");
-        execute_poll(&poller, &reconciliation, "SqexPoller").await;
+        execute_poll(&poller, &reconciliation, &db, "SqexPoller").await;
     }
 }
 
-async fn poll_actoz_loop(reconciliation: PatchReconciliationService) {
+async fn poll_actoz_loop(reconciliation: PatchReconciliationService, db: SqlitePool) {
     let mut rng = rand::thread_rng();
     let poller = ActozPoller::new();
 
     info!("ActozPoller: starting initial poll");
-    execute_poll(&poller, &reconciliation, "ActozPoller").await;
+    execute_poll(&poller, &reconciliation, &db, "ActozPoller").await;
 
     loop {
         let wait_minutes = rng.gen_range(40..=59);
@@ -70,16 +77,16 @@ async fn poll_actoz_loop(reconciliation: PatchReconciliationService) {
         sleep_until(Instant::now() + total_wait).await;
 
         info!("ActozPoller: starting poll");
-        execute_poll(&poller, &reconciliation, "ActozPoller").await;
+        execute_poll(&poller, &reconciliation, &db, "ActozPoller").await;
     }
 }
 
-async fn poll_shanda_loop(reconciliation: PatchReconciliationService) {
+async fn poll_shanda_loop(reconciliation: PatchReconciliationService, db: SqlitePool) {
     let mut rng = rand::thread_rng();
     let poller = ShandaPoller::new();
 
     info!("ShandaPoller: starting initial poll");
-    execute_poll(&poller, &reconciliation, "ShandaPoller").await;
+    execute_poll(&poller, &reconciliation, &db, "ShandaPoller").await;
 
     loop {
         let wait_minutes = rng.gen_range(40..=59);
@@ -89,7 +96,7 @@ async fn poll_shanda_loop(reconciliation: PatchReconciliationService) {
         sleep_until(Instant::now() + total_wait).await;
 
         info!("ShandaPoller: starting poll");
-        execute_poll(&poller, &reconciliation, "ShandaPoller").await;
+        execute_poll(&poller, &reconciliation, &db, "ShandaPoller").await;
     }
 }
 
@@ -104,9 +111,9 @@ async fn main() -> Result<()> {
     let reconciliation = PatchReconciliationService::new(&db);
 
     tokio::select! {
-        _ = poll_sqex_loop(reconciliation.clone()) => {},
-        _ = poll_actoz_loop(reconciliation.clone()) => {},
-        _ = poll_shanda_loop(reconciliation.clone()) => {},
+        _ = poll_sqex_loop(reconciliation.clone(), db.clone()) => {},
+        _ = poll_actoz_loop(reconciliation.clone(), db.clone()) => {},
+        _ = poll_shanda_loop(reconciliation.clone(), db.clone()) => {},
     }
 
     Ok(())
