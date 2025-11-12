@@ -38,4 +38,3 @@ jobs:
           username: "${{ secrets.REMOTE_USER }}"
           key: "${{ secrets.REMOTE_SSH_KEY }}"
           script: deploy poller-v1
-          use_insecure_cipher: true # workaround for a ssh-action bug
