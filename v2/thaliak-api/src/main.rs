@@ -87,7 +87,7 @@ async fn main() -> eyre::Result<()> {
             get(routes::database::download_database),
         )
         .route("/database/info", get(routes::database::get_database_info))
-        .merge(SwaggerUi::new("/").url("/openapi.json", ApiDoc::openapi()))
+        .merge(SwaggerUi::new("/").url("openapi.json", ApiDoc::openapi()))
         .with_state(state)
         .layer(cors);
 

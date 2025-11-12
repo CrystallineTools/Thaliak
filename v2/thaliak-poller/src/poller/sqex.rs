@@ -371,7 +371,6 @@ impl SqexPoller {
             return Ok(Vec::new());
         }
 
-        info!("Boot patching is needed... Parsing patch list");
         parse_patch_list(text).map_err(|e| e.into())
     }
 
