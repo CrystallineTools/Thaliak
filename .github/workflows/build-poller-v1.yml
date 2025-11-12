@@ -5,6 +5,7 @@ on:
     branches:
       - "main"
     paths:
+      - ".github/workflows/build-poller-v1.yml"
       - "v1/Thaliak.Common.Database/**"
       - "v1/Thaliak.Service.Poller/**"
 
@@ -30,10 +31,10 @@ jobs:
           push: true
           tags: ghcr.io/crystallinetools/thaliak-poller:latest
       - name: Deploy to production server
-        uses: appleboy/ssh-action@v1.2.2
+        uses: appleboy/ssh-action@v1.1.0
         with:
           host: "${{ secrets.REMOTE_HOST }}"
           port: 22
           username: "${{ secrets.REMOTE_USER }}"
           key: "${{ secrets.REMOTE_SSH_KEY }}"
-          script: deploy poller
+          script: deploy poller-v1
