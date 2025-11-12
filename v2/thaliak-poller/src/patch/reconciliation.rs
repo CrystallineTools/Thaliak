@@ -41,7 +41,9 @@ impl PatchReconciliationService {
     ) -> Result<()> {
         // use a consistent timestamp through reconciliation of each repo's patch list
         let now = chrono::Utc::now();
-        let mut conn = self.db.acquire().await?;
+
+        // Use an explicit transaction to ensure atomicity and proper lock handling
+        let mut tx = self.db.begin().await?;
 
         // get the list of expansions and their repository mappings
         let expansions = sqlx::query_as!(
@@ -49,7 +51,7 @@ impl PatchReconciliationService {
             r#"SELECT game_repository_id, expansion_id, expansion_repository_id FROM expansion_repository_mapping WHERE game_repository_id = ?"#,
             game_repo_id
         )
-            .fetch_all(&mut *conn)
+            .fetch_all(&mut *tx)
             .await?;
 
         let get_effective_repo_id = |patch_url: &str| -> i64 {
@@ -89,7 +91,7 @@ impl PatchReconciliationService {
             for id in &repo_ids {
                 query = query.bind(id);
             }
-            query.fetch_all(&mut *conn).await?
+            query.fetch_all(&mut *tx).await?
         };
 
         // let's go
@@ -99,7 +101,7 @@ impl PatchReconciliationService {
                 p.version_string == remote_patch.version_id && p.repository_id == effective_repo_id
             }) {
                 self.update_existing_patch_data(
-                    &mut *conn,
+                    &mut *tx,
                     now,
                     local_patch,
                     remote_patch,
@@ -108,7 +110,7 @@ impl PatchReconciliationService {
                 .await?;
             } else {
                 self.record_new_patch_data(
-                    &mut *conn,
+                    &mut *tx,
                     now,
                     effective_repo_id,
                     remote_patch,
@@ -124,14 +126,17 @@ impl PatchReconciliationService {
                 .iter()
                 .filter(|rp| get_effective_repo_id(&rp.url) == *repo_id)
                 .collect::<Vec<_>>();
-            self.record_patch_edge_data(&mut *conn, now, *repo_id, &repo_patches)
+            self.record_patch_edge_data(&mut *tx, now, *repo_id, &repo_patches)
                 .await?;
         }
 
         // record active status
         for repo_id in &repo_ids {
-            self.record_active_status(&mut *conn, now, *repo_id).await?;
+            self.record_active_status(&mut *tx, now, *repo_id).await?;
         }
+
+        // Commit the transaction
+        tx.commit().await?;
 
         Ok(())
     }

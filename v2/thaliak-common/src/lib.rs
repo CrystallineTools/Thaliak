@@ -20,7 +20,8 @@ pub async fn init_db() -> Result<SqlitePool> {
 
     // Configure connection options with increased slow query threshold for pollers
     let connect_options = SqliteConnectOptions::from_str(&db_url)?
-        .log_slow_statements(log::LevelFilter::Warn, Duration::from_secs(5));
+        .log_slow_statements(log::LevelFilter::Warn, Duration::from_secs(5))
+        .busy_timeout(Duration::from_secs(30)); // Wait up to 30s for locks
 
     let db = SqlitePoolOptions::new()
         .connect_with(connect_options)
