@@ -29,7 +29,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./v2/
-          file: thaliak-api/Dockerfile
+          file: ./v2/thaliak-api/Dockerfile
           push: true
           tags: ghcr.io/crystallinetools/thaliak-api:v2
       - name: Deploy to production server
