@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 thaliak-common = { path = "../thaliak-common" }
 thaliak-types = { path = "../thaliak-types", features = ["db"] }
-zipatch = "1"
+zipatch = "1.0.1"
 log.workspace = true
 eyre.workspace = true
 thiserror.workspace = true

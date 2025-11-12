@@ -3331,9 +3331,9 @@ dependencies = [
 
 [[package]]
 name = "zipatch"
-version = "1.0.0"
+version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7fdcf2b984a18a3bb7868360015fa5d01d9f71de7179b739b1e79ad26f1b555f"
+checksum = "392feaccb2f53974d429a47281309f194958b7dce822fc9a41a036142cf2d874"
 dependencies = [
  "byteorder",
  "crc32fast",
