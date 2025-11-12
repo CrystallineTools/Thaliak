@@ -31,7 +31,7 @@ jobs:
           push: true
           tags: ghcr.io/crystallinetools/thaliak-poller:latest
       - name: Deploy to production server
-        uses: appleboy/ssh-action@v1.1.0
+        uses: appleboy/ssh-action@v1.2.3
         with:
           host: "${{ secrets.REMOTE_HOST }}"
           port: 22
