@@ -10,6 +10,10 @@ chrono = { workspace = true, features = ["serde"] }
 # Optional database support
 sqlx = { workspace = true, optional = true }
 
+# Optional OpenAPI support
+utoipa = { version = "5", optional = true, features = ["chrono"] }
+
 [features]
 default = []
 db = ["dep:sqlx"]
+openapi = ["dep:utoipa"]

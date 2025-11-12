@@ -7,3 +7,5 @@ edition = "2024"
 log.workspace = true
 chrono.workspace = true
 fern = { version = "0.7", features = ["chrono", "colored"] }
+sqlx = { workspace = true }
+eyre = { workspace = true }

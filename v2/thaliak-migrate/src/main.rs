@@ -1,12 +1,12 @@
 use chrono::{DateTime, Utc};
 use clap::Parser;
+use eyre::Result;
+use eyre::eyre::WrapErr;
 use log::info;
 use sqlx::migrate::MigrateDatabase;
 use sqlx::{PgPool, Sqlite, SqlitePool};
 use std::collections::HashMap;
 use std::path::Path;
-use eyre::eyre::WrapErr;
-use eyre::Result;
 
 /// Migration tool to convert Thaliak v1 (Postgres) to v2 (SQLite)
 #[derive(Parser, Debug)]

@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT next_patch_id FROM patch_edge\n                   WHERE repository_id = ? AND current_patch_id IS NULL AND is_active = true\n                   ORDER BY last_offered DESC\n                   LIMIT 1",
+  "describe": {
+    "columns": [
+      {
+        "name": "next_patch_id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "a9865d625dcdf8cea6b57b0b42b35e9e9fc4973c67d9f597db1cd23ec2e9f7be"
+}

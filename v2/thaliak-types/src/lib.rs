@@ -1,14 +1,95 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 pub type DateTime = chrono::DateTime<chrono::Utc>;
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub enum HashType {
     None,
     Sha1 {
         block_size: i64,
         hashes: Vec<String>,
     },
+}
+
+impl Serialize for HashType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        use serde::ser::SerializeMap;
+
+        match self {
+            HashType::None => {
+                let mut map = serializer.serialize_map(Some(1))?;
+                map.serialize_entry("type", "none")?;
+                map.end()
+            }
+            HashType::Sha1 { block_size, hashes } => {
+                let mut map = serializer.serialize_map(Some(3))?;
+                map.serialize_entry("type", "sha1")?;
+                map.serialize_entry("block_size", block_size)?;
+                map.serialize_entry("hashes", hashes)?;
+                map.end()
+            }
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for HashType {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        use serde::de::{self, MapAccess, Visitor};
+        use std::fmt;
+
+        struct HashTypeVisitor;
+
+        impl<'de> Visitor<'de> for HashTypeVisitor {
+            type Value = HashType;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("a hash type object with a 'type' field")
+            }
+
+            fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
+            where
+                A: MapAccess<'de>,
+            {
+                let mut hash_type: Option<String> = None;
+                let mut block_size: Option<i64> = None;
+                let mut hashes: Option<Vec<String>> = None;
+
+                while let Some(key) = map.next_key::<String>()? {
+                    match key.as_str() {
+                        "type" => hash_type = Some(map.next_value()?),
+                        "block_size" => block_size = Some(map.next_value()?),
+                        "hashes" => hashes = Some(map.next_value()?),
+                        _ => {
+                            let _: serde::de::IgnoredAny = map.next_value()?;
+                        }
+                    }
+                }
+
+                match hash_type.as_deref() {
+                    Some("none") => Ok(HashType::None),
+                    Some("sha1") => {
+                        let block_size =
+                            block_size.ok_or_else(|| de::Error::missing_field("block_size"))?;
+                        let hashes = hashes.ok_or_else(|| de::Error::missing_field("hashes"))?;
+                        Ok(HashType::Sha1 { block_size, hashes })
+                    }
+                    _ => Err(de::Error::unknown_variant(
+                        hash_type.as_deref().unwrap_or(""),
+                        &["none", "sha1"],
+                    )),
+                }
+            }
+        }
+
+        deserializer.deserialize_map(HashTypeVisitor)
+    }
 }
 
 impl HashType {
@@ -48,26 +129,33 @@ impl HashType {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "db", derive(sqlx::FromRow))]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct Service {
-    pub id: i64,
+    pub id: String,
     pub name: String,
     pub icon: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "db", derive(sqlx::FromRow))]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct Repository {
+    #[serde(skip)]
     pub id: i64,
-    pub service_id: i64,
+    pub service_id: String,
     pub slug: String,
     pub name: String,
     pub description: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct Patch {
+    #[serde(skip)]
     pub id: i64,
+    #[serde(skip)]
     pub repository_id: i64,
+    pub repository_slug: String,
     pub version_string: String,
     pub remote_url: String,
     pub local_path: String,
@@ -97,6 +185,7 @@ impl sqlx::FromRow<'_, sqlx::sqlite::SqliteRow> for Patch {
         Ok(Patch {
             id,
             repository_id,
+            repository_slug: row.try_get("repository_slug")?,
             version_string: row.try_get("version_string")?,
             remote_url: row.try_get("remote_url")?,
             local_path: row.try_get("local_path")?,

@@ -4,7 +4,7 @@ PRAGMA foreign_keys = ON;
 -- service table
 CREATE TABLE service
 (
-    id   INTEGER PRIMARY KEY AUTOINCREMENT,
+    id   TEXT PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
     icon TEXT NOT NULL
 );
@@ -12,8 +12,8 @@ CREATE TABLE service
 -- repository table
 CREATE TABLE repository
 (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    service_id  INTEGER NOT NULL,
+    id          INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    service_id  TEXT NOT NULL,
     slug        TEXT    NOT NULL,
     name        TEXT    NOT NULL,
     description TEXT,
@@ -25,7 +25,7 @@ CREATE INDEX ix_repository_slug ON repository (slug);
 -- patch table
 CREATE TABLE patch
 (
-    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    id              INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     repository_id   INTEGER NOT NULL,
     version_string  TEXT    NOT NULL,
     remote_url      TEXT    NOT NULL,
@@ -66,7 +66,7 @@ CREATE UNIQUE INDEX ix_patch_edge_without_current ON patch_edge (next_patch_id) 
 -- game_version table
 CREATE TABLE game_version
 (
-    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    id             INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     service_id     INTEGER NOT NULL,
     expansion_id   INTEGER NOT NULL,
     version_name   TEXT    NOT NULL,

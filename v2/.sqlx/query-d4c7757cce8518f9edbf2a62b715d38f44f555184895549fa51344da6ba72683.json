@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT 1 as health_check",
+  "describe": {
+    "columns": [
+      {
+        "name": "health_check",
+        "ordinal": 0,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "d4c7757cce8518f9edbf2a62b715d38f44f555184895549fa51344da6ba72683"
+}
