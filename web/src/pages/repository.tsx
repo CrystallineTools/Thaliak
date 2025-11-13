@@ -26,10 +26,11 @@ export default function RepositoryPage() {
 
         setRepository(repo);
 
-        // Sort patches by version_string descending
-        const sortedPatches = patchesResponse.patches.slice().sort((a, b) =>
-          b.version_string.localeCompare(a.version_string)
-        );
+        const sortedPatches = patchesResponse.patches.slice().sort((a, b) => {
+          const aVersion = a.version_string.replace(/^[HD]+/, '');
+          const bVersion = b.version_string.replace(/^[HD]+/, '');
+          return bVersion.localeCompare(aVersion);
+        });
         setPatches(sortedPatches);
       } catch (error) {
         console.error('Error fetching repository:', error);
