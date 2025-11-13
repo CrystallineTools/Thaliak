@@ -14,10 +14,18 @@ use axum::{Json, extract::State};
 pub async fn status(State(state): State<AppState>) -> ApiResult<Json<StatusResponse>> {
     // Check database connectivity
     sqlx::query!("SELECT 1 as health_check")
-        .fetch_one(&state.pool)
+        .fetch_one(&state.db.public)
         .await
         .map_err(|e| {
-            log::error!("Health check failed: database error: {}", e);
+            log::error!("Health check failed: public database error: {}", e);
+            e
+        })?;
+
+    sqlx::query!("SELECT 1 as health_check")
+        .fetch_one(&state.db.private)
+        .await
+        .map_err(|e| {
+            log::error!("Health check failed: private database error: {}", e);
             e
         })?;
 

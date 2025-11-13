@@ -17,7 +17,7 @@ use thaliak_types::Repository;
 pub async fn get_repositories(
     State(state): State<AppState>,
 ) -> ApiResult<Json<RepositoriesResponse>> {
-    let repositories = crate::db::get_repositories(&state.pool).await?;
+    let repositories = crate::db::get_repositories(&state.db.public).await?;
     let total = repositories.len();
 
     Ok(Json(RepositoriesResponse {
@@ -44,6 +44,6 @@ pub async fn get_repository(
     Path(slug): Path<String>,
 ) -> ApiResult<Json<Repository>> {
     metrics::record_repository_request(&slug);
-    let repository = crate::db::get_repository_by_slug(&state.pool, &slug).await?;
+    let repository = crate::db::get_repository_by_slug(&state.db.public, &slug).await?;
     Ok(Json(repository))
 }

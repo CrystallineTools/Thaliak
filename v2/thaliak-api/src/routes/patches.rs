@@ -37,14 +37,14 @@ pub async fn get_repository_patches(
         params.all.unwrap_or(false),
     );
 
-    let repository = crate::db::get_repository_by_slug(&state.pool, &slug).await?;
+    let repository = crate::db::get_repository_by_slug(&state.db.public, &slug).await?;
 
     let patches = if params.all.unwrap_or(false) {
         let active_only = params.active.unwrap_or(true);
-        crate::db::get_all_patches(&state.pool, repository.id, active_only).await?
+        crate::db::get_all_patches(&state.db.public, repository.id, active_only).await?
     } else {
         crate::db::get_patch_chain(
-            &state.pool,
+            &state.db.public,
             repository.id,
             params.from.as_deref(),
             params.to.as_deref(),
@@ -81,7 +81,7 @@ pub async fn get_repository_patch(
     Path((slug, version)): Path<(String, String)>,
 ) -> ApiResult<Json<Patch>> {
     metrics::record_patch_request(&slug, &version);
-    let repository = crate::db::get_repository_by_slug(&state.pool, &slug).await?;
-    let patch = crate::db::get_patch_by_version(&state.pool, repository.id, &version).await?;
+    let repository = crate::db::get_repository_by_slug(&state.db.public, &slug).await?;
+    let patch = crate::db::get_patch_by_version(&state.db.public, repository.id, &version).await?;
     Ok(Json(patch))
 }

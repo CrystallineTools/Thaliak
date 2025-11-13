@@ -11,6 +11,9 @@ WORKDIR /build
 
 COPY . .
 
+# Set DATABASE_URL for compile-time SQLx verification (points to public DB schema)
+ENV DATABASE_URL=sqlite:///db/thaliak-public.db
+
 RUN cargo build --release --package thaliak-poller
 
 # Runtime stage
@@ -34,7 +37,9 @@ USER thaliak
 
 COPY --from=builder /build/target/release/thaliak-poller /app/thaliak-poller
 
-ENV DATABASE_URL=sqlite:///data/thaliak.db
+# Runtime database configuration
+ENV PUBLIC_DATABASE_URL=sqlite:///db/thaliak-public.db
+ENV PRIVATE_DATABASE_URL=sqlite:///db/thaliak-private.db
 ENV RUST_LOG=info
 
 VOLUME ["/data"]

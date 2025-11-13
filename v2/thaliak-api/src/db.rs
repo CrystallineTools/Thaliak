@@ -3,16 +3,17 @@ use crate::metrics;
 use sqlx::Row;
 use sqlx::sqlite::SqlitePool;
 use std::time::Instant;
+use thaliak_common::DatabasePools;
 use thaliak_types::{LatestPatchInfo, Patch, Repository, Service};
 
 #[derive(Clone)]
 pub struct AppState {
-    pub pool: SqlitePool,
+    pub db: DatabasePools,
 }
 
 impl AppState {
-    pub fn new(pool: SqlitePool) -> Self {
-        Self { pool }
+    pub fn new(db: DatabasePools) -> Self {
+        Self { db }
     }
 }
 

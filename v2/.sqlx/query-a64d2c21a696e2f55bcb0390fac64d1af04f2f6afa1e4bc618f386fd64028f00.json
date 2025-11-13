@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT service_id FROM repository WHERE id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "service_id",
+        "ordinal": 0,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "a64d2c21a696e2f55bcb0390fac64d1af04f2f6afa1e4bc618f386fd64028f00"
+}

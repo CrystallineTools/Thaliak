@@ -69,7 +69,7 @@ impl Modify for PathPrefixAddon {
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
     let _ = dotenvy::dotenv();
-    let pool = thaliak_common::init_db().await?;
+    let pools = thaliak_common::init_dbs().await?;
     thaliak_common::logging::setup(None);
     metrics::init_metrics_exporter().await?;
 
@@ -82,7 +82,7 @@ async fn main() -> eyre::Result<()> {
             .config(config)
     };
 
-    let state = AppState::new(pool);
+    let state = AppState::new(pools);
     let cors = CorsLayer::new()
         .allow_origin(Any)
         .allow_methods(Any)

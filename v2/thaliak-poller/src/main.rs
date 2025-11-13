@@ -11,6 +11,7 @@ use tokio::time::{Instant, sleep_until};
 
 mod patch;
 mod poller;
+mod webhook;
 
 pub type DbConnection = SqliteConnection;
 
@@ -103,17 +104,17 @@ async fn poll_shanda_loop(reconciliation: PatchReconciliationService, db: Sqlite
 #[tokio::main]
 async fn main() -> Result<()> {
     let _ = dotenvy::dotenv();
-    let db = thaliak_common::init_db().await?;
+    let pools = thaliak_common::init_dbs().await?;
     thaliak_common::logging::setup(None);
 
     info!("poller service started");
 
-    let reconciliation = PatchReconciliationService::new(&db);
+    let reconciliation = PatchReconciliationService::new(pools.clone());
 
     tokio::select! {
-        _ = poll_sqex_loop(reconciliation.clone(), db.clone()) => {},
-        _ = poll_actoz_loop(reconciliation.clone(), db.clone()) => {},
-        _ = poll_shanda_loop(reconciliation.clone(), db.clone()) => {},
+        _ = poll_sqex_loop(reconciliation.clone(), pools.public.clone()) => {},
+        _ = poll_actoz_loop(reconciliation.clone(), pools.public.clone()) => {},
+        _ = poll_shanda_loop(reconciliation.clone(), pools.public.clone()) => {},
     }
 
     Ok(())

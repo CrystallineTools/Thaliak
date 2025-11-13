@@ -1,4 +1,4 @@
-﻿use crate::DbConnection;
+use crate::DbConnection;
 use crate::patch::{DateTime, Patch};
 use crate::poller::{PatchDiscoveryType, PatchListEntry};
 use eyre::Result;
@@ -6,6 +6,7 @@ use log::{info, trace};
 use regex::Regex;
 use sqlx::SqlitePool;
 use std::sync::LazyLock;
+use thaliak_common::DatabasePools;
 use thaliak_types::ExpansionRepositoryMapping;
 
 fn get_expansion_from_patch_url(url: &str) -> Option<i64> {
@@ -23,14 +24,14 @@ fn get_expansion_from_patch_url(url: &str) -> Option<i64> {
     None
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct PatchReconciliationService {
-    db: SqlitePool,
+    db: DatabasePools,
 }
 
 impl PatchReconciliationService {
-    pub fn new(db: &SqlitePool) -> Self {
-        Self { db: db.clone() }
+    pub fn new(db: DatabasePools) -> Self {
+        Self { db }
     }
 
     pub async fn reconcile(
@@ -43,7 +44,9 @@ impl PatchReconciliationService {
         let now = chrono::Utc::now();
 
         // Use an explicit transaction to ensure atomicity and proper lock handling
-        let mut tx = self.db.begin().await?;
+        let mut tx = self.db.public.begin().await?;
+
+        let mut new_patches = Vec::new();
 
         // get the list of expansions and their repository mappings
         let expansions = sqlx::query_as!(
@@ -109,14 +112,24 @@ impl PatchReconciliationService {
                 )
                 .await?;
             } else {
-                self.record_new_patch_data(
-                    &mut *tx,
-                    now,
-                    effective_repo_id,
-                    remote_patch,
-                    discovery_type,
-                )
-                .await?;
+                let patch_id = self
+                    .record_new_patch_data(
+                        &mut *tx,
+                        now,
+                        effective_repo_id,
+                        remote_patch,
+                        discovery_type,
+                    )
+                    .await?;
+
+                // If this is an offered patch, fetch it and add to new patches list for webhooks
+                if discovery_type == PatchDiscoveryType::Offered {
+                    let patch = sqlx::query_as::<_, Patch>("SELECT * FROM patch WHERE id = ?")
+                        .bind(patch_id)
+                        .fetch_one(&mut *tx)
+                        .await?;
+                    new_patches.push(patch.into());
+                }
             }
         }
 
@@ -137,6 +150,17 @@ impl PatchReconciliationService {
 
         // Commit the transaction
         tx.commit().await?;
+
+        // Dispatch webhooks for new patches asynchronously (don't block)
+        if !new_patches.is_empty() {
+            let db = self.db.clone();
+            let patches = new_patches.clone();
+            tokio::spawn(async move {
+                if let Err(e) = crate::webhook::dispatch_webhooks(&db, patches).await {
+                    log::error!("Failed to dispatch webhooks: {:?}", e);
+                }
+            });
+        }
 
         Ok(())
     }
@@ -191,7 +215,7 @@ impl PatchReconciliationService {
         effective_repo_id: i64,
         remote_patch: &PatchListEntry,
         discovery_type: PatchDiscoveryType,
-    ) -> Result<()> {
+    ) -> Result<i64> {
         info!("Discovered new patch: {:?}", remote_patch);
 
         let version_string = &remote_patch.version_id;
@@ -204,7 +228,7 @@ impl PatchReconciliationService {
         let size = remote_patch.length as i64;
         let (hash_type, hash_block_size, hashes) = remote_patch.hash_type.to_columns();
 
-        sqlx::query!(
+        let result = sqlx::query!(
             "INSERT INTO patch (version_string, repository_id, remote_url, first_seen, last_seen, first_offered, last_offered, is_active, size, hash_type, hash_block_size, hashes)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             version_string,
@@ -225,7 +249,7 @@ impl PatchReconciliationService {
 
         // TODO: port DownloaderService.AddToQueue
 
-        Ok(())
+        Ok(result.last_insert_rowid())
     }
 
     async fn record_patch_edge_data(

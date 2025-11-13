@@ -12,7 +12,7 @@ use axum::{Json, extract::State};
     tag = "services"
 )]
 pub async fn get_services(State(state): State<AppState>) -> ApiResult<Json<ServicesResponse>> {
-    let services = crate::db::get_services(&state.pool).await?;
+    let services = crate::db::get_services(&state.db.public).await?;
     let total = services.len();
 
     Ok(Json(ServicesResponse { services, total }))
