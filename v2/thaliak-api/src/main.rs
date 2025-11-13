@@ -1,9 +1,10 @@
 mod db;
 mod error;
+mod metrics;
 mod models;
 mod routes;
 
-use axum::{Router, routing::get};
+use axum::{Router, middleware, routing::get};
 use log::info;
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
@@ -70,6 +71,7 @@ async fn main() -> eyre::Result<()> {
     let _ = dotenvy::dotenv();
     let pool = thaliak_common::init_db().await?;
     thaliak_common::logging::setup(None);
+    metrics::init_metrics_exporter().await?;
 
     // needed so Swagger UI works with reverse proxies
     let base_path = std::env::var("API_BASE_PATH").unwrap_or_default();
@@ -104,10 +106,16 @@ async fn main() -> eyre::Result<()> {
         )
         .merge(swagger)
         .with_state(state)
+        .layer(middleware::from_fn(metrics::track_metrics))
         .layer(cors);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
     info!("starting Thaliak API server on http://{}", addr);
+    info!(
+        "Prometheus metrics available at http://{}:{}",
+        addr.ip(),
+        9090
+    );
 
     let listener = TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;

@@ -1,6 +1,7 @@
 use crate::{
     db::AppState,
     error::ApiResult,
+    metrics,
     models::{PatchQueryParams, PatchesResponse},
 };
 use axum::{
@@ -29,6 +30,13 @@ pub async fn get_repository_patches(
     Path(slug): Path<String>,
     Query(params): Query<PatchQueryParams>,
 ) -> ApiResult<Json<PatchesResponse>> {
+    metrics::record_patch_chain_request(
+        &slug,
+        params.from.as_deref(),
+        params.to.as_deref(),
+        params.all.unwrap_or(false),
+    );
+
     let repository = crate::db::get_repository_by_slug(&state.pool, &slug).await?;
 
     let patches = if params.all.unwrap_or(false) {
@@ -72,6 +80,7 @@ pub async fn get_repository_patch(
     State(state): State<AppState>,
     Path((slug, version)): Path<(String, String)>,
 ) -> ApiResult<Json<Patch>> {
+    metrics::record_patch_request(&slug, &version);
     let repository = crate::db::get_repository_by_slug(&state.pool, &slug).await?;
     let patch = crate::db::get_patch_by_version(&state.pool, repository.id, &version).await?;
     Ok(Json(patch))

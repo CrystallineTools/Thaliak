@@ -6,6 +6,8 @@ use axum::{
 use serde_json::json;
 use thiserror::Error;
 
+use crate::metrics;
+
 /// API error types
 #[derive(Debug, Error)]
 pub enum ApiError {
@@ -24,24 +26,32 @@ pub enum ApiError {
 
 impl IntoResponse for ApiError {
     fn into_response(self) -> Response {
-        let (status, message) = match self {
+        let (status, message, _error_type) = match self {
             ApiError::Database(ref e) => {
                 log::error!("Database error: {}", e);
+                metrics::record_error("database");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "Database error occurred".to_string(),
+                    "database",
                 )
             }
-            ApiError::NotFound(ref msg) => (StatusCode::NOT_FOUND, msg.clone()),
+            ApiError::NotFound(ref msg) => {
+                metrics::record_error("not_found");
+                (StatusCode::NOT_FOUND, msg.clone(), "not_found")
+            }
             ApiError::Internal(ref msg) => {
                 log::error!("Internal error: {}", msg);
-                (StatusCode::INTERNAL_SERVER_ERROR, msg.clone())
+                metrics::record_error("internal");
+                (StatusCode::INTERNAL_SERVER_ERROR, msg.clone(), "internal")
             }
             ApiError::Io(ref e) => {
                 log::error!("IO error: {}", e);
+                metrics::record_error("io");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "IO error occurred".to_string(),
+                    "io",
                 )
             }
         };

@@ -1,4 +1,4 @@
-use crate::{db::AppState, error::ApiResult, models::RepositoriesResponse};
+use crate::{db::AppState, error::ApiResult, metrics, models::RepositoriesResponse};
 use axum::{
     Json,
     extract::{Path, State},
@@ -43,6 +43,7 @@ pub async fn get_repository(
     State(state): State<AppState>,
     Path(slug): Path<String>,
 ) -> ApiResult<Json<Repository>> {
+    metrics::record_repository_request(&slug);
     let repository = crate::db::get_repository_by_slug(&state.pool, &slug).await?;
     Ok(Json(repository))
 }

@@ -1,6 +1,8 @@
 use crate::error::{ApiError, ApiResult};
+use crate::metrics;
 use sqlx::Row;
 use sqlx::sqlite::SqlitePool;
+use std::time::Instant;
 use thaliak_types::{LatestPatchInfo, Patch, Repository, Service};
 
 #[derive(Clone)]
@@ -15,13 +17,16 @@ impl AppState {
 }
 
 pub async fn get_services(pool: &SqlitePool) -> ApiResult<Vec<Service>> {
+    let start = Instant::now();
     let services = sqlx::query_as!(Service, r#"SELECT id, name, icon FROM service ORDER BY id"#)
         .fetch_all(pool)
         .await?;
+    metrics::record_db_query("get_services", start.elapsed().as_secs_f64());
     Ok(services)
 }
 
 pub async fn get_repositories(pool: &SqlitePool) -> ApiResult<Vec<Repository>> {
+    let start = Instant::now();
     let rows = sqlx::query(
         r#"SELECT r.id, r.service_id, r.slug, r.name, r.description,
                   p.version_string as latest_version_string,
@@ -46,6 +51,7 @@ pub async fn get_repositories(pool: &SqlitePool) -> ApiResult<Vec<Repository>> {
     )
     .fetch_all(pool)
     .await?;
+    metrics::record_db_query("get_repositories", start.elapsed().as_secs_f64());
 
     let repositories = rows
         .into_iter()
@@ -75,6 +81,7 @@ pub async fn get_repositories(pool: &SqlitePool) -> ApiResult<Vec<Repository>> {
 }
 
 pub async fn get_repository_by_slug(pool: &SqlitePool, slug: &str) -> ApiResult<Repository> {
+    let start = Instant::now();
     let row = match sqlx::query(
         r#"SELECT r.id, r.service_id, r.slug, r.name, r.description,
                   p.version_string as latest_version_string,
@@ -98,13 +105,18 @@ pub async fn get_repository_by_slug(pool: &SqlitePool, slug: &str) -> ApiResult<
     {
         Ok(row) => row,
         Err(sqlx::Error::RowNotFound) => {
+            metrics::record_db_query("get_repository_by_slug", start.elapsed().as_secs_f64());
             return Err(ApiError::NotFound(format!(
                 "Repository '{}' not found",
                 slug
             )));
         }
-        Err(e) => return Err(ApiError::from(e)),
+        Err(e) => {
+            metrics::record_db_query("get_repository_by_slug", start.elapsed().as_secs_f64());
+            return Err(ApiError::from(e));
+        }
     };
+    metrics::record_db_query("get_repository_by_slug", start.elapsed().as_secs_f64());
 
     let latest_patch = row
         .try_get::<Option<String>, _>("latest_version_string")
@@ -131,7 +143,8 @@ pub async fn get_patch_by_version(
     repository_id: i64,
     version_string: &str,
 ) -> ApiResult<Patch> {
-    match sqlx::query_as::<_, Patch>(
+    let start = Instant::now();
+    let result = match sqlx::query_as::<_, Patch>(
         r#"SELECT p.id, p.repository_id, r.slug as repository_slug, p.version_string,
                   p.remote_url, p.local_path, p.first_seen, p.last_seen, p.size,
                   p.hash_type, p.hash_block_size, p.hashes,
@@ -151,11 +164,14 @@ pub async fn get_patch_by_version(
             version_string
         ))),
         Err(e) => Err(ApiError::from(e)),
-    }
+    };
+    metrics::record_db_query("get_patch_by_version", start.elapsed().as_secs_f64());
+    result
 }
 
 async fn get_patch_by_id(pool: &SqlitePool, id: i64) -> ApiResult<Patch> {
-    match sqlx::query_as::<_, Patch>(
+    let start = Instant::now();
+    let result = match sqlx::query_as::<_, Patch>(
         r#"SELECT p.id, p.repository_id, r.slug as repository_slug, p.version_string,
                   p.remote_url, p.local_path, p.first_seen, p.last_seen, p.size,
                   p.hash_type, p.hash_block_size, p.hashes,
@@ -171,7 +187,9 @@ async fn get_patch_by_id(pool: &SqlitePool, id: i64) -> ApiResult<Patch> {
         Ok(patch) => Ok(patch),
         Err(sqlx::Error::RowNotFound) => Err(ApiError::NotFound(format!("Patch {} not found", id))),
         Err(e) => Err(ApiError::from(e)),
-    }
+    };
+    metrics::record_db_query("get_patch_by_id", start.elapsed().as_secs_f64());
+    result
 }
 
 pub async fn get_all_patches(
@@ -179,6 +197,7 @@ pub async fn get_all_patches(
     repository_id: i64,
     active_only: bool,
 ) -> ApiResult<Vec<Patch>> {
+    let start = Instant::now();
     let patches = if active_only {
         sqlx::query_as::<_, Patch>(
             r#"SELECT p.id, p.repository_id, r.slug as repository_slug, p.version_string,
@@ -208,6 +227,7 @@ pub async fn get_all_patches(
         .fetch_all(pool)
         .await?
     };
+    metrics::record_db_query("get_all_patches", start.elapsed().as_secs_f64());
 
     Ok(patches)
 }
@@ -218,6 +238,7 @@ pub async fn get_patch_chain(
     from_version: Option<&str>,
     to_version: Option<&str>,
 ) -> ApiResult<Vec<Patch>> {
+    let start = Instant::now();
     let target_id: Option<i64> = if let Some(to) = to_version {
         let patch = match sqlx::query_as::<_, Patch>(
             r#"SELECT p.id, p.repository_id, r.slug as repository_slug, p.version_string,
@@ -307,5 +328,6 @@ pub async fn get_patch_chain(
     }
 
     chain.reverse();
+    metrics::record_db_query("get_patch_chain", start.elapsed().as_secs_f64());
     Ok(chain)
 }

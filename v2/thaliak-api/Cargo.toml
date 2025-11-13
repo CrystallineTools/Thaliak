@@ -19,3 +19,5 @@ eyre = { workspace = true }
 thiserror = { workspace = true }
 dotenvy = { workspace = true }
 log = { workspace = true }
+metrics = "0.24"
+metrics-exporter-prometheus = { version = "0.16", default-features = false, features = ["http-listener"] }
