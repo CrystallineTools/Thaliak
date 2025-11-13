@@ -90,7 +90,8 @@ impl PatchReconciliationService {
                 placeholders
             );
 
-            let mut query = sqlx::query_as::<_, Patch>(&query_str);
+            let mut query = sqlx::QueryBuilder::new(&query_str);
+            let mut query = query.build_query_as::<Patch>();
             for id in &repo_ids {
                 query = query.bind(id);
             }
