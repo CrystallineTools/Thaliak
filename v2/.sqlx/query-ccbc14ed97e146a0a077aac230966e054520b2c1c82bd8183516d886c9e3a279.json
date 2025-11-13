@@ -6,7 +6,13 @@
       {
         "name": "current_patch_id",
         "ordinal": 0,
-        "type_info": "Integer"
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "patch_edge",
+            "name": "current_patch_id"
+          }
+        }
       }
     ],
     "parameters": {

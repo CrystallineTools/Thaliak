@@ -6,7 +6,13 @@
       {
         "name": "service_id",
         "ordinal": 0,
-        "type_info": "Text"
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "repository",
+            "name": "service_id"
+          }
+        }
       }
     ],
     "parameters": {

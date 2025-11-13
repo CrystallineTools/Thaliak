@@ -6,17 +6,35 @@
       {
         "name": "game_repository_id",
         "ordinal": 0,
-        "type_info": "Integer"
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "expansion_repository_mapping",
+            "name": "game_repository_id"
+          }
+        }
       },
       {
         "name": "expansion_id",
         "ordinal": 1,
-        "type_info": "Integer"
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "expansion_repository_mapping",
+            "name": "expansion_id"
+          }
+        }
       },
       {
         "name": "expansion_repository_id",
         "ordinal": 2,
-        "type_info": "Integer"
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "expansion_repository_mapping",
+            "name": "expansion_repository_id"
+          }
+        }
       }
     ],
     "parameters": {
