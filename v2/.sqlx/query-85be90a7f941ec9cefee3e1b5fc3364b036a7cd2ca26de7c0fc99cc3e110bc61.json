@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id FROM patch\n               WHERE repository_id = ? AND is_active = true\n               ORDER BY LTRIM(version_string, 'HD') DESC\n               LIMIT 1",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "85be90a7f941ec9cefee3e1b5fc3364b036a7cd2ca26de7c0fc99cc3e110bc61"
+}

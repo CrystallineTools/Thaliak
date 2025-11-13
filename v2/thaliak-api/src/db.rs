@@ -218,38 +218,6 @@ pub async fn get_patch_chain(
     from_version: Option<&str>,
     to_version: Option<&str>,
 ) -> ApiResult<Vec<Patch>> {
-    let mut patches = Vec::new();
-
-    let mut current_id: Option<i64> = if let Some(from) = from_version {
-        let patch = match sqlx::query_as::<_, Patch>(
-            r#"SELECT p.id, p.repository_id, r.slug as repository_slug, p.version_string,
-                      p.remote_url, p.local_path, p.first_seen, p.last_seen, p.size,
-                      p.hash_type, p.hash_block_size, p.hashes,
-                      p.first_offered, p.last_offered, p.is_active
-               FROM patch p
-               INNER JOIN repository r ON p.repository_id = r.id
-               WHERE p.repository_id = ? AND p.version_string = ?"#,
-        )
-        .bind(repository_id)
-        .bind(from)
-        .fetch_one(pool)
-        .await
-        {
-            Ok(patch) => patch,
-            Err(sqlx::Error::RowNotFound) => {
-                return Err(ApiError::NotFound(format!(
-                    "Starting version '{}' not found",
-                    from
-                )));
-            }
-            Err(e) => return Err(ApiError::from(e)),
-        };
-
-        Some(patch.id)
-    } else {
-        None
-    };
-
     let target_id: Option<i64> = if let Some(to) = to_version {
         let patch = match sqlx::query_as::<_, Patch>(
             r#"SELECT p.id, p.repository_id, r.slug as repository_slug, p.version_string,
@@ -277,49 +245,67 @@ pub async fn get_patch_chain(
 
         Some(patch.id)
     } else {
-        None
+        let latest_id = sqlx::query_scalar!(
+            r#"SELECT id FROM patch
+               WHERE repository_id = ? AND is_active = true
+               ORDER BY LTRIM(version_string, 'HD') DESC
+               LIMIT 1"#,
+            repository_id
+        )
+        .fetch_optional(pool)
+        .await?;
+
+        latest_id
     };
 
+    let target_id = match target_id {
+        Some(id) => id,
+        None => return Ok(Vec::new()),
+    };
+
+    let mut chain = Vec::new();
+    let mut current_id = target_id;
+
     loop {
-        let next_id = if let Some(current) = current_id {
-            sqlx::query_scalar!(
-                r#"SELECT next_patch_id FROM patch_edge
-                   WHERE repository_id = ? AND current_patch_id = ? AND is_active = true
-                   ORDER BY last_offered DESC
-                   LIMIT 1"#,
-                repository_id,
-                current
-            )
-            .fetch_optional(pool)
-            .await?
-        } else {
-            sqlx::query_scalar!(
-                r#"SELECT next_patch_id FROM patch_edge
-                   WHERE repository_id = ? AND current_patch_id IS NULL AND is_active = true
-                   ORDER BY last_offered DESC
-                   LIMIT 1"#,
-                repository_id
-            )
-            .fetch_optional(pool)
-            .await?
-        };
+        let patch = get_patch_by_id(pool, current_id).await?;
+        chain.push(patch);
 
-        match next_id {
-            Some(id) => {
-                let patch = get_patch_by_id(pool, id).await?;
-                patches.push(patch);
-
-                if let Some(target) = target_id {
-                    if id == target {
-                        break;
-                    }
-                }
-
-                current_id = Some(id);
+        if let Some(from) = from_version {
+            if chain.last().unwrap().version_string == from {
+                break;
             }
-            None => break,
+        }
+
+        let prev_id = sqlx::query_scalar!(
+            r#"SELECT current_patch_id FROM patch_edge
+               WHERE repository_id = ? AND next_patch_id = ?
+               ORDER BY last_offered DESC
+               LIMIT 1"#,
+            repository_id,
+            current_id
+        )
+        .fetch_optional(pool)
+        .await?;
+
+        match prev_id {
+            Some(Some(id)) => {
+                current_id = id;
+            }
+            Some(None) => {
+                break;
+            }
+            None => {
+                if from_version.is_some() {
+                    return Err(ApiError::NotFound(format!(
+                        "Starting version '{}' not found in chain",
+                        from_version.unwrap()
+                    )));
+                }
+                break;
+            }
         }
     }
 
-    Ok(patches)
+    chain.reverse();
+    Ok(chain)
 }
