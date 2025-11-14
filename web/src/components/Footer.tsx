@@ -29,7 +29,7 @@ export default function Footer() {
                   web{' '}
                   <a
                     className='font-mono text-primary-600 hover:text-primary-700 font-medium'
-                    href={`https://github.com/CrystallineTools/Thaliak/commit/${import.meta.env.VITE_GIT_SHA.replace(/-dirty$/, '')}`}
+                    href={`https://github.com/CrystallineTools/Thaliak/commit/${import.meta.env.VITE_GIT_SHA}`}
                     target='_blank'
                     rel='noopener noreferrer'>
                     {import.meta.env.VITE_GIT_SHA}
@@ -44,7 +44,7 @@ export default function Footer() {
                   {component.component}{' '}
                   <a
                     className='font-mono text-primary-600 hover:text-primary-700 font-medium'
-                    href={`https://github.com/CrystallineTools/Thaliak/commit/${component.commit.replace(/-dirty$/, '')}`}
+                    href={`https://github.com/CrystallineTools/Thaliak/commit/${component.commit}`}
                     target='_blank'
                     rel='noopener noreferrer'>
                     {component.commit}
