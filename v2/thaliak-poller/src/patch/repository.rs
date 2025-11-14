@@ -52,10 +52,6 @@ impl GameRepository {
             .to_string()
     }
 
-    pub fn is_base_ver<P: AsRef<Path>>(&self, game_path: P) -> bool {
-        self.get_ver(game_path) == BASE_GAME_VERSION
-    }
-
     pub fn set_ver<P: AsRef<Path>>(&self, game_path: P, new_ver: &str) -> std::io::Result<()> {
         let ver_file = self.get_ver_file(game_path.as_ref());
 

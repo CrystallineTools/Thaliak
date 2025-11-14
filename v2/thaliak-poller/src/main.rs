@@ -63,14 +63,14 @@ async fn poll_sqex_loop(reconciliation: PatchReconciliationService, db: SqlitePo
 }
 
 async fn poll_actoz_loop(reconciliation: PatchReconciliationService, db: SqlitePool) {
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     let poller = ActozPoller::new();
 
     info!("ActozPoller: starting initial poll");
     execute_poll(&poller, &reconciliation, &db, "ActozPoller").await;
 
     loop {
-        let wait_minutes = rng.gen_range(40..=59);
+        let wait_minutes = rng.random_range(40..=59);
         let total_wait = Duration::from_secs((wait_minutes * 60) as u64);
 
         info!("ActozPoller: sleeping for {} minutes", wait_minutes);
@@ -82,14 +82,14 @@ async fn poll_actoz_loop(reconciliation: PatchReconciliationService, db: SqliteP
 }
 
 async fn poll_shanda_loop(reconciliation: PatchReconciliationService, db: SqlitePool) {
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     let poller = ShandaPoller::new();
 
     info!("ShandaPoller: starting initial poll");
     execute_poll(&poller, &reconciliation, &db, "ShandaPoller").await;
 
     loop {
-        let wait_minutes = rng.gen_range(40..=59);
+        let wait_minutes = rng.random_range(40..=59);
         let total_wait = Duration::from_secs((wait_minutes * 60) as u64);
 
         info!("ShandaPoller: sleeping for {} minutes", wait_minutes);

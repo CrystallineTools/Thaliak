@@ -1,0 +1,16 @@
+[package]
+name = "thaliak-downloader"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+thaliak-common = { path = "../thaliak-common", features = ["webhooks"] }
+thaliak-types = { path = "../thaliak-types", features = ["db"] }
+axum = { workspace = true }
+tokio = { workspace = true }
+sqlx = { workspace = true }
+log = { workspace = true }
+eyre = { workspace = true }
+dotenvy = { workspace = true }
+reqwest = { workspace = true }
+regex = { workspace = true }

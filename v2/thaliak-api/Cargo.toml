@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 thaliak-types = { path = "../thaliak-types", features = ["db", "openapi"] }
 thaliak-common = { path = "../thaliak-common", features = ["webhooks"] }
-axum = "0.8"
+axum = { workspace = true }
 axum-extra = { workspace = true }
 tower-http = { version = "0.6", features = ["cors", "fs"] }
 utoipa = { version = "5", features = ["axum_extras", "chrono"] }
@@ -26,4 +26,4 @@ urlencoding = { workspace = true }
 uuid = { workspace = true }
 time = { workspace = true }
 metrics = "0.24"
-metrics-exporter-prometheus = { version = "0.16", default-features = false, features = ["http-listener"] }
+metrics-exporter-prometheus = { version = "0.17", default-features = false, features = ["http-listener"] }

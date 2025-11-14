@@ -38,6 +38,13 @@ public class DownloaderService : BackgroundService
 
     public static void AddToQueue(DownloadJob job)
     {
+        var enableDownloads = Environment.GetEnvironmentVariable("ENABLE_DOWNLOADS");
+        if (string.IsNullOrEmpty(enableDownloads) || !enableDownloads.Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            Log.Debug("Skipping download queue (ENABLE_DOWNLOADS not set to 'true'): {0}", job.Url);
+            return;
+        }
+
         Log.Information("Adding to download queue: {0}", job.Url);
         PendingJobs.Writer.WriteAsync(job);
     }

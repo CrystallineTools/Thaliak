@@ -1,5 +1,5 @@
 use super::{
-    BASE_GAME_VERSION, GenericPollError, PatchDiscoveryType, PatchListEntry, Poller,
+    BASE_GAME_VERSION, PatchDiscoveryType, PatchListEntry, Poller,
     VersionCheckError, parse_patch_list,
 };
 use crate::patch::{GameRepository, PatchReconciliationService};
@@ -67,6 +67,7 @@ pub enum LoginState {
 }
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct LoginResult {
     pub pending_patches: Vec<PatchListEntry>,
     pub oauth_login: OauthLoginResult,

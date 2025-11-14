@@ -1,6 +1,6 @@
 use eyre::Result;
 use log::{error, info, warn};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, SqlitePool};
 use thaliak_types::{Patch, Repository};
 
@@ -8,6 +8,7 @@ use crate::DatabasePools;
 
 #[derive(Debug, Clone, FromRow)]
 struct Webhook {
+    #[allow(dead_code)]
     id: i64,
     url: String,
     subscribe_jp: bool,
@@ -15,20 +16,44 @@ struct Webhook {
     subscribe_cn: bool,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RepositoryPatches {
     pub repository: Repository,
     pub patches: Vec<Patch>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WebhookPayload {
     pub new_patches: Vec<RepositoryPatches>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AnalysisWebhookPayload {
+    pub patch: Patch,
+    pub repository: Repository,
+    pub local_path: String,
 }
 
 pub async fn dispatch_webhooks(db: &DatabasePools, new_patches: Vec<Patch>) -> Result<()> {
     if new_patches.is_empty() {
         return Ok(());
+    }
+
+    if let Ok(downloader_webhook_url) = std::env::var("DOWNLOADER_WEBHOOK_URL") {
+        if !downloader_webhook_url.is_empty() {
+            let payload = build_webhook_payload(&new_patches, &db.public).await?;
+            tokio::spawn(async move {
+                info!(
+                    "Dispatching {} repository patch groups to downloader webhook {}",
+                    payload.new_patches.len(),
+                    downloader_webhook_url
+                );
+
+                if let Err(e) = send_webhook(&downloader_webhook_url, &payload).await {
+                    error!("Failed to send downloader webhook to {}: {:?}", downloader_webhook_url, e);
+                }
+            });
+        }
     }
 
     let webhooks = sqlx::query_as::<_, Webhook>(
@@ -73,6 +98,63 @@ pub async fn send_webhook_async(url: String, payload: WebhookPayload) {
     });
 }
 
+async fn build_repo_patches_from_map(
+    patches_by_repo: std::collections::HashMap<i64, Vec<Patch>>,
+    public_db: &SqlitePool,
+) -> Result<Vec<RepositoryPatches>> {
+    let mut repo_patches = Vec::new();
+
+    for (repo_id, patches) in patches_by_repo {
+        let (repo_service_id, repo_slug, repo_name, repo_description): (
+            String,
+            String,
+            String,
+            Option<String>,
+        ) = sqlx::query_as(
+            r#"SELECT service_id, slug, name, description FROM repository WHERE id = ?"#,
+        )
+        .bind(repo_id)
+        .fetch_one(public_db)
+        .await?;
+
+        repo_patches.push(RepositoryPatches {
+            repository: Repository {
+                id: repo_id,
+                service_id: repo_service_id,
+                slug: repo_slug,
+                name: repo_name,
+                description: repo_description,
+                latest_patch: None,
+            },
+            patches,
+        });
+    }
+
+    Ok(repo_patches)
+}
+
+async fn build_webhook_payload(
+    patches: &[Patch],
+    public_db: &SqlitePool,
+) -> Result<WebhookPayload> {
+    use std::collections::HashMap;
+
+    let mut patches_by_repo: HashMap<i64, Vec<Patch>> = HashMap::new();
+
+    for patch in patches {
+        patches_by_repo
+            .entry(patch.repository_id)
+            .or_default()
+            .push(patch.clone());
+    }
+
+    let repo_patches = build_repo_patches_from_map(patches_by_repo, public_db).await?;
+
+    Ok(WebhookPayload {
+        new_patches: repo_patches,
+    })
+}
+
 async fn filter_patches_for_webhook(
     webhook: &Webhook,
     patches: &[Patch],
@@ -108,32 +190,7 @@ async fn filter_patches_for_webhook(
         }
     }
 
-    let mut repo_patches = Vec::new();
-    for (repo_id, patches) in patches_by_repo {
-        let (repo_service_id, repo_slug, repo_name, repo_description): (
-            String,
-            String,
-            String,
-            Option<String>,
-        ) = sqlx::query_as(
-            r#"SELECT service_id, slug, name, description FROM repository WHERE id = ?"#,
-        )
-        .bind(repo_id)
-        .fetch_one(public_db)
-        .await?;
-
-        repo_patches.push(RepositoryPatches {
-            repository: Repository {
-                id: repo_id,
-                service_id: repo_service_id,
-                slug: repo_slug,
-                name: repo_name,
-                description: repo_description,
-                latest_patch: None,
-            },
-            patches,
-        });
-    }
+    let repo_patches = build_repo_patches_from_map(patches_by_repo, public_db).await?;
 
     Ok(WebhookPayload {
         new_patches: repo_patches,

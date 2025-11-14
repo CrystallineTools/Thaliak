@@ -11,9 +11,9 @@ sqlx = { workspace = true }
 eyre = { workspace = true }
 
 # Optional dependencies for webhooks feature
-reqwest = { version = "0.12", optional = true }
-serde = { version = "1.0", features = ["derive"], optional = true }
-tokio = { version = "1", optional = true }
+reqwest = { workspace = true, optional = true }
+serde = { workspace = true, features = ["derive"], optional = true }
+tokio = { workspace = true, optional = true }
 thaliak-types = { path = "../thaliak-types", features = ["db"], optional = true }
 
 [features]

@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["thaliak-api", "thaliak-poller", "thaliak-common", "thaliak-types", "thaliak-migrate"]
+members = ["thaliak-api", "thaliak-poller", "thaliak-common", "thaliak-types", "thaliak-migrate", "thaliak-downloader", "thaliak-analysis"]
 
 [workspace.dependencies]
 log = "0.4"
@@ -13,9 +13,10 @@ tokio = { version = "1", features = ["full"] }
 reqwest = { version = "0.12", features = ["json"] }
 regex = "1"
 dotenvy = "0.15"
-sqlx = { version = "0.9.0-alpha.1", features = [ "sqlite", "migrate", "runtime-tokio", "chrono", "sqlx-toml" ] }
-jsonwebtoken = "9"
+sqlx = { version = "0.9.0-alpha.1", features = ["sqlite", "migrate", "runtime-tokio", "chrono", "sqlx-toml"] }
+jsonwebtoken = { version = "10", features = ["rust_crypto"] }
 urlencoding = "2"
 uuid = { version = "1", features = ["v4"] }
-axum-extra = { version = "0.9", features = ["cookie"] }
+axum = "0.8"
+axum-extra = { version = "0.12", features = ["cookie"] }
 time = "0.3"
