@@ -129,9 +129,13 @@ async fn process_download(
         info!("Download complete for {}", job.patch.version_string);
     }
 
-    sqlx::query!("UPDATE patch SET local_path = ? WHERE id = ?", &local_storage_path, job.patch.id)
-        .execute(&db.public)
-        .await?;
+    sqlx::query!(
+        "UPDATE patch SET local_path = ? WHERE id = ?",
+        &local_storage_path,
+        job.patch.id
+    )
+    .execute(&db.public)
+    .await?;
 
     info!(
         "Updated local_path for patch {} to {}",
@@ -194,9 +198,7 @@ async fn main() -> Result<()> {
 
     let (download_tx, download_rx) = mpsc::unbounded_channel();
 
-    let state = Arc::new(AppState {
-        download_tx
-    });
+    let state = Arc::new(AppState { download_tx });
 
     tokio::spawn(download_worker(
         download_rx,

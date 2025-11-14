@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT current_patch_id\n            FROM patch_edge\n            WHERE next_patch_id = ? AND repository_id = ?\n            ORDER BY last_offered DESC\n            LIMIT 1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "current_patch_id",
+        "ordinal": 0,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "patch_edge",
+            "name": "current_patch_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "52740fa15668b39fc5b604f639313873fbed2241d3b202364b95737e607c39a8"
+}

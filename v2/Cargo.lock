@@ -2778,6 +2778,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "thaliak-admin-cli"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "clap",
+ "color-eyre",
+ "dotenvy",
+ "log",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "thaliak-common",
+ "thaliak-types",
+ "tokio",
+]
+
+[[package]]
 name = "thaliak-analysis"
 version = "0.1.0"
 dependencies = [
@@ -2847,19 +2865,6 @@ dependencies = [
  "sqlx",
  "thaliak-common",
  "thaliak-types",
- "tokio",
-]
-
-[[package]]
-name = "thaliak-migrate"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "clap",
- "color-eyre",
- "log",
- "sqlx",
- "thaliak-common",
  "tokio",
 ]
 

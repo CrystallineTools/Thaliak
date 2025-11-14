@@ -1,4 +1,4 @@
-use axum::{Router, http::StatusCode, routing::post, Json};
+use axum::{Json, Router, http::StatusCode, routing::post};
 use eyre::Result;
 use log::info;
 use thaliak_common::webhook::AnalysisWebhookPayload;

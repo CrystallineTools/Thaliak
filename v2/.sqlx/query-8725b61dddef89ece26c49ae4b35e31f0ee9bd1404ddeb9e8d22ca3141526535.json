@@ -1,0 +1,182 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT id, repository_id, version_string, remote_url, local_path,\n                   first_seen, last_seen, size, hash_type, hash_block_size, hashes,\n                   first_offered, last_offered, is_active\n            FROM patch WHERE id = ?\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "patch",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "name": "repository_id",
+        "ordinal": 1,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "patch",
+            "name": "repository_id"
+          }
+        }
+      },
+      {
+        "name": "version_string",
+        "ordinal": 2,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "patch",
+            "name": "version_string"
+          }
+        }
+      },
+      {
+        "name": "remote_url",
+        "ordinal": 3,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "patch",
+            "name": "remote_url"
+          }
+        }
+      },
+      {
+        "name": "local_path",
+        "ordinal": 4,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "patch",
+            "name": "local_path"
+          }
+        }
+      },
+      {
+        "name": "first_seen",
+        "ordinal": 5,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "patch",
+            "name": "first_seen"
+          }
+        }
+      },
+      {
+        "name": "last_seen",
+        "ordinal": 6,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "patch",
+            "name": "last_seen"
+          }
+        }
+      },
+      {
+        "name": "size",
+        "ordinal": 7,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "patch",
+            "name": "size"
+          }
+        }
+      },
+      {
+        "name": "hash_type",
+        "ordinal": 8,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "patch",
+            "name": "hash_type"
+          }
+        }
+      },
+      {
+        "name": "hash_block_size",
+        "ordinal": 9,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "patch",
+            "name": "hash_block_size"
+          }
+        }
+      },
+      {
+        "name": "hashes",
+        "ordinal": 10,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "patch",
+            "name": "hashes"
+          }
+        }
+      },
+      {
+        "name": "first_offered",
+        "ordinal": 11,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "patch",
+            "name": "first_offered"
+          }
+        }
+      },
+      {
+        "name": "last_offered",
+        "ordinal": 12,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "patch",
+            "name": "last_offered"
+          }
+        }
+      },
+      {
+        "name": "is_active",
+        "ordinal": 13,
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "patch",
+            "name": "is_active"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "8725b61dddef89ece26c49ae4b35e31f0ee9bd1404ddeb9e8d22ca3141526535"
+}

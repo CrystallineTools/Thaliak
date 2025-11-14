@@ -45,6 +45,6 @@ ENV PUBLIC_DATABASE_URL=sqlite:///db/thaliak-public.db
 ENV PRIVATE_DATABASE_URL=sqlite:///db/thaliak-private.db
 ENV RUST_LOG=info
 
-VOLUME ["/data"]
+VOLUME ["/data", "/db"]
 
 CMD ["/app/thaliak-poller"]

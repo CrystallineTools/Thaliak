@@ -46,6 +46,6 @@ ENV PUBLIC_DATABASE_URL=sqlite:///db/thaliak-public.db
 ENV PRIVATE_DATABASE_URL=sqlite:///db/thaliak-private.db
 
 EXPOSE 8080
-VOLUME ["/data"]
+VOLUME ["/data", "/db"]
 
 CMD ["/app/thaliak-api"]

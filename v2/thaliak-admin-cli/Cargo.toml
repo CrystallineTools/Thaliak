@@ -1,0 +1,22 @@
+[package]
+name = "thaliak-admin-cli"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "thaliak-admin"
+path = "src/main.rs"
+
+[dependencies]
+thaliak-common = { path = "../thaliak-common", features = ["webhooks"] }
+thaliak-types = { path = "../thaliak-types", features = ["db"] }
+clap = { version = "4", features = ["derive", "env"] }
+tokio = { workspace = true }
+sqlx = { workspace = true, features = ["postgres"] }
+log = { workspace = true }
+eyre = { workspace = true }
+dotenvy = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }

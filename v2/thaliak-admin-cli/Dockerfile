@@ -17,7 +17,7 @@ COPY v2 v2
 ENV DATABASE_URL=sqlite://thaliak-public.db
 
 WORKDIR /build/v2
-RUN cargo build --release --package thaliak-analysis
+RUN cargo build --release --package thaliak-admin-cli
 
 # Runtime stage
 FROM debian:trixie-slim
@@ -27,6 +27,7 @@ RUN apt-get update && \
     ca-certificates \
     libssl3 \
     sqlite3 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # 999:988 match the uid/gid on the Thaliak host system
@@ -38,13 +39,12 @@ RUN groupadd -g 988 thaliak && \
 WORKDIR /app
 USER thaliak
 
-COPY --from=builder /build/v2/target/release/thaliak-analysis /app/thaliak-analysis
+COPY --from=builder /build/v2/target/release/thaliak-admin /app/thaliak-admin
 
 # Runtime database configuration
 ENV PUBLIC_DATABASE_URL=sqlite:///db/thaliak-public.db
 ENV PRIVATE_DATABASE_URL=sqlite:///db/thaliak-private.db
 
-EXPOSE 8082
 VOLUME ["/data", "/db"]
 
-CMD ["/app/thaliak-analysis"]
+ENTRYPOINT ["/app/thaliak-admin"]

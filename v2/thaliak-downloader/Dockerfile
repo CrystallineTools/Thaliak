@@ -46,6 +46,6 @@ ENV PRIVATE_DATABASE_URL=sqlite:///db/thaliak-private.db
 ENV DOWNLOAD_PATH=/data/patches
 
 EXPOSE 8081
-VOLUME ["/data"]
+VOLUME ["/data", "/db"]
 
 CMD ["/app/thaliak-downloader"]

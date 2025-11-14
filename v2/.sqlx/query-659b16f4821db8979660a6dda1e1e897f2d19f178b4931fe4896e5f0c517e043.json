@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            INSERT INTO patch (\n                id, repository_id, version_string, remote_url,\n                first_seen, last_seen, size, hash_type, hash_block_size, hashes,\n                first_offered, last_offered, is_active\n            )\n            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 13
+    },
+    "nullable": []
+  },
+  "hash": "659b16f4821db8979660a6dda1e1e897f2d19f178b4931fe4896e5f0c517e043"
+}

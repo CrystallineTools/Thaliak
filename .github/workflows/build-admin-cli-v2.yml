@@ -1,0 +1,35 @@
+name: "build image: admin-cli (v2)"
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+    paths:
+      - ".github/workflows/build-admin-cli-v2.yml"
+      - "v2/Cargo.*"
+      - "v2/thaliak-admin-cli/**"
+      - "v2/thaliak-common/**"
+      - "v2/thaliak-types/**"
+      - "v2/migrations/**"
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./v2/thaliak-admin-cli/Dockerfile
+          push: true
+          tags: ghcr.io/crystallinetools/thaliak-admin-cli:v2

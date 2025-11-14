@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["thaliak-api", "thaliak-poller", "thaliak-common", "thaliak-types", "thaliak-migrate", "thaliak-downloader", "thaliak-analysis"]
+members = ["thaliak-api", "thaliak-poller", "thaliak-common", "thaliak-types", "thaliak-downloader", "thaliak-analysis", "thaliak-admin-cli"]
 
 [workspace.dependencies]
 log = "0.4"

@@ -1,0 +1,74 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id, service_id, slug, name, description FROM repository WHERE slug = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "repository",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "name": "service_id",
+        "ordinal": 1,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "repository",
+            "name": "service_id"
+          }
+        }
+      },
+      {
+        "name": "slug",
+        "ordinal": 2,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "repository",
+            "name": "slug"
+          }
+        }
+      },
+      {
+        "name": "name",
+        "ordinal": 3,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "repository",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "name": "description",
+        "ordinal": 4,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "repository",
+            "name": "description"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "e0e1999e3cf3e068c8c84156d52af8142784f2b8d815335a772170162f043750"
+}

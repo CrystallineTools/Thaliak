@@ -1,6 +1,6 @@
 use super::{
-    BASE_GAME_VERSION, PatchDiscoveryType, PatchListEntry, Poller,
-    VersionCheckError, parse_patch_list,
+    BASE_GAME_VERSION, PatchDiscoveryType, PatchListEntry, Poller, VersionCheckError,
+    parse_patch_list,
 };
 use crate::patch::{GameRepository, PatchReconciliationService};
 use chrono::Utc;

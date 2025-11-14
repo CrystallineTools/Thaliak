@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                INSERT INTO patch_edge (\n                    repository_id, current_patch_id, next_patch_id,\n                    first_offered, last_offered, is_active\n                )\n                VALUES (?, ?, ?, ?, ?, ?)\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 6
+    },
+    "nullable": []
+  },
+  "hash": "44c933eee5147540a0418f4489ab8e0e4c44467ff6450ec0ed95e3646b43a2e9"
+}

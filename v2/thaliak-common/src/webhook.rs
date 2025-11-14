@@ -50,7 +50,10 @@ pub async fn dispatch_webhooks(db: &DatabasePools, new_patches: Vec<Patch>) -> R
                 );
 
                 if let Err(e) = send_webhook(&downloader_webhook_url, &payload).await {
-                    error!("Failed to send downloader webhook to {}: {:?}", downloader_webhook_url, e);
+                    error!(
+                        "Failed to send downloader webhook to {}: {:?}",
+                        downloader_webhook_url, e
+                    );
                 }
             });
         }
