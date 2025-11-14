@@ -14,6 +14,7 @@ import {
 import Loading from '../components/Loading';
 import ListGroup from '../components/list/ListGroup';
 import { useAuth } from '../contexts/AuthContext';
+import { discordLink } from '../constants';
 
 export default function WebhooksPage() {
   const navigate = useNavigate();
@@ -160,13 +161,40 @@ export default function WebhooksPage() {
     <div className='container mx-auto px-4 mt-8 pb-8'>
       <div className='max-w-4xl mx-auto'>
         <div className='flex items-center justify-between mb-6'>
-          <h1 className='text-3xl font-bold text-gray-800'>Manage Webhooks</h1>
+          <h1 className='text-3xl font-bold text-gray-800 inline-flex items-center gap-3'>
+            Manage Webhooks
+            <span className='inline-flex items-center px-2 py-1 text-xs font-bold uppercase bg-amber-400 text-amber-900 rounded'>
+              Beta
+            </span>
+          </h1>
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
             className='inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors'>
             <FontAwesomeIcon icon={faPlus} />
             <span>New Webhook</span>
           </button>
+        </div>
+
+        <div className='mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg'>
+          <h3 className='text-sm font-bold text-amber-900 mb-2'>Beta Feature - No Stability Guarantees</h3>
+          <p className='text-sm text-amber-800 mb-2'>
+            Webhooks are currently in beta with <strong>no expectation of stability</strong>:
+          </p>
+          <ul className='text-sm text-amber-800 list-disc list-inside space-y-1 mb-3'>
+            <li><strong>Payload structure may change</strong> without notice or versioning</li>
+            <li><strong>Delivery is not guaranteed</strong> and may be unreliable</li>
+            <li>Webhooks may be disabled, modified, or removed at any time</li>
+          </ul>
+          <p className='text-sm text-amber-800'>
+            Do not rely on webhooks for production or critical systems. Questions?{' '}
+            <a
+              href={discordLink}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='font-medium text-amber-900 hover:text-amber-950 underline'>
+              Ask in Discord
+            </a>
+          </p>
         </div>
 
         {error && (
@@ -270,6 +298,9 @@ export default function WebhooksPage() {
           <p className='text-sm text-blue-800 mb-3'>
             Webhooks will receive POST requests with new patch information whenever new patches are detected for the
             selected game services. The payload includes patches grouped by repository in JSON format.
+          </p>
+          <p className='text-sm text-blue-800 mb-3'>
+            <strong>Note:</strong> The payload structure shown below is current as of now, but may change at any time without notice during the beta period.
           </p>
           <p className='text-sm text-blue-800 mb-3'>
             Use the <FontAwesomeIcon icon={faPaperPlane} className='text-green-600' /> button next to each webhook to
