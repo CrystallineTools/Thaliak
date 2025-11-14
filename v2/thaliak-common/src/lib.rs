@@ -8,6 +8,7 @@ use std::str::FromStr;
 use std::time::Duration;
 
 pub mod logging;
+pub mod version;
 
 #[cfg(feature = "webhooks")]
 pub mod webhook;

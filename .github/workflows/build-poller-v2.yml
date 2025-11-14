@@ -10,6 +10,7 @@ on:
       - "v2/thaliak-poller/**"
       - "v2/thaliak-common/**"
       - "v2/thaliak-types/**"
+      - "v2/migrations/**"
 
 jobs:
   docker:
@@ -28,7 +29,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: ./v2/
+          context: .
           file: ./v2/thaliak-poller/Dockerfile
           push: true
           tags: ghcr.io/crystallinetools/thaliak-poller:v2

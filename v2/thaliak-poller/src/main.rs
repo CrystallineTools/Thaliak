@@ -106,7 +106,12 @@ async fn main() -> Result<()> {
     let pools = thaliak_common::init_dbs().await?;
     thaliak_common::logging::setup(None);
 
-    info!("poller service started");
+    let commit_hash = env!("GIT_COMMIT_HASH");
+    info!("poller service started (commit: {})", commit_hash);
+
+    // Update poller version in the database
+    thaliak_common::version::update_component_version(&pools.private, "poller", commit_hash)
+        .await?;
 
     let reconciliation = PatchReconciliationService::new(pools.clone());
 

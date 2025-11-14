@@ -5,15 +5,18 @@ RUN apt-get update && \
     apt-get install -y \
     pkg-config \
     libssl-dev \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
 
-COPY . .
+COPY .git .git
+COPY v2 v2
 
 # Set DATABASE_URL for compile-time SQLx verification
 ENV DATABASE_URL=sqlite://thaliak-public.db
 
+WORKDIR /build/v2
 RUN cargo build --release --package thaliak-poller
 
 # Runtime stage
@@ -35,7 +38,7 @@ RUN groupadd -g 988 thaliak && \
 WORKDIR /app
 USER thaliak
 
-COPY --from=builder /build/target/release/thaliak-poller /app/thaliak-poller
+COPY --from=builder /build/v2/target/release/thaliak-poller /app/thaliak-poller
 
 # Runtime database configuration
 ENV PUBLIC_DATABASE_URL=sqlite:///db/thaliak-public.db

@@ -73,6 +73,19 @@ export interface PatchesResponse {
   total_size: number;
 }
 
+export interface ComponentStatus {
+  component: string;
+  commit: string;
+  started_at: string;
+  uptime_seconds: number;
+}
+
+export interface StatusResponse {
+  status: string;
+  database: string;
+  components: ComponentStatus[];
+}
+
 /**
  * API Client Functions
  */
@@ -123,4 +136,11 @@ export async function getRepositoryPatches(
  */
 export async function getPatch(slug: string, version: string): Promise<Patch> {
   return apiFetch<Patch>(`/repositories/${slug}/patches/${version}`);
+}
+
+/**
+ * Get API and poller status
+ */
+export async function getStatus(): Promise<StatusResponse> {
+  return apiFetch<StatusResponse>('/status');
 }

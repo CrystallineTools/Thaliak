@@ -2,11 +2,21 @@ use serde::{Deserialize, Serialize};
 use thaliak_types::{Patch, Repository, Service};
 use utoipa::{IntoParams, ToSchema};
 
+/// Component status information
+#[derive(Debug, Serialize, ToSchema)]
+pub struct ComponentStatus {
+    pub component: String,
+    pub commit: String,
+    pub started_at: String,
+    pub uptime_seconds: i64,
+}
+
 /// API status response
 #[derive(Debug, Serialize, ToSchema)]
 pub struct StatusResponse {
     pub status: String,
     pub database: String,
+    pub components: Vec<ComponentStatus>,
 }
 
 /// List of services response

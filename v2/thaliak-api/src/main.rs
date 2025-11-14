@@ -217,6 +217,15 @@ async fn main() -> eyre::Result<()> {
 
     let auth = check_discord_config()
         .map(|(client, manager, frontend_url)| AuthData::new(client, manager, frontend_url));
+
+    // Update API version in the database
+    thaliak_common::version::update_component_version(
+        &pools.private,
+        "api",
+        env!("GIT_COMMIT_HASH"),
+    )
+    .await?;
+
     let state = AppState::new(pools, auth);
 
     let mut app = Router::new().merge(build_public_routes());
@@ -232,7 +241,11 @@ async fn main() -> eyre::Result<()> {
         .layer(middleware::from_fn(metrics::track_metrics));
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
-    info!("starting Thaliak API server on http://{}", addr);
+    info!(
+        "starting Thaliak API server on http://{} (commit: {})",
+        addr,
+        env!("GIT_COMMIT_HASH")
+    );
     info!(
         "Prometheus metrics available at http://{}:{}",
         addr.ip(),
