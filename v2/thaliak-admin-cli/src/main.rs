@@ -21,11 +21,23 @@ enum Commands {
         #[arg(help = "Patch version string (e.g., 2025.10.30.0000.0000)")]
         patch_version: String,
     },
+    #[command(about = "Tail logs for a Thaliak service")]
+    Logs {
+        #[arg(help = "Service name (analysis, api, downloader, poller)")]
+        service: String,
+    },
     #[command(about = "Migrate v1 database (Postgres) to v2 (SQLite)")]
     Migrate {
         #[arg(long, env, help = "Postgres connection string for v1 database")]
         v1_db: String,
     },
+    #[command(about = "Restart a Thaliak service")]
+    Restart {
+        #[arg(help = "Service name (analysis, api, downloader, poller)")]
+        service: String,
+    },
+    #[command(about = "Check and update local_path for all patches")]
+    UpdateLocalPaths,
 }
 
 #[tokio::main]
@@ -40,7 +52,10 @@ async fn main() -> Result<()> {
             repository_slug,
             patch_version,
         } => commands::analyse_chain::execute(repository_slug, patch_version).await?,
+        Commands::Logs { service } => commands::logs::execute(service)?,
         Commands::Migrate { v1_db } => commands::migrate::execute(v1_db).await?,
+        Commands::Restart { service } => commands::restart::execute(service)?,
+        Commands::UpdateLocalPaths => commands::update_local_paths::execute().await?,
     }
 
     Ok(())

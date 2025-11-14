@@ -1,33 +1,15 @@
 use axum::{Json, Router, extract::State, http::StatusCode, routing::post};
 use eyre::Result;
 use log::{error, info, warn};
-use regex::Regex;
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, LazyLock};
+use std::sync::Arc;
 use thaliak_common::{
     DatabasePools,
+    patch::get_local_storage_path,
     webhook::{AnalysisWebhookPayload, WebhookPayload},
 };
 use thaliak_types::{Patch, Repository};
 use tokio::sync::mpsc;
-
-static PATCH_URL_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"(?:https?://(.+?)/)?(?:ff/)?((?:game|boot)/.+)/(.*)").unwrap());
-
-fn get_local_storage_path(remote_url: &str) -> Result<String> {
-    let caps = PATCH_URL_REGEX.captures(remote_url).ok_or_else(|| {
-        eyre::Report::msg(format!(
-            "Unable to match URL to PatchUrlRegex: {}",
-            remote_url
-        ))
-    })?;
-
-    let hostname = caps.get(1).map(|m| m.as_str()).unwrap_or("");
-    let repo_path = caps.get(2).map(|m| m.as_str()).unwrap_or("");
-    let filename = caps.get(3).map(|m| m.as_str()).unwrap_or("");
-
-    Ok(format!("{}/{}/{}", hostname, repo_path, filename))
-}
 
 #[derive(Debug, Clone)]
 struct DownloadJob {

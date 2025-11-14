@@ -9,6 +9,7 @@ chrono.workspace = true
 fern = { version = "0.7", features = ["chrono", "colored"] }
 sqlx = { workspace = true }
 eyre = { workspace = true }
+regex.workspace = true
 
 # Optional dependencies for webhooks feature
 reqwest = { workspace = true, optional = true }

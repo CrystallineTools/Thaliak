@@ -28,16 +28,10 @@ RUN apt-get update && \
     libssl3 \
     sqlite3 \
     curl \
+    docker-cli \
     && rm -rf /var/lib/apt/lists/*
 
-# 999:988 match the uid/gid on the Thaliak host system
-RUN groupadd -g 988 thaliak && \
-    useradd -m -u 999 -g thaliak thaliak && \
-    mkdir -p /data && \
-    chown -R thaliak:thaliak /data
-
 WORKDIR /app
-USER thaliak
 
 COPY --from=builder /build/v2/target/release/thaliak-admin /app/thaliak-admin
 

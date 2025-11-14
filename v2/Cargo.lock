@@ -2845,6 +2845,7 @@ dependencies = [
  "color-eyre",
  "fern",
  "log",
+ "regex",
  "reqwest",
  "serde",
  "sqlx",
