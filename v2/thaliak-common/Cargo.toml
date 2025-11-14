@@ -9,3 +9,12 @@ chrono.workspace = true
 fern = { version = "0.7", features = ["chrono", "colored"] }
 sqlx = { workspace = true }
 eyre = { workspace = true }
+
+# Optional dependencies for webhooks feature
+reqwest = { version = "0.12", optional = true }
+serde = { version = "1.0", features = ["derive"], optional = true }
+tokio = { version = "1", optional = true }
+thaliak-types = { path = "../thaliak-types", features = ["db"], optional = true }
+
+[features]
+webhooks = ["reqwest", "serde", "tokio", "thaliak-types"]

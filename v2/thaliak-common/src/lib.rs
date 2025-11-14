@@ -9,6 +9,9 @@ use std::time::Duration;
 
 pub mod logging;
 
+#[cfg(feature = "webhooks")]
+pub mod webhook;
+
 #[derive(Clone)]
 pub struct DatabasePools {
     pub public: SqlitePool,

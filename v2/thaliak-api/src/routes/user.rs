@@ -5,6 +5,8 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use log::{error, info};
+use thaliak_common::webhook::{RepositoryPatches, WebhookPayload, send_webhook_async};
+use thaliak_types::{Patch, Repository};
 
 use crate::auth::AuthenticatedUser;
 use crate::db::AppState;
@@ -213,6 +215,93 @@ pub async fn delete_webhook(
     info!("User {} deleted webhook {}", claims.user_id, webhook_id);
 
     Ok(StatusCode::NO_CONTENT)
+}
+
+pub async fn test_webhook(
+    State(state): State<AppState>,
+    AuthenticatedUser(claims): AuthenticatedUser,
+    Path(webhook_id): Path<i64>,
+) -> Result<Json<WebhookPayload>, UserRouteError> {
+    let webhook = sqlx::query_as::<_, Webhook>(
+        r#"SELECT id, owner_user_id, url, created_at, subscribe_jp, subscribe_kr, subscribe_cn
+           FROM webhook
+           WHERE id = ? AND owner_user_id = ?"#,
+    )
+    .bind(webhook_id)
+    .bind(claims.user_id)
+    .fetch_optional(&state.db.private)
+    .await
+    .map_err(|e| {
+        error!("Failed to fetch webhook: {:?}", e);
+        UserRouteError::DatabaseError
+    })?
+    .ok_or(UserRouteError::WebhookNotFound)?;
+
+    let mut service_ids = Vec::new();
+    if webhook.subscribe_jp {
+        service_ids.push("jp");
+    }
+    if webhook.subscribe_kr {
+        service_ids.push("kr");
+    }
+    if webhook.subscribe_cn {
+        service_ids.push("cn");
+    }
+
+    let mut all_repo_patches = Vec::new();
+
+    for service_id in service_ids {
+        let repositories: Vec<(i64, String, String, String, Option<String>)> = sqlx::query_as(
+            r#"SELECT id, service_id, slug, name, description FROM repository WHERE service_id = ?"#,
+        )
+        .bind(service_id)
+        .fetch_all(&state.db.public)
+        .await
+        .map_err(|e| {
+            error!("Failed to fetch repositories: {:?}", e);
+            UserRouteError::DatabaseError
+        })?;
+
+        for (repo_id, repo_service_id, repo_slug, repo_name, repo_description) in repositories {
+            let patches = sqlx::query_as::<_, Patch>(
+                r#"SELECT * FROM patch
+                   WHERE repository_id = ?
+                   ORDER BY LTRIM(version_string, 'HD') DESC
+                   LIMIT 3"#,
+            )
+            .bind(repo_id)
+            .fetch_all(&state.db.public)
+            .await
+            .map_err(|e| {
+                error!("Failed to fetch patches: {:?}", e);
+                UserRouteError::DatabaseError
+            })?;
+
+            if !patches.is_empty() {
+                all_repo_patches.push(RepositoryPatches {
+                    repository: Repository {
+                        id: repo_id,
+                        service_id: repo_service_id,
+                        slug: repo_slug,
+                        name: repo_name,
+                        description: repo_description,
+                        latest_patch: None,
+                    },
+                    patches,
+                });
+            }
+        }
+    }
+
+    let payload = WebhookPayload {
+        new_patches: all_repo_patches,
+    };
+
+    send_webhook_async(webhook.url.clone(), payload.clone()).await;
+
+    info!("User {} sent test webhook {}", claims.user_id, webhook_id);
+
+    Ok(Json(payload))
 }
 
 #[derive(Debug)]

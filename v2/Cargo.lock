@@ -2689,7 +2689,11 @@ dependencies = [
  "color-eyre",
  "fern",
  "log",
+ "reqwest",
+ "serde",
  "sqlx",
+ "thaliak-types",
+ "tokio",
 ]
 
 [[package]]

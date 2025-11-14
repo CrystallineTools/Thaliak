@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTrash, faEdit, faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrash, faEdit, faSave, faTimes, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import {
   listWebhooks,
   createWebhook,
   updateWebhook,
   deleteWebhook,
+  testWebhook,
   type Webhook,
   type CreateWebhookRequest,
 } from '../api/authClient';
@@ -22,6 +23,7 @@ export default function WebhooksPage() {
   const [error, setError] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [testingId, setTestingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<CreateWebhookRequest>({
     url: '',
     subscribe_jp: true,
@@ -106,6 +108,23 @@ export default function WebhooksPage() {
     } catch (err) {
       console.error('Failed to delete webhook:', err);
       alert('Failed to delete webhook. Please try again.');
+    }
+  };
+
+  const handleTest = async (id: number) => {
+    if (!confirm('Send a test webhook with the latest 3 patches from each subscribed repository?')) {
+      return;
+    }
+
+    try {
+      setTestingId(id);
+      const response = await testWebhook(id);
+      alert(`Test webhook sent successfully! Sent ${response.new_patches?.length || 0} repository patch groups.`);
+    } catch (err) {
+      console.error('Failed to test webhook:', err);
+      alert('Failed to test webhook. Please check the webhook URL and try again.');
+    } finally {
+      setTestingId(null);
     }
   };
 
@@ -220,6 +239,14 @@ export default function WebhooksPage() {
                       </div>
                       <div className='flex gap-2 ml-4'>
                         <button
+                          onClick={() => handleTest(webhook.id)}
+                          disabled={testingId === webhook.id}
+                          className='inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-green-600 hover:bg-green-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-green-300'
+                          title='Send test webhook'>
+                          <FontAwesomeIcon icon={faPaperPlane} spin={testingId === webhook.id} />
+                          <span>Test</span>
+                        </button>
+                        <button
                           onClick={() => startEdit(webhook)}
                           className='p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors'>
                           <FontAwesomeIcon icon={faEdit} />
@@ -242,27 +269,79 @@ export default function WebhooksPage() {
           <h3 className='font-bold text-blue-900 mb-2'>About Webhooks</h3>
           <p className='text-sm text-blue-800 mb-3'>
             Webhooks will receive POST requests with new patch information whenever new patches are detected for the
-            selected game services. The payload will include patch details in JSON format.
+            selected game services. The payload includes patches grouped by repository in JSON format.
+          </p>
+          <p className='text-sm text-blue-800 mb-3'>
+            Use the <FontAwesomeIcon icon={faPaperPlane} className='text-green-600' /> button next to each webhook to
+            send a test payload with the latest 3 patches from each repository.
           </p>
           <details className='text-sm'>
             <summary className='font-medium text-blue-900 cursor-pointer hover:text-blue-700'>Example Payload</summary>
             <pre className='mt-2 p-3 bg-white rounded border border-blue-200 overflow-x-auto text-xs'>
 {`{
-  "patches": [
+  "new_patches": [
     {
-      "version_string": "2025.11.13.0000.0001",
-      "remote_url": "https://patch-dl.ffxiv.com/game/4e9a232b/D2025.11.13.0000.0001.patch",
-      "first_seen": "2025-11-13T12:34:56Z",
-      "last_seen": "2025-11-13T12:34:56Z",
-      "size": 123456789,
-      "hash": {
-        "type": "sha1",
-        "block_size": 1048576,
-        "hashes": ["abc123...", "def456..."]
+      "repository": {
+        "service_id": "jp",
+        "slug": "2b5cbc63",
+        "name": "ffxivneo/win32/release/boot",
+        "description": "FFXIV Global/JP - Retail - Boot - Win32"
       },
-      "first_offered": "2025-11-13T12:34:56Z",
-      "last_offered": "2025-11-13T12:34:56Z",
-      "is_active": true
+      "patches": [
+        {
+          "version_string": "2025.07.17.0000.0001",
+          "remote_url": "http://patch-dl.ffxiv.com/boot/2b5cbc63/D2025.07.17.0000.0001.patch",
+          "first_seen": "2025-08-05T02:28:29.309197Z",
+          "last_seen": "2025-11-13T06:47:29.717800166Z",
+          "size": 20765607,
+          "hash": {
+            "type": "none"
+          },
+          "first_offered": "2025-08-05T02:28:29.309197Z",
+          "last_offered": "2025-11-13T06:47:29.717800166Z",
+          "is_active": true
+        },
+        {
+          "version_string": "2025.05.01.0000.0001",
+          "remote_url": "http://patch-dl.ffxiv.com/boot/2b5cbc63/D2025.05.01.0000.0001.patch",
+          "first_seen": "2025-05-27T07:25:50.822517Z",
+          "last_seen": "2025-08-05T02:27:26.602577Z",
+          "size": 20749351,
+          "hash": {
+            "type": "none"
+          },
+          "first_offered": "2025-05-27T07:25:50.822517Z",
+          "last_offered": "2025-08-05T02:27:26.602577Z",
+          "is_active": false
+        }
+      ]
+    },
+    {
+      "repository": {
+        "service_id": "jp",
+        "slug": "4e9a232b",
+        "name": "ffxivneo/win32/release/game",
+        "description": "FFXIV Global/JP - Retail - Base Game - Win32"
+      },
+      "patches": [
+        {
+          "version_string": "2025.10.30.0000.0000",
+          "remote_url": "http://patch-dl.ffxiv.com/game/4e9a232b/D2025.10.30.0000.0000.patch",
+          "first_seen": "2025-11-11T07:01:27.879803Z",
+          "last_seen": "2025-11-13T06:47:33.688054283Z",
+          "size": 19737190,
+          "hash": {
+            "type": "sha1",
+            "block_size": 50000000,
+            "hashes": [
+              "a2e46a132ab717bfc27a95fca835017e0471eb4e"
+            ]
+          },
+          "first_offered": "2025-11-11T07:01:27.879803Z",
+          "last_offered": "2025-11-13T06:47:33.688054283Z",
+          "is_active": true
+        }
+      ]
     }
   ]
 }`}

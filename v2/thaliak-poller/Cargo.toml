@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-thaliak-common = { path = "../thaliak-common" }
+thaliak-common = { path = "../thaliak-common", features = ["webhooks"] }
 thaliak-types = { path = "../thaliak-types", features = ["db"] }
 zipatch = "1.0.1"
 log.workspace = true

@@ -200,6 +200,7 @@ fn build_user_routes(state: &AppState) -> Router<AppState> {
         .route("/user/webhooks/{id}", get(routes::user::get_webhook))
         .route("/user/webhooks/{id}", patch(routes::user::update_webhook))
         .route("/user/webhooks/{id}", delete(routes::user::delete_webhook))
+        .route("/user/webhooks/{id}/test", post(routes::user::test_webhook))
         .layer(middleware::from_fn_with_state(
             state.clone(),
             auth::auth_middleware,

@@ -11,7 +11,6 @@ use tokio::time::{Instant, sleep_until};
 
 mod patch;
 mod poller;
-mod webhook;
 
 pub type DbConnection = SqliteConnection;
 

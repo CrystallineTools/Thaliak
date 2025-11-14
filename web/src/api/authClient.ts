@@ -157,3 +157,12 @@ export async function deleteWebhook(id: number): Promise<void> {
     method: 'DELETE',
   });
 }
+
+/**
+ * Test a webhook by sending sample data
+ */
+export async function testWebhook(id: number): Promise<any> {
+  return authFetch<any>(`/user/webhooks/${id}/test`, {
+    method: 'POST',
+  });
+}

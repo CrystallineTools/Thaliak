@@ -4,9 +4,9 @@ use crate::poller::{PatchDiscoveryType, PatchListEntry};
 use eyre::Result;
 use log::{info, trace};
 use regex::Regex;
-use sqlx::SqlitePool;
 use std::sync::LazyLock;
 use thaliak_common::DatabasePools;
+use thaliak_common::webhook::dispatch_webhooks;
 use thaliak_types::ExpansionRepositoryMapping;
 
 fn get_expansion_from_patch_url(url: &str) -> Option<i64> {
@@ -157,7 +157,7 @@ impl PatchReconciliationService {
             let db = self.db.clone();
             let patches = new_patches.clone();
             tokio::spawn(async move {
-                if let Err(e) = crate::webhook::dispatch_webhooks(&db, patches).await {
+                if let Err(e) = dispatch_webhooks(&db, patches).await {
                     log::error!("Failed to dispatch webhooks: {:?}", e);
                 }
             });
