@@ -18,6 +18,7 @@ pub enum ApiError {
     NotFound(String),
 
     #[error("Internal server error: {0}")]
+    #[allow(dead_code)]
     Internal(String),
 
     #[error("IO error: {0}")]

@@ -1,10 +1,15 @@
+mod auth;
 mod db;
 mod error;
 mod metrics;
 mod models;
 mod routes;
+mod user_models;
 
-use axum::{Router, middleware, routing::get};
+use axum::{
+    Router, middleware,
+    routing::{delete, get, patch, post},
+};
 use log::info;
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
@@ -13,7 +18,8 @@ use utoipa::openapi::Server;
 use utoipa::{Modify, OpenApi};
 use utoipa_swagger_ui::SwaggerUi;
 
-use crate::db::AppState;
+use crate::auth::{DiscordOAuthClient, JwtManager};
+use crate::db::{AppState, AuthData};
 
 #[derive(OpenApi)]
 #[openapi(
@@ -66,14 +72,57 @@ impl Modify for PathPrefixAddon {
     }
 }
 
-#[tokio::main]
-async fn main() -> eyre::Result<()> {
-    let _ = dotenvy::dotenv();
-    let pools = thaliak_common::init_dbs().await?;
-    thaliak_common::logging::setup(None);
-    metrics::init_metrics_exporter().await?;
+fn check_discord_config() -> Option<(DiscordOAuthClient, JwtManager, String)> {
+    match (
+        std::env::var("DISCORD_CLIENT_ID").ok(),
+        std::env::var("DISCORD_CLIENT_SECRET").ok(),
+        std::env::var("DISCORD_REDIRECT_URL").ok(),
+        std::env::var("JWT_SECRET").ok(),
+        std::env::var("FRONTEND_URL").ok(),
+    ) {
+        (
+            Some(client_id),
+            Some(client_secret),
+            Some(redirect_uri),
+            Some(jwt_secret),
+            Some(frontend_url),
+        ) => {
+            info!("Discord OAuth is configured, authentication endpoints will be available");
 
-    // needed so Swagger UI works with reverse proxies
+            let bot_token = std::env::var("DISCORD_BOT_TOKEN").ok();
+            let guild_id = std::env::var("DISCORD_GUILD_ID").ok();
+
+            if bot_token.is_some() && guild_id.is_some() {
+                info!(
+                    "Discord auto-join is configured, users will be added to the server on sign-in"
+                );
+            } else {
+                info!("Discord auto-join is not configured (optional)");
+            }
+
+            Some((
+                DiscordOAuthClient::new(
+                    client_id,
+                    client_secret,
+                    redirect_uri,
+                    bot_token,
+                    guild_id,
+                ),
+                JwtManager::new(&jwt_secret),
+                frontend_url,
+            ))
+        }
+        _ => {
+            info!("Discord OAuth is not configured, authentication endpoints will be disabled");
+            info!(
+                "To enable authentication, set: DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URL, JWT_SECRET, FRONTEND_URL"
+            );
+            None
+        }
+    }
+}
+
+fn build_public_routes() -> Router<AppState> {
     let base_path = std::env::var("API_BASE_PATH").unwrap_or_default();
     let swagger = {
         let config = utoipa_swagger_ui::Config::from(format!("{}/openapi.json", base_path));
@@ -82,13 +131,12 @@ async fn main() -> eyre::Result<()> {
             .config(config)
     };
 
-    let state = AppState::new(pools);
-    let cors = CorsLayer::new()
+    let public_cors = CorsLayer::new()
         .allow_origin(Any)
         .allow_methods(Any)
         .allow_headers(Any);
 
-    let app = Router::new()
+    Router::new()
         .route("/status", get(routes::status::status))
         .route("/services", get(routes::services::get_services))
         .route("/repositories", get(routes::repositories::get_repositories))
@@ -105,9 +153,82 @@ async fn main() -> eyre::Result<()> {
             get(routes::patches::get_repository_patch),
         )
         .merge(swagger)
+        .layer(public_cors)
+}
+
+fn build_auth_routes(state: &AppState) -> Router<AppState> {
+    use axum::http::{self, Method, header};
+    let auth_data = state.auth.as_ref().expect("auth should be configured");
+    let auth_cors = CorsLayer::new()
+        .allow_origin(auth_data.frontend_url.parse::<http::HeaderValue>().unwrap())
+        .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
+        .allow_headers([header::CONTENT_TYPE, header::AUTHORIZATION])
+        .allow_credentials(true);
+
+    Router::new()
+        .route("/auth/discord/init", get(routes::auth::init_oauth))
+        .route("/auth/discord/callback", get(routes::auth::oauth_callback))
+        .route("/auth/logout", post(routes::auth::logout))
+        .route(
+            "/auth/me",
+            get(routes::auth::get_current_user).layer(middleware::from_fn_with_state(
+                state.clone(),
+                auth::auth_middleware,
+            )),
+        )
+        .layer(auth_cors)
+}
+
+fn build_user_routes(state: &AppState) -> Router<AppState> {
+    use axum::http::{self, Method, header};
+    let auth_data = state.auth.as_ref().expect("auth should be configured");
+    let user_cors = CorsLayer::new()
+        .allow_origin(auth_data.frontend_url.parse::<http::HeaderValue>().unwrap())
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::PATCH,
+            Method::DELETE,
+            Method::OPTIONS,
+        ])
+        .allow_headers([header::CONTENT_TYPE, header::AUTHORIZATION])
+        .allow_credentials(true);
+
+    Router::new()
+        .route("/user/webhooks", get(routes::user::list_webhooks))
+        .route("/user/webhooks", post(routes::user::create_webhook))
+        .route("/user/webhooks/{id}", get(routes::user::get_webhook))
+        .route("/user/webhooks/{id}", patch(routes::user::update_webhook))
+        .route("/user/webhooks/{id}", delete(routes::user::delete_webhook))
+        .layer(middleware::from_fn_with_state(
+            state.clone(),
+            auth::auth_middleware,
+        ))
+        .layer(user_cors)
+}
+
+#[tokio::main]
+async fn main() -> eyre::Result<()> {
+    let _ = dotenvy::dotenv();
+    let pools = thaliak_common::init_dbs().await?;
+    thaliak_common::logging::setup(None);
+    metrics::init_metrics_exporter().await?;
+
+    let auth = check_discord_config()
+        .map(|(client, manager, frontend_url)| AuthData::new(client, manager, frontend_url));
+    let state = AppState::new(pools, auth);
+
+    let mut app = Router::new().merge(build_public_routes());
+
+    if state.auth.is_some() {
+        app = app
+            .merge(build_auth_routes(&state))
+            .merge(build_user_routes(&state));
+    }
+
+    let app = app
         .with_state(state)
-        .layer(middleware::from_fn(metrics::track_metrics))
-        .layer(cors);
+        .layer(middleware::from_fn(metrics::track_metrics));
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
     info!("starting Thaliak API server on http://{}", addr);

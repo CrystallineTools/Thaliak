@@ -1,19 +1,43 @@
+use crate::auth::{DiscordOAuthClient, JwtManager};
 use crate::error::{ApiError, ApiResult};
 use crate::metrics;
 use sqlx::Row;
 use sqlx::sqlite::SqlitePool;
+use std::sync::Arc;
 use std::time::Instant;
 use thaliak_common::DatabasePools;
 use thaliak_types::{LatestPatchInfo, Patch, Repository, Service};
 
 #[derive(Clone)]
+pub struct AuthData {
+    pub discord_client: Arc<DiscordOAuthClient>,
+    pub jwt_manager: Arc<JwtManager>,
+    pub frontend_url: String,
+}
+
+impl AuthData {
+    pub fn new(
+        discord_client: DiscordOAuthClient,
+        jwt_manager: JwtManager,
+        frontend_url: String,
+    ) -> Self {
+        Self {
+            discord_client: Arc::new(discord_client),
+            jwt_manager: Arc::new(jwt_manager),
+            frontend_url,
+        }
+    }
+}
+
+#[derive(Clone)]
 pub struct AppState {
     pub db: DatabasePools,
+    pub auth: Option<AuthData>,
 }
 
 impl AppState {
-    pub fn new(db: DatabasePools) -> Self {
-        Self { db }
+    pub fn new(db: DatabasePools, auth: Option<AuthData>) -> Self {
+        Self { db, auth }
     }
 }
 
