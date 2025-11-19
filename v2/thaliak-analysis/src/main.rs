@@ -407,66 +407,58 @@ async fn copy_and_link_binary(
 
     tokio::fs::create_dir_all(sha256_dir.parent().unwrap()).await?;
 
-    if sha256_dir.exists() || sha256_dir.is_symlink() {
-        if let Err(e) = tokio::fs::remove_dir(&sha256_dir).await {
-            warn!("Failed to remove existing sha256 directory: {:?}", e);
+    if !sha256_dir.exists() {
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::symlink;
+            let sha1_path = PathBuf::from("..").join("sha1").join(sha1);
+            tokio::task::spawn_blocking({
+                let sha256_dir = sha256_dir.clone();
+                let sha1_path = sha1_path.clone();
+                move || symlink(&sha1_path, &sha256_dir)
+            })
+            .await??;
         }
-    }
 
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::symlink;
-        let sha1_path = PathBuf::from("../..").join("sha1").join(sha1);
-        tokio::task::spawn_blocking({
-            let sha256_dir = sha256_dir.clone();
-            let sha1_path = sha1_path.clone();
-            move || symlink(&sha1_path, &sha256_dir)
-        })
-        .await??;
-    }
-
-    #[cfg(windows)]
-    {
-        use std::os::windows::fs::symlink_dir;
-        let sha1_path = PathBuf::from("..\\..").join("sha1").join(sha1);
-        tokio::task::spawn_blocking({
-            let sha256_dir = sha256_dir.clone();
-            let sha1_path = sha1_path.clone();
-            move || symlink_dir(&sha1_path, &sha256_dir)
-        })
-        .await??;
+        #[cfg(windows)]
+        {
+            use std::os::windows::fs::symlink_dir;
+            let sha1_path = PathBuf::from("..").join("sha1").join(sha1);
+            tokio::task::spawn_blocking({
+                let sha256_dir = sha256_dir.clone();
+                let sha1_path = sha1_path.clone();
+                move || symlink_dir(&sha1_path, &sha256_dir)
+            })
+            .await??;
+        }
     }
 
     tokio::fs::create_dir_all(md5_dir.parent().unwrap()).await?;
 
-    if md5_dir.exists() || md5_dir.is_symlink() {
-        if let Err(e) = tokio::fs::remove_dir(&md5_dir).await {
-            warn!("Failed to remove existing md5 directory: {:?}", e);
+    if !md5_dir.exists() {
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::symlink;
+            let sha1_path = PathBuf::from("..").join("sha1").join(sha1);
+            tokio::task::spawn_blocking({
+                let md5_dir = md5_dir.clone();
+                let sha1_path = sha1_path.clone();
+                move || symlink(&sha1_path, &md5_dir)
+            })
+            .await??;
         }
-    }
 
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::symlink;
-        let sha1_path = PathBuf::from("../..").join("sha1").join(sha1);
-        tokio::task::spawn_blocking({
-            let md5_dir = md5_dir.clone();
-            let sha1_path = sha1_path.clone();
-            move || symlink(&sha1_path, &md5_dir)
-        })
-        .await??;
-    }
-
-    #[cfg(windows)]
-    {
-        use std::os::windows::fs::symlink_dir;
-        let sha1_path = PathBuf::from("..\\..").join("sha1").join(sha1);
-        tokio::task::spawn_blocking({
-            let md5_dir = md5_dir.clone();
-            let sha1_path = sha1_path.clone();
-            move || symlink_dir(&sha1_path, &md5_dir)
-        })
-        .await??;
+        #[cfg(windows)]
+        {
+            use std::os::windows::fs::symlink_dir;
+            let sha1_path = PathBuf::from("..").join("sha1").join(sha1);
+            tokio::task::spawn_blocking({
+                let md5_dir = md5_dir.clone();
+                let sha1_path = sha1_path.clone();
+                move || symlink_dir(&sha1_path, &md5_dir)
+            })
+            .await??;
+        }
     }
 
     Ok(())
