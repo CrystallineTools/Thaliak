@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO file (patch_id, name, sha1, sha256, md5)\n           VALUES (?, ?, ?, ?, ?)\n           ON CONFLICT (patch_id, name)\n           DO UPDATE SET sha1 = excluded.sha1, sha256 = excluded.sha256, md5 = excluded.md5",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 5
+    },
+    "nullable": []
+  },
+  "hash": "e324a40ce80b11051779aeeb5a5d7a7b4a512e8c98eeffc26b6ab46efd836ebe"
+}

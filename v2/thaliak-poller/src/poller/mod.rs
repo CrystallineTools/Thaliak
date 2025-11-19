@@ -9,7 +9,7 @@ pub mod actoz;
 pub mod shanda;
 pub mod sqex;
 
-pub const BASE_GAME_VERSION: &str = "2012.01.01.0000.0000";
+pub use thaliak_common::patch::BASE_GAME_VERSION;
 
 #[derive(Error, Debug)]
 pub enum VersionCheckError {

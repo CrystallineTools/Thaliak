@@ -1,0 +1,21 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT 1 as \"result: i64\" FROM patch_edge WHERE next_patch_id = ? AND current_patch_id IS NULL LIMIT 1",
+  "describe": {
+    "columns": [
+      {
+        "name": "result: i64",
+        "ordinal": 0,
+        "type_info": "Null",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "cd2b5b06da8cf101e23276cf2e992604dcad45c35943c648f4538b64b9743a21"
+}
