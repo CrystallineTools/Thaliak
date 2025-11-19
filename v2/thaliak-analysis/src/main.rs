@@ -77,10 +77,18 @@ async fn analyze_patch(
     analysis_binary_dir: &Path,
     download_path: &Path,
 ) -> Result<()> {
+    let repository_id = sqlx::query_scalar!(
+        r#"SELECT id FROM repository WHERE slug = ? AND service_id = ?"#,
+        payload.repository.slug,
+        payload.repository.service_id
+    )
+    .fetch_one(public_db)
+    .await?;
+
     let patch_id = sqlx::query_scalar!(
         r#"SELECT id FROM patch WHERE version_string = ? AND repository_id = ?"#,
         payload.patch.version_string,
-        payload.repository.id
+        repository_id
     )
     .fetch_one(public_db)
     .await?;
@@ -115,7 +123,7 @@ async fn analyze_patch(
                 public_db,
                 &current_version,
                 &payload.patch.version_string,
-                payload.repository.id,
+                repository_id,
             )
             .await?;
 
