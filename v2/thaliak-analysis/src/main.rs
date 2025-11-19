@@ -77,13 +77,21 @@ async fn analyze_patch(
     analysis_binary_dir: &Path,
     download_path: &Path,
 ) -> Result<()> {
+    let patch_id = sqlx::query_scalar!(
+        r#"SELECT id FROM patch WHERE version_string = ? AND repository_id = ?"#,
+        payload.patch.version_string,
+        payload.repository.id
+    )
+    .fetch_one(public_db)
+    .await?;
+
     let analysis_dir = analysis_cache_dir
         .join("gameroots")
         .join(&payload.repository.service_id);
 
     let patch_path = resolve_patch_path(&payload.local_path, download_path);
 
-    let is_root_patch = check_if_root_patch(public_db, payload.patch.id).await?;
+    let is_root_patch = check_if_root_patch(public_db, patch_id).await?;
 
     if is_root_patch {
         info!(
@@ -144,7 +152,7 @@ async fn analyze_patch(
         let analysis_dir = analysis_dir.clone();
         let public_db = public_db.clone();
         let analysis_binary_dir = analysis_binary_dir.to_path_buf();
-        let patch_id = payload.patch.id;
+        let file_patch_id = patch_id;
 
         let task = tokio::spawn(async move {
             let relative_path = file_path
@@ -156,7 +164,7 @@ async fn analyze_patch(
 
             upsert_file_record(
                 &public_db,
-                patch_id,
+                file_patch_id,
                 &relative_path,
                 &sha1_hash,
                 &sha256_hash,
