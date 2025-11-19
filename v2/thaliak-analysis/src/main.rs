@@ -5,14 +5,13 @@ use sha1::Sha1;
 use sha2::{Digest, Sha256};
 use sqlx::SqlitePool;
 use std::path::{Path, PathBuf};
-use thaliak_common::patch::GameRepository;
+use thaliak_common::patch::{BASE_GAME_VERSION, GameRepository};
 use thaliak_common::webhook::AnalysisWebhookPayload;
 use tokio::sync::mpsc;
 use walkdir::WalkDir;
 
 #[derive(Clone)]
 struct AppState {
-    public_db: SqlitePool,
     analysis_cache_dir: PathBuf,
     analysis_binary_dir: PathBuf,
     queue_tx: mpsc::UnboundedSender<AnalysisWebhookPayload>,
@@ -97,7 +96,7 @@ async fn analyze_patch(
     if let Some(game_repo) = GameRepository::from_slug(&payload.repository.slug) {
         let current_version = game_repo.get_ver(&analysis_dir);
 
-        if !is_root_patch {
+        if !is_root_patch && current_version != BASE_GAME_VERSION {
             let is_valid = validate_patch_edge(
                 public_db,
                 &current_version,
@@ -468,7 +467,6 @@ async fn main() -> Result<()> {
     let (queue_tx, queue_rx) = mpsc::unbounded_channel();
 
     let state = AppState {
-        public_db: pools.public.clone(),
         analysis_cache_dir: analysis_cache_dir.clone(),
         analysis_binary_dir: analysis_binary_dir.clone(),
         queue_tx,
