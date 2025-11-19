@@ -14,6 +14,7 @@ use walkdir::WalkDir;
 struct AppState {
     analysis_cache_dir: PathBuf,
     analysis_binary_dir: PathBuf,
+    download_path: PathBuf,
     queue_tx: mpsc::UnboundedSender<AnalysisWebhookPayload>,
 }
 
@@ -39,6 +40,7 @@ async fn process_patch_queue(
     public_db: SqlitePool,
     analysis_cache_dir: PathBuf,
     analysis_binary_dir: PathBuf,
+    download_path: PathBuf,
 ) {
     while let Some(payload) = queue_rx.recv().await {
         info!(
@@ -51,6 +53,7 @@ async fn process_patch_queue(
             &public_db,
             &analysis_cache_dir,
             &analysis_binary_dir,
+            &download_path,
         )
         .await
         {
@@ -72,10 +75,13 @@ async fn analyze_patch(
     public_db: &SqlitePool,
     analysis_cache_dir: &Path,
     analysis_binary_dir: &Path,
+    download_path: &Path,
 ) -> Result<()> {
     let analysis_dir = analysis_cache_dir
         .join("gameroots")
         .join(&payload.repository.service_id);
+
+    let patch_path = resolve_patch_path(&payload.local_path, download_path);
 
     let is_root_patch = check_if_root_patch(public_db, payload.patch.id).await?;
 
@@ -118,7 +124,7 @@ async fn analyze_patch(
             );
         }
 
-        apply_patch(&payload.local_path, &analysis_dir).await?;
+        apply_patch(&patch_path, &analysis_dir).await?;
 
         game_repo.set_ver(&analysis_dir, &payload.patch.version_string)?;
         info!("Updated .ver file to {}", payload.patch.version_string);
@@ -127,7 +133,7 @@ async fn analyze_patch(
             "Unknown repository slug {}, skipping .ver validation",
             payload.repository.slug
         );
-        apply_patch(&payload.local_path, &analysis_dir).await?;
+        apply_patch(&patch_path, &analysis_dir).await?;
     }
 
     let exe_dll_files = collect_exe_dll_files(&analysis_dir)?;
@@ -187,6 +193,15 @@ async fn analyze_patch(
     Ok(())
 }
 
+fn resolve_patch_path(local_path: &str, download_path: &Path) -> PathBuf {
+    let path = Path::new(local_path);
+    if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        download_path.join(path)
+    }
+}
+
 async fn check_if_root_patch(public_db: &SqlitePool, patch_id: i64) -> Result<bool> {
     let result = sqlx::query_scalar!(
         r#"SELECT 1 as "result: i64" FROM patch_edge WHERE next_patch_id = ? AND current_patch_id IS NULL LIMIT 1"#,
@@ -235,17 +250,17 @@ async fn validate_patch_edge(
     Ok(edge_exists.is_some())
 }
 
-async fn apply_patch(patch_path: &str, target_dir: &Path) -> Result<()> {
-    info!("Applying patch {} to {:?}", patch_path, target_dir);
+async fn apply_patch(patch_path: &Path, target_dir: &Path) -> Result<()> {
+    info!("Applying patch {} to {:?}", patch_path.display(), target_dir);
 
-    let patch_path_buf = PathBuf::from(patch_path);
-    if !patch_path_buf.exists() {
+    if !patch_path.exists() {
         return Err(eyre::Report::msg(format!(
             "Patch file does not exist: {}",
-            patch_path
+            patch_path.display()
         )));
     }
 
+    let patch_path_buf = patch_path.to_path_buf();
     let target_dir = target_dir.to_path_buf();
 
     tokio::task::spawn_blocking(move || -> Result<()> {
@@ -457,18 +472,23 @@ async fn main() -> Result<()> {
         .map_err(|_| eyre::Report::msg("ANALYSIS_CACHE_DIR environment variable is required"))?;
     let analysis_binary_dir = std::env::var("ANALYSIS_BINARY_DIR")
         .map_err(|_| eyre::Report::msg("ANALYSIS_BINARY_DIR environment variable is required"))?;
+    let download_path = std::env::var("DOWNLOAD_PATH")
+        .map_err(|_| eyre::Report::msg("DOWNLOAD_PATH environment variable is required"))?;
 
     let analysis_cache_dir = PathBuf::from(analysis_cache_dir);
     let analysis_binary_dir = PathBuf::from(analysis_binary_dir);
+    let download_path = PathBuf::from(download_path);
 
     info!("Analysis cache directory: {:?}", analysis_cache_dir);
     info!("Analysis binary directory: {:?}", analysis_binary_dir);
+    info!("Download path: {:?}", download_path);
 
     let (queue_tx, queue_rx) = mpsc::unbounded_channel();
 
     let state = AppState {
         analysis_cache_dir: analysis_cache_dir.clone(),
         analysis_binary_dir: analysis_binary_dir.clone(),
+        download_path: download_path.clone(),
         queue_tx,
     };
 
@@ -477,6 +497,7 @@ async fn main() -> Result<()> {
         pools.public,
         analysis_cache_dir,
         analysis_binary_dir,
+        download_path,
     ));
 
     let app = Router::new()
