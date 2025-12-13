@@ -1,5 +1,7 @@
 use crate::patch::PatchReconciliationService;
-use crate::poller::{Poller, actoz::ActozPoller, shanda::ShandaPoller, sqex::SqexPoller};
+use crate::poller::{
+    Poller, actoz::ActozPoller, ffxivtc::FfxivtcPoller, shanda::ShandaPoller, sqex::SqexPoller,
+};
 use chrono::{Timelike, Utc};
 use eyre::Result;
 use log::{info, warn};
@@ -100,6 +102,25 @@ async fn poll_shanda_loop(reconciliation: PatchReconciliationService, db: Sqlite
     }
 }
 
+async fn poll_ffxivtc_loop(reconciliation: PatchReconciliationService, db: SqlitePool) {
+    let mut rng = rand::rng();
+    let poller = FfxivtcPoller::new();
+
+    info!("FfxivtcPoller: starting initial poll");
+    execute_poll(&poller, &reconciliation, &db, "FfxivtcPoller").await;
+
+    loop {
+        let wait_minutes = rng.random_range(40..=59);
+        let total_wait = Duration::from_secs((wait_minutes * 60) as u64);
+
+        info!("FfxivtcPoller: sleeping for {} minutes", wait_minutes);
+        sleep_until(Instant::now() + total_wait).await;
+
+        info!("FfxivtcPoller: starting poll");
+        execute_poll(&poller, &reconciliation, &db, "FfxivtcPoller").await;
+    }
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     let _ = dotenvy::dotenv();
@@ -119,6 +140,7 @@ async fn main() -> Result<()> {
         _ = poll_sqex_loop(reconciliation.clone(), pools.public.clone()) => {},
         _ = poll_actoz_loop(reconciliation.clone(), pools.public.clone()) => {},
         _ = poll_shanda_loop(reconciliation.clone(), pools.public.clone()) => {},
+        _ = poll_ffxivtc_loop(reconciliation.clone(), pools.public.clone()) => {},
     }
 
     Ok(())
