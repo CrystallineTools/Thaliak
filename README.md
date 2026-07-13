@@ -10,7 +10,7 @@ Most people will likely want to use the public version, but you can also use the
 
 ## Features
 ### Current
-- Tracks game versions for FFXIV Global, Korea, and China
+- Tracks game versions for FFXIV Global, Korea, China, and Taiwan
   - FFXIV Global uses a service account to log in and retrieve the patch list; all other regions do not require login to obtain the patch list
   - FFXIV Global will also scrape maintenance times from the Lodestone, and use that to determine when to poll more frequently for a new patch. 
 - Provides a [GraphQL API](https://thaliak.xiv.dev/graphql) that can be consumed to retrieve patch information

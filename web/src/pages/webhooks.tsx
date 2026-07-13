@@ -30,6 +30,7 @@ export default function WebhooksPage() {
     subscribe_jp: true,
     subscribe_kr: false,
     subscribe_cn: false,
+    subscribe_tw: false,
   });
 
   useEffect(() => {
@@ -73,6 +74,7 @@ export default function WebhooksPage() {
         subscribe_jp: true,
         subscribe_kr: false,
         subscribe_cn: false,
+        subscribe_tw: false,
       });
       await loadWebhooks();
     } catch (err) {
@@ -90,6 +92,7 @@ export default function WebhooksPage() {
         subscribe_jp: true,
         subscribe_kr: false,
         subscribe_cn: false,
+        subscribe_tw: false,
       });
       await loadWebhooks();
     } catch (err) {
@@ -136,6 +139,7 @@ export default function WebhooksPage() {
       subscribe_jp: webhook.subscribe_jp,
       subscribe_kr: webhook.subscribe_kr,
       subscribe_cn: webhook.subscribe_cn,
+      subscribe_tw: webhook.subscribe_tw,
     });
   };
 
@@ -146,6 +150,7 @@ export default function WebhooksPage() {
       subscribe_jp: true,
       subscribe_kr: false,
       subscribe_cn: false,
+      subscribe_tw: false,
     });
   };
 
@@ -217,6 +222,7 @@ export default function WebhooksPage() {
                   subscribe_jp: true,
                   subscribe_kr: false,
                   subscribe_cn: false,
+                  subscribe_tw: false,
                 });
               }}
             />
@@ -259,6 +265,9 @@ export default function WebhooksPage() {
                           )}
                           {webhook.subscribe_cn && (
                             <span className='px-2 py-1 text-xs bg-red-100 text-red-800 rounded'>CN</span>
+                          )}
+                          {webhook.subscribe_tw && (
+                            <span className='px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded'>TW</span>
                           )}
                         </div>
                         <div className='text-xs text-gray-500 mt-2'>
@@ -434,6 +443,15 @@ function WebhookForm({ formData, setFormData, onSave, onCancel }: WebhookFormPro
               className='rounded'
             />
             <span className='text-sm'>CN (China)</span>
+          </label>
+          <label className='flex items-center gap-2'>
+            <input
+              type='checkbox'
+              checked={formData.subscribe_tw}
+              onChange={(e) => setFormData({ ...formData, subscribe_tw: e.target.checked })}
+              className='rounded'
+            />
+            <span className='text-sm'>TW (Taiwan)</span>
           </label>
         </div>
       </div>

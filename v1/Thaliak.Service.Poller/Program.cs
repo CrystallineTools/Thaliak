@@ -9,6 +9,7 @@ using Thaliak.Common.Database;
 using Thaliak.Service.Poller.Download;
 using Thaliak.Service.Poller.Polling;
 using Thaliak.Service.Poller.Polling.Actoz;
+using Thaliak.Service.Poller.Polling.Ffxivtc;
 using Thaliak.Service.Poller.Polling.Shanda;
 using Thaliak.Service.Poller.Polling.Sqex;
 using Thaliak.Service.Poller.Polling.Sqex.Lodestone.Maintenance;
@@ -50,6 +51,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddScoped<SqexPollerService>();
         services.AddScoped<ActozPollerService>();
         services.AddScoped<ShandaPollerService>();
+        services.AddScoped<FfxivtcPollerService>();
 
         services.AddScoped<HttpClient>(_ =>
         {
@@ -94,9 +96,10 @@ var host = Host.CreateDefaultBuilder(args)
             q.AddPollJob<SqexLoginPollJob, SqexPollerService>(DateTime.UtcNow.AddSeconds(15));
             q.AddPollJob<SqexFutureScrapeJob, SqexFutureScraperService>(DateTime.UtcNow.AddSeconds(15));
 
-            // KR/CN can start instantly
+            // KR/CN/TW can start instantly
             q.AddPollJob<ActozPatchListPollJob, ActozPollerService>();
             q.AddPollJob<ShandaPatchListPollJob, ShandaPollerService>();
+            q.AddPollJob<FfxivtcPatchListPollJob, FfxivtcPollerService>();
         });
 
         services.AddQuartzHostedService(o => { o.WaitForJobsToComplete = true; });

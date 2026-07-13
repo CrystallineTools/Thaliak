@@ -18,7 +18,7 @@ pub async fn list_webhooks(
 ) -> Result<Json<WebhooksResponse>, UserRouteError> {
     let webhooks = sqlx::query_as::<_, Webhook>(
         r#"
-        SELECT id, owner_user_id, url, created_at, subscribe_jp, subscribe_kr, subscribe_cn
+        SELECT id, owner_user_id, url, created_at, subscribe_jp, subscribe_kr, subscribe_cn, subscribe_tw
         FROM webhook
         WHERE owner_user_id = ?
         ORDER BY created_at DESC
@@ -48,8 +48,8 @@ pub async fn create_webhook(
 
     let webhook_id: i64 = sqlx::query_scalar(
         r#"
-        INSERT INTO webhook (owner_user_id, url, subscribe_jp, subscribe_kr, subscribe_cn)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO webhook (owner_user_id, url, subscribe_jp, subscribe_kr, subscribe_cn, subscribe_tw)
+        VALUES (?, ?, ?, ?, ?, ?)
         RETURNING id
         "#,
     )
@@ -58,6 +58,7 @@ pub async fn create_webhook(
     .bind(payload.subscribe_jp)
     .bind(payload.subscribe_kr)
     .bind(payload.subscribe_cn)
+    .bind(payload.subscribe_tw)
     .fetch_one(&state.db.private)
     .await
     .map_err(|e| {
@@ -67,7 +68,7 @@ pub async fn create_webhook(
 
     let webhook = sqlx::query_as::<_, Webhook>(
         r#"
-        SELECT id, owner_user_id, url, created_at, subscribe_jp, subscribe_kr, subscribe_cn
+        SELECT id, owner_user_id, url, created_at, subscribe_jp, subscribe_kr, subscribe_cn, subscribe_tw
         FROM webhook
         WHERE id = ?
         "#,
@@ -95,7 +96,7 @@ pub async fn get_webhook(
 ) -> Result<Json<Webhook>, UserRouteError> {
     let webhook = sqlx::query_as::<_, Webhook>(
         r#"
-        SELECT id, owner_user_id, url, created_at, subscribe_jp, subscribe_kr, subscribe_cn
+        SELECT id, owner_user_id, url, created_at, subscribe_jp, subscribe_kr, subscribe_cn, subscribe_tw
         FROM webhook
         WHERE id = ? AND owner_user_id = ?
         "#,
@@ -139,7 +140,7 @@ pub async fn update_webhook(
     }
 
     let current = sqlx::query_as::<_, Webhook>(
-        r#"SELECT id, owner_user_id, url, created_at, subscribe_jp, subscribe_kr, subscribe_cn FROM webhook WHERE id = ?"#,
+        r#"SELECT id, owner_user_id, url, created_at, subscribe_jp, subscribe_kr, subscribe_cn, subscribe_tw FROM webhook WHERE id = ?"#,
     )
     .bind(existing)
     .fetch_one(&state.db.private)
@@ -153,11 +154,12 @@ pub async fn update_webhook(
     let new_jp = payload.subscribe_jp.unwrap_or(current.subscribe_jp);
     let new_kr = payload.subscribe_kr.unwrap_or(current.subscribe_kr);
     let new_cn = payload.subscribe_cn.unwrap_or(current.subscribe_cn);
+    let new_tw = payload.subscribe_tw.unwrap_or(current.subscribe_tw);
 
     sqlx::query(
         r#"
         UPDATE webhook
-        SET url = ?, subscribe_jp = ?, subscribe_kr = ?, subscribe_cn = ?
+        SET url = ?, subscribe_jp = ?, subscribe_kr = ?, subscribe_cn = ?, subscribe_tw = ?
         WHERE id = ?
         "#,
     )
@@ -165,6 +167,7 @@ pub async fn update_webhook(
     .bind(new_jp)
     .bind(new_kr)
     .bind(new_cn)
+    .bind(new_tw)
     .bind(webhook_id)
     .execute(&state.db.private)
     .await
@@ -175,7 +178,7 @@ pub async fn update_webhook(
 
     let webhook = sqlx::query_as::<_, Webhook>(
         r#"
-        SELECT id, owner_user_id, url, created_at, subscribe_jp, subscribe_kr, subscribe_cn
+        SELECT id, owner_user_id, url, created_at, subscribe_jp, subscribe_kr, subscribe_cn, subscribe_tw
         FROM webhook
         WHERE id = ?
         "#,
@@ -223,7 +226,7 @@ pub async fn test_webhook(
     Path(webhook_id): Path<i64>,
 ) -> Result<Json<WebhookPayload>, UserRouteError> {
     let webhook = sqlx::query_as::<_, Webhook>(
-        r#"SELECT id, owner_user_id, url, created_at, subscribe_jp, subscribe_kr, subscribe_cn
+        r#"SELECT id, owner_user_id, url, created_at, subscribe_jp, subscribe_kr, subscribe_cn, subscribe_tw
            FROM webhook
            WHERE id = ? AND owner_user_id = ?"#,
     )
@@ -246,6 +249,9 @@ pub async fn test_webhook(
     }
     if webhook.subscribe_cn {
         service_ids.push("cn");
+    }
+    if webhook.subscribe_tw {
+        service_ids.push("tw");
     }
 
     let mut all_repo_patches = Vec::new();

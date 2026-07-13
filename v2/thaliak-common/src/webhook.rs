@@ -14,6 +14,7 @@ struct Webhook {
     subscribe_jp: bool,
     subscribe_kr: bool,
     subscribe_cn: bool,
+    subscribe_tw: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -60,7 +61,7 @@ pub async fn dispatch_webhooks(db: &DatabasePools, new_patches: Vec<Patch>) -> R
     }
 
     let webhooks = sqlx::query_as::<_, Webhook>(
-        r#"SELECT id, url, subscribe_jp, subscribe_kr, subscribe_cn FROM webhook"#,
+        r#"SELECT id, url, subscribe_jp, subscribe_kr, subscribe_cn, subscribe_tw FROM webhook"#,
     )
     .fetch_all(&db.private)
     .await?;
@@ -179,6 +180,7 @@ async fn filter_patches_for_webhook(
             "jp" => webhook.subscribe_jp,
             "kr" => webhook.subscribe_kr,
             "cn" => webhook.subscribe_cn,
+            "tw" => webhook.subscribe_tw,
             _ => {
                 warn!("Unknown service_id: {}", service_id);
                 false

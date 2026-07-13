@@ -25,6 +25,7 @@ export interface Webhook {
   subscribe_jp: boolean;
   subscribe_kr: boolean;
   subscribe_cn: boolean;
+  subscribe_tw: boolean;
 }
 
 export interface WebhooksResponse {
@@ -37,6 +38,7 @@ export interface CreateWebhookRequest {
   subscribe_jp: boolean;
   subscribe_kr: boolean;
   subscribe_cn: boolean;
+  subscribe_tw: boolean;
 }
 
 export interface UpdateWebhookRequest {
@@ -44,6 +46,7 @@ export interface UpdateWebhookRequest {
   subscribe_jp?: boolean;
   subscribe_kr?: boolean;
   subscribe_cn?: boolean;
+  subscribe_tw?: boolean;
 }
 
 /**
