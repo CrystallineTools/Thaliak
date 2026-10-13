@@ -3,7 +3,7 @@ use crate::poller::{Poller, actoz::ActozPoller, shanda::ShandaPoller, sqex::Sqex
 use chrono::{Timelike, Utc};
 use eyre::Result;
 use log::{info, warn};
-use rand::Rng;
+use rand::RngExt;
 use sqlx::{SqliteConnection, SqlitePool};
 use std::fmt::Debug;
 use std::time::Duration;

@@ -10,11 +10,11 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 chrono = "0.4"
 tokio = { version = "1", features = ["full"] }
-reqwest = { version = "0.12", features = ["json"] }
+reqwest = { version = "0.13", default-features = false, features = ["json", "form", "native-tls-no-alpn", "charset", "http2", "system-proxy"] }
 regex = "1"
 dotenvy = "0.15"
-sqlx = { version = "0.9.0-alpha.1", features = ["sqlite", "migrate", "runtime-tokio", "chrono", "sqlx-toml"] }
-jsonwebtoken = { version = "10", features = ["rust_crypto"] }
+sqlx = { version = "0.9.0", features = ["sqlite", "migrate", "runtime-tokio", "chrono", "sqlx-toml"] }
+jsonwebtoken = { version = "11", features = ["rust_crypto"] }
 urlencoding = "2"
 uuid = { version = "1", features = ["v4"] }
 axum = "0.8"

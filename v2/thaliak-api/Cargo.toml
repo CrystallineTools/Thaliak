@@ -8,9 +8,9 @@ thaliak-types = { path = "../thaliak-types", features = ["db", "openapi"] }
 thaliak-common = { path = "../thaliak-common", features = ["webhooks"] }
 axum = { workspace = true }
 axum-extra = { workspace = true }
-tower-http = { version = "0.6", features = ["cors", "fs"] }
-utoipa = { version = "5", features = ["axum_extras", "chrono"] }
-utoipa-swagger-ui = { version = "9", features = ["axum"] }
+tower-http = { version = "0.7", features = ["cors", "fs"] }
+utoipa = { version = "6", features = ["axum_extras", "chrono"] }
+utoipa-swagger-ui = { version = "10", features = ["axum"] }
 tokio = { workspace = true }
 sqlx = { workspace = true }
 serde = { workspace = true }
@@ -26,4 +26,4 @@ urlencoding = { workspace = true }
 uuid = { workspace = true }
 time = { workspace = true }
 metrics = "0.24"
-metrics-exporter-prometheus = { version = "0.17", default-features = false, features = ["http-listener"] }
+metrics-exporter-prometheus = { version = "0.18", default-features = false, features = ["http-listener"] }

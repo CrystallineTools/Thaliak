@@ -11,7 +11,7 @@ chrono = { workspace = true, features = ["serde"] }
 sqlx = { workspace = true, optional = true }
 
 # Optional OpenAPI support
-utoipa = { version = "5", optional = true, features = ["chrono"] }
+utoipa = { version = "6", optional = true, features = ["chrono"] }
 
 [features]
 default = []
