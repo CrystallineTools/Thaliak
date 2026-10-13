@@ -56,7 +56,19 @@ var host = Host.CreateDefaultBuilder(args)
 #if !WIN32
             var sslOptions = new SslClientAuthenticationOptions()
             {
-                CipherSuitesPolicy = new CipherSuitesPolicy(new[] { TlsCipherSuite.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384 })
+                // SE's login edge dropped DHE-RSA on 2026-10-05 and now only negotiates ECDHE (ECDSA cert),
+                // so offer ECDHE and TLS 1.3 suites too; DHE-RSA stays as a fallback for older endpoints.
+                CipherSuitesPolicy = new CipherSuitesPolicy(new[]
+                {
+                    TlsCipherSuite.TLS_AES_256_GCM_SHA384,
+                    TlsCipherSuite.TLS_AES_128_GCM_SHA256,
+                    TlsCipherSuite.TLS_CHACHA20_POLY1305_SHA256,
+                    TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+                    TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+                    TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+                    TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                    TlsCipherSuite.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,
+                })
             };
 
             var handler = new SocketsHttpHandler
