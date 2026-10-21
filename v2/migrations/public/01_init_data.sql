@@ -2,7 +2,8 @@
 INSERT INTO service (id, name, icon)
 VALUES ('jp', 'FFXIV Global', '🇺🇳'),
        ('kr', 'FFXIV Korea', '🇰🇷'),
-       ('cn', 'FFXIV China', '🇨🇳');
+       ('cn', 'FFXIV China', '🇨🇳'),
+       ('tw', 'FFXIV Taiwan', '🇹🇼');
 
 -- repository
 INSERT INTO repository (id, name, description, slug, service_id)
@@ -24,7 +25,13 @@ VALUES (1, 'ffxivneo/win32/release/boot', 'FFXIV Global/JP - Retail - Boot - Win
        (16, 'shanda/win32/release_chs/ex4', 'FFXIV China - Retail - ex4 (Endwalker) - Win32', '0728f998', 'cn'),
        (17, 'ffxivneo/win32/release/ex5', 'FFXIV Global/JP - Retail - ex5 (Dawntrail) - Win32', '6cfeab11', 'jp'),
        (18, 'actoz/win32/release_ko/ex5', 'FFXIV Korea - Retail - ex5 (Dawntrail) - Win32', '5050481e', 'kr'),
-       (19, 'shanda/win32/release_chs/ex5', 'FFXIV China - Retail - ex5 (Dawntrail) - Win32', '702fc90e', 'cn');
+       (19, 'shanda/win32/release_chs/ex5', 'FFXIV China - Retail - ex5 (Dawntrail) - Win32', '702fc90e', 'cn'),
+       (20, 'ffxivtc/win32/release_tc/game', 'FFXIV Taiwan - Retail - Base Game - Win32', '0b90d03e', 'tw'),
+       (21, 'ffxivtc/win32/release_tc/ex1', 'FFXIV Taiwan - Retail - ex1 (Heavensward) - Win32', 'be3c0f25', 'tw'),
+       (22, 'ffxivtc/win32/release_tc/ex2', 'FFXIV Taiwan - Retail - ex2 (Stormblood) - Win32', '27355e9f', 'tw'),
+       (23, 'ffxivtc/win32/release_tc/ex3', 'FFXIV Taiwan - Retail - ex3 (Shadowbringers) - Win32', '50326e09', 'tw'),
+       (24, 'ffxivtc/win32/release_tc/ex4', 'FFXIV Taiwan - Retail - ex4 (Endwalker) - Win32', 'ce56fbaa', 'tw'),
+       (25, 'ffxivtc/win32/release_tc/ex5', 'FFXIV Taiwan - Retail - ex5 (Dawntrail) - Win32', 'b951cb3c', 'tw');
 
 -- expansion
 INSERT INTO expansion (id,
@@ -35,12 +42,12 @@ INSERT INTO expansion (id,
                        name_ko,
                        name_cn,
                        name_tw)
-VALUES (0, 'A Realm Reborn', '新生エオルゼア', 'A Realm Reborn', 'A Realm Reborn', '신생 에오르제아', '重生之境', ''),
-       (1, 'Heavensward', '蒼天のイシュガルド', 'Heavensward', 'Heavensward', '창천의 이슈가르드', '苍穹之禁城', ''),
-       (2, 'Stormblood', '紅蓮のリベレーター', 'Stormblood', 'Stormblood', '홍련의 해방자', '红莲之狂潮', ''),
-       (3, 'Shadowbringers', '漆黒のヴィランズ', 'Shadowbringers', 'Shadowbringers', '칠흑의 반역자', '暗影之逆焰', ''),
-       (4, 'Endwalker', '暁月のフィナーレ', 'Endwalker', 'Endwalker', '효월의 종언', '晓月之终途', ''),
-       (5, 'Dawntrail', '黄金のレガシー', 'Dawntrail', 'Dawntrail', '황금의 유산', '金曦之遗辉', '');
+VALUES (0, 'A Realm Reborn', '新生エオルゼア', 'A Realm Reborn', 'A Realm Reborn', '신생 에오르제아', '重生之境', '新生艾奧傑亞'),
+       (1, 'Heavensward', '蒼天のイシュガルド', 'Heavensward', 'Heavensward', '창천의 이슈가르드', '苍穹之禁城', '蒼天伊修加爾德'),
+       (2, 'Stormblood', '紅蓮のリベレーター', 'Stormblood', 'Stormblood', '홍련의 해방자', '红莲之狂潮', '紅蓮解放者'),
+       (3, 'Shadowbringers', '漆黒のヴィランズ', 'Shadowbringers', 'Shadowbringers', '칠흑의 반역자', '暗影之逆焰', '漆黑反叛者'),
+       (4, 'Endwalker', '暁月のフィナーレ', 'Endwalker', 'Endwalker', '효월의 종언', '晓月之终途', '曉月之終途'),
+       (5, 'Dawntrail', '黄金のレガシー', 'Dawntrail', 'Dawntrail', '황금의 유산', '金曦之遗辉', '黃金遺產');
 
 -- expansion_repository_mapping
 INSERT INTO expansion_repository_mapping (game_repository_id, expansion_id, expansion_repository_id)
@@ -61,4 +68,10 @@ VALUES (2, 0, 2),
        (12, 4, 16),
        (2, 5, 17),
        (7, 5, 18),
-       (12, 5, 19);
+       (12, 5, 19),
+       (20, 0, 20),
+       (20, 1, 21),
+       (20, 2, 22),
+       (20, 3, 23),
+       (20, 4, 24),
+       (20, 5, 25);

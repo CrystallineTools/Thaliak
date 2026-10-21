@@ -6,6 +6,7 @@ use std::time::Duration;
 use thiserror::Error;
 
 pub mod actoz;
+pub mod ffxivtc;
 pub mod shanda;
 pub mod sqex;
 
