@@ -189,6 +189,12 @@ public class ThaliakContext : DbContext
                     Id = 3,
                     Name = "FFXIV China",
                     Icon = "🇨🇳"
+                },
+                new XivService
+                {
+                    Id = 4,
+                    Name = "FFXIV Taiwan",
+                    Icon = "🇹🇼"
                 }
             );
 
@@ -332,6 +338,49 @@ public class ThaliakContext : DbContext
                         Name = "shanda/win32/release_chs/ex5",
                         Description = "FFXIV China - Retail - ex5 (Dawntrail) - Win32",
                         ServiceId = 3
+                    },
+                    // Taiwan
+                    new()
+                    {
+                        Id = 20,
+                        Name = "ffxivtc/win32/release_tc/game",
+                        Description = "FFXIV Taiwan - Retail - Base Game - Win32",
+                        ServiceId = 4
+                    },
+                    new()
+                    {
+                        Id = 21,
+                        Name = "ffxivtc/win32/release_tc/ex1",
+                        Description = "FFXIV Taiwan - Retail - ex1 (Heavensward) - Win32",
+                        ServiceId = 4
+                    },
+                    new()
+                    {
+                        Id = 22,
+                        Name = "ffxivtc/win32/release_tc/ex2",
+                        Description = "FFXIV Taiwan - Retail - ex2 (Stormblood) - Win32",
+                        ServiceId = 4
+                    },
+                    new()
+                    {
+                        Id = 23,
+                        Name = "ffxivtc/win32/release_tc/ex3",
+                        Description = "FFXIV Taiwan - Retail - ex3 (Shadowbringers) - Win32",
+                        ServiceId = 4
+                    },
+                    new()
+                    {
+                        Id = 24,
+                        Name = "ffxivtc/win32/release_tc/ex4",
+                        Description = "FFXIV Taiwan - Retail - ex4 (Endwalker) - Win32",
+                        ServiceId = 4
+                    },
+                    new()
+                    {
+                        Id = 25,
+                        Name = "ffxivtc/win32/release_tc/ex5",
+                        Description = "FFXIV Taiwan - Retail - ex5 (Dawntrail) - Win32",
+                        ServiceId = 4
                     }
                 }
             );
@@ -359,7 +408,14 @@ public class ThaliakContext : DbContext
                 new XivExpansionRepositoryMapping {GameRepositoryId = 12, ExpansionId = 2, ExpansionRepositoryId = 14},
                 new XivExpansionRepositoryMapping {GameRepositoryId = 12, ExpansionId = 3, ExpansionRepositoryId = 15},
                 new XivExpansionRepositoryMapping {GameRepositoryId = 12, ExpansionId = 4, ExpansionRepositoryId = 16},
-                new XivExpansionRepositoryMapping {GameRepositoryId = 12, ExpansionId = 5, ExpansionRepositoryId = 19}
+                new XivExpansionRepositoryMapping {GameRepositoryId = 12, ExpansionId = 5, ExpansionRepositoryId = 19},
+                // Taiwan
+                new XivExpansionRepositoryMapping {GameRepositoryId = 20, ExpansionId = 0, ExpansionRepositoryId = 20},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 20, ExpansionId = 1, ExpansionRepositoryId = 21},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 20, ExpansionId = 2, ExpansionRepositoryId = 22},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 20, ExpansionId = 3, ExpansionRepositoryId = 23},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 20, ExpansionId = 4, ExpansionRepositoryId = 24},
+                new XivExpansionRepositoryMapping {GameRepositoryId = 20, ExpansionId = 5, ExpansionRepositoryId = 25}
             );
     }
 }

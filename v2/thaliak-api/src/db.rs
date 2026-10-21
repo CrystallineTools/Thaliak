@@ -71,6 +71,7 @@ pub async fn get_repositories(pool: &SqlitePool) -> ApiResult<Vec<Repository>> {
                 WHEN 'jp' THEN 1
                 WHEN 'kr' THEN 2
                 WHEN 'cn' THEN 3
+                WHEN 'tw' THEN 4
                 ELSE 4
             END, r.id"#,
     )

@@ -20,6 +20,7 @@ pub struct Webhook {
     pub subscribe_jp: bool,
     pub subscribe_kr: bool,
     pub subscribe_cn: bool,
+    pub subscribe_tw: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -28,6 +29,7 @@ pub struct CreateWebhookRequest {
     pub subscribe_jp: bool,
     pub subscribe_kr: bool,
     pub subscribe_cn: bool,
+    pub subscribe_tw: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -36,6 +38,7 @@ pub struct UpdateWebhookRequest {
     pub subscribe_jp: Option<bool>,
     pub subscribe_kr: Option<bool>,
     pub subscribe_cn: Option<bool>,
+    pub subscribe_tw: Option<bool>,
 }
 
 #[derive(Debug, Serialize)]

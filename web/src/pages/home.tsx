@@ -13,7 +13,8 @@ interface RepositoryGroup {
 const GroupIcons: { [key: string]: string } = {
   'FFXIV Global/JP': '🇺🇳',
   'FFXIV Korea': '🇰🇷',
-  'FFXIV China': '🇨🇳'
+  'FFXIV China': '🇨🇳',
+  'FFXIV Taiwan': '🇹🇼'
 };
 
 export default function HomePage() {
